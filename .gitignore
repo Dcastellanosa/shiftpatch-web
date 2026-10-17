@@ -1,0 +1,49 @@
+# Local AI-agent tooling (machine-specific; may contain absolute paths)
+.agents/
+.claude/
+.codex/
+.kiro/
+skills/
+skills-lock.json
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr
+*.tsbuildinfo
+
+# Environment files (never commit secrets; .env.example is the template)
+.env
+.env.*
+!.env.example
+*.local
+
+# Vercel local files
+.vercel/
+
+# Test output
+coverage/
+playwright-report
+test-results
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
