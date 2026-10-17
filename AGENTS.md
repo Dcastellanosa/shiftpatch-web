@@ -39,8 +39,16 @@ Run all of these. CI (`.github/workflows/ci.yml`) runs the same steps on every p
 pnpm install --frozen-lockfile
 pnpm typecheck
 pnpm lint
-pnpm test        # Vitest (tests/**/*.test.ts)
+pnpm test        # Vitest (tests/**/*.test.{ts,tsx}): API client, components, BFF boundary
 pnpm build
+```
+
+For workflow changes, also run the Playwright flow against a running, seeded shiftpatch-api
+(see README → End-to-end test):
+
+```bash
+pnpm exec playwright install chromium   # once
+pnpm test:e2e                           # needs E2E_PASSWORD (in .env.e2e.local)
 ```
 
 ## Security rules
@@ -56,6 +64,8 @@ pnpm build
 - Do not commit machine-specific files or files containing local absolute paths (agent tooling directories such as
   `.claude/`, `.codex/`, `.kiro/`, `.agents/`, `skills/` are gitignored for this reason).
 - Do not add analytics, third-party scripts, or new runtime dependencies without stating why.
+- Routing is a small History API router (`src/lib/router.ts`). There is no routing dependency. Role-based route
+  guards are UX only. The API returns 401/403/404 regardless.
 
 ## AI session transcripts
 
