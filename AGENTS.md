@@ -12,17 +12,20 @@ separate `shiftpatch-api` repository (Express + TypeScript on Vercel). Supabase 
 
 Architecture rules:
 
-- All business data and shift operations go through the Express API (`VITE_API_URL`). The browser must not query
-  Supabase tables or RPCs directly.
-- The Supabase client in the browser is used for **authentication only** (sign-in, sign-out, session, access token).
+- Backend-for-frontend (BFF): React only renders UI and calls the API through same-origin `/api/*` paths via
+  `src/lib/api-client.ts`. The Vite dev proxy (local) and `vercel.json` (deployed) forward `/api/*` to shiftpatch-api.
+- React **never** uses Supabase: no `@supabase/*` dependency, no Supabase client, no `VITE_SUPABASE_*` variables.
+  `tests/no-supabase.test.ts` enforces this.
+- Sessions live in HttpOnly cookies managed by the API. React never reads, decodes, stores, or validates tokens.
+  `GET /api/auth/me` (via `SessionProvider` / `useSession`) is the only source of session truth.
 - Authorization decisions (roles, ownership, credential validity, shift availability) are enforced by the API and
   the database. Client-side checks are UX only, never security.
 
 ## Development workflow
 
 1. Prerequisites: Node.js 24.x, pnpm (pinned in `package.json` → `packageManager`).
-2. `pnpm install` then `cp .env.example .env.local` and fill in values.
-3. `pnpm dev` runs the app at http://localhost:5173. Run `shiftpatch-api` locally for API calls.
+2. `pnpm install`. No environment variables are required locally (`.env.example` lists optional ones).
+3. Start `shiftpatch-api` (`pnpm dev` there, port 3000), then `pnpm dev` here (http://localhost:5173).
 4. Make small, focused changes. Keep commits scoped to one concern with a conventional prefix
    (`feat:`, `fix:`, `chore:`, `test:`, `docs:`, `refactor:`).
 5. Run the full verification suite (below) before every commit. Do not commit with failing checks.
@@ -36,20 +39,20 @@ Run all of these. CI (`.github/workflows/ci.yml`) runs the same steps on every p
 pnpm install --frozen-lockfile
 pnpm typecheck
 pnpm lint
+pnpm test        # Vitest (tests/**/*.test.ts)
 pnpm build
 ```
-
-No test runner is configured yet. When one is added, add its command here and to CI.
 
 ## Security rules
 
 - Never commit secrets. `.env`, `.env.*` (except `.env.example`) and `.vercel/` are gitignored. Keep it that way.
-- Every `VITE_*` variable is bundled into public JavaScript. Only public values belong there: the API URL, the
-  Supabase URL, and the Supabase publishable (anon) key.
-- **Never** place the Supabase secret / service-role key, a JWT secret, or any other credential in this repository,
-  its environment variables, or client code.
-- Send the user's Supabase access token to the API as `Authorization: Bearer <token>`. Do not store tokens in
-  `localStorage` yourself. Rely on the Supabase client's session handling.
+- Every `VITE_*` variable is bundled into public JavaScript. The app currently needs none. Never add Supabase
+  keys, URLs, or any other credential to this repository, its environment variables, or client code.
+- Call the backend only through `src/lib/api-client.ts`: relative `/api` paths with `credentials: 'include'`.
+  Never call the API by absolute URL, send `Authorization` headers, or store session data in `localStorage`,
+  `sessionStorage`, IndexedDB, or `document.cookie`.
+- Never send user IDs, roles, agency IDs, or credential state as authority. The API derives identity from its own
+  session cookies.
 - Do not commit machine-specific files or files containing local absolute paths (agent tooling directories such as
   `.claude/`, `.codex/`, `.kiro/`, `.agents/`, `skills/` are gitignored for this reason).
 - Do not add analytics, third-party scripts, or new runtime dependencies without stating why.
@@ -62,6 +65,6 @@ AI-assisted work is part of the hiring-challenge deliverable.
   otherwise modify transcripts or agent session history.
 - **Never paste secrets, tokens, credentials, or private environment values into an AI chat.** Because transcripts
   are kept verbatim, anything shared in a session becomes part of the deliverable. Refer to secrets by variable name
-  only (e.g. `SUPABASE_SECRET_KEY`), never by value.
+  only (e.g. `SUPABASE_SERVICE_ROLE_KEY`), never by value.
 - Transcripts may be stored in this repository (e.g. `docs/ai-transcripts/YYYY-MM-DD-<topic>.md`) or delivered
   separately from the public repository if that is more appropriate.

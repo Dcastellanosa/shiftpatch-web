@@ -1,0 +1,49 @@
+import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { join, relative } from 'node:path'
+import { describe, expect, it } from 'vitest'
+
+const ROOT = join(import.meta.dirname, '..')
+const SRC = join(ROOT, 'src')
+
+function sourceFiles(dir: string): string[] {
+  return readdirSync(dir).flatMap((entry) => {
+    const path = join(dir, entry)
+    if (statSync(path).isDirectory()) return sourceFiles(path)
+    return /\.(ts|tsx|js|jsx|mjs|cjs)$/.test(entry) ? [path] : []
+  })
+}
+
+describe('BFF boundary: the frontend never talks to Supabase', () => {
+  const files = sourceFiles(SRC)
+
+  it('finds source files to check', () => {
+    expect(files.length).toBeGreaterThan(0)
+  })
+
+  it('no source file imports or references Supabase', () => {
+    const offenders = files
+      .filter((file) => /supabase/i.test(readFileSync(file, 'utf8')))
+      .map((file) => relative(ROOT, file))
+    expect(offenders).toEqual([])
+  })
+
+  it('package.json has no Supabase dependency', () => {
+    const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as Record<string, unknown>
+    const deps = Object.keys({
+      ...(pkg.dependencies as object | undefined),
+      ...(pkg.devDependencies as object | undefined),
+    })
+    expect(deps.filter((name) => name.includes('supabase'))).toEqual([])
+  })
+
+  it('.env.example declares no VITE_SUPABASE_* variables', () => {
+    expect(readFileSync(join(ROOT, '.env.example'), 'utf8')).not.toMatch(/VITE_SUPABASE/)
+  })
+
+  it('no source file reads browser storage', () => {
+    const offenders = files
+      .filter((file) => /\b(localStorage|sessionStorage|indexedDB|document\.cookie)\b/.test(readFileSync(file, 'utf8')))
+      .map((file) => relative(ROOT, file))
+    expect(offenders).toEqual([])
+  })
+})
