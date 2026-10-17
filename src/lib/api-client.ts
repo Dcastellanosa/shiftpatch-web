@@ -112,3 +112,109 @@ export async function getCurrentSession(): Promise<SessionUser | null> {
     throw error
   }
 }
+
+// ---------------------------------------------------------------------------
+// Shifts. Shapes mirror shiftpatch-api's Zod response contracts
+// (src/shifts/contracts.ts there). Timestamps are ISO 8601 UTC strings.
+// ---------------------------------------------------------------------------
+
+export type ShiftStatus = 'open' | 'claimed' | 'cancelled' | 'completed' | 'no_show'
+export type ShiftEventType = 'created' | 'claimed' | 'cancelled' | 'completed' | 'no_show'
+
+export interface Shift {
+  id: string
+  title: string
+  startsAt: string
+  endsAt: string
+  status: ShiftStatus
+  branch: { id: string; name: string; address: string; timezone: string }
+  agency: { id: string; name: string }
+  assignedNurse: { id: string; fullName: string } | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ShiftEvent {
+  id: string
+  eventType: ShiftEventType
+  previousStatus: ShiftStatus | null
+  newStatus: ShiftStatus
+  reason: string | null
+  occurredAt: string
+  actor: { id: string; fullName: string | null }
+}
+
+export interface Branch {
+  id: string
+  name: string
+  address: string
+  timezone: string
+  agency: { id: string; name: string }
+}
+
+export interface ShiftFilters {
+  status?: ShiftStatus
+  branchId?: string
+  /** ISO instant: shifts starting at or after. */
+  from?: string
+  /** ISO instant: shifts starting before. */
+  to?: string
+  /** Nurse only: include the caller's assigned shifts. */
+  includeAssigned?: boolean
+}
+
+export interface CreateShiftInput {
+  branchId: string
+  title: string
+  startsAt: string
+  endsAt: string
+}
+
+function queryString(filters: ShiftFilters): string {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(filters)) {
+    if (value !== undefined && value !== '') params.set(key, String(value))
+  }
+  const query = params.toString()
+  return query ? `?${query}` : ''
+}
+
+const shiftPath = (shiftId: string) => `/shifts/${encodeURIComponent(shiftId)}`
+
+export async function listShifts(filters: ShiftFilters = {}): Promise<Shift[]> {
+  const { shifts } = await apiRequest<{ shifts: Shift[] }>(`/shifts${queryString(filters)}`)
+  return shifts
+}
+
+export async function getShift(shiftId: string): Promise<Shift> {
+  const { shift } = await apiRequest<{ shift: Shift }>(shiftPath(shiftId))
+  return shift
+}
+
+export async function createShift(input: CreateShiftInput): Promise<Shift> {
+  const { shift } = await apiRequest<{ shift: Shift }>('/shifts', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+  return shift
+}
+
+/** Claims a shift for the signed-in nurse. Rule failures reject with an `ApiError` (409/422). */
+export async function claimShift(shiftId: string): Promise<Shift> {
+  const { shift } = await apiRequest<{ shift: Shift }>(`${shiftPath(shiftId)}/claim`, { method: 'POST' })
+  return shift
+}
+
+export async function listShiftEvents(shiftId: string): Promise<ShiftEvent[]> {
+  const { events } = await apiRequest<{ events: ShiftEvent[] }>(`${shiftPath(shiftId)}/events`)
+  return events
+}
+
+export async function listMyShifts(): Promise<{ upcoming: Shift[]; past: Shift[] }> {
+  return apiRequest<{ upcoming: Shift[]; past: Shift[] }>('/me/shifts')
+}
+
+export async function listBranches(): Promise<Branch[]> {
+  const { branches } = await apiRequest<{ branches: Branch[] }>('/branches')
+  return branches
+}

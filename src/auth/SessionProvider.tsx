@@ -1,17 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import * as api from '../lib/api-client.ts'
+import { toApiError } from '../lib/errors.ts'
 import { SessionContext } from './session-context.ts'
 
 interface SessionState {
   loading: boolean
   user: api.SessionUser | null
   error: api.ApiError | null
-}
-
-function toApiError(error: unknown): api.ApiError {
-  return error instanceof api.ApiError
-    ? error
-    : new api.ApiError(0, 'unexpected_error', 'Something went wrong')
 }
 
 /**
