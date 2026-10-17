@@ -46,4 +46,11 @@ describe('BFF boundary: the frontend never talks to Supabase', () => {
       .map((file) => relative(ROOT, file))
     expect(offenders).toEqual([])
   })
+
+  it('no source file sets an Authorization header', () => {
+    const offenders = files
+      .filter((file) => /['"`]authorization['"`]|\bauthorization\s*:|\bbearer\s/i.test(readFileSync(file, 'utf8')))
+      .map((file) => relative(ROOT, file))
+    expect(offenders).toEqual([])
+  })
 })

@@ -3,7 +3,13 @@ import {
   API_BASE,
   ApiError,
   apiRequest,
+  claimShift,
+  createShift,
   getCurrentSession,
+  listBranches,
+  listMyShifts,
+  listShiftEvents,
+  listShifts,
   login,
   logout,
   type SessionUser,
@@ -126,5 +132,64 @@ describe('api client', () => {
     fetchMock.mockResolvedValue(jsonResponse(200, { user: USER }))
     await getCurrentSession()
     expect(new Headers(lastCall().init.headers).has('Authorization')).toBe(false)
+  })
+})
+
+describe('shift endpoints', () => {
+  const SHIFT_ID = '5f0c1d3e-0000-4000-8000-000000000001'
+
+  it('listShifts sends filters as a query string and drops empty values', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { shifts: [] }))
+    await listShifts({ status: 'open', branchId: 'b-1', from: undefined, includeAssigned: true })
+    expect(lastCall().url).toBe('/api/shifts?status=open&branchId=b-1&includeAssigned=true')
+  })
+
+  it('listShifts without filters calls /api/shifts', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { shifts: [] }))
+    await expect(listShifts()).resolves.toEqual([])
+    expect(lastCall().url).toBe('/api/shifts')
+  })
+
+  it('createShift POSTs the shift without any identity fields', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(201, { shift: { id: SHIFT_ID } }))
+    const input = { branchId: 'b-1', title: 'ICU', startsAt: '2030-01-01T00:00:00Z', endsAt: '2030-01-01T08:00:00Z' }
+    await createShift(input)
+    const { url, init } = lastCall()
+    expect(url).toBe('/api/shifts')
+    expect(init.method).toBe('POST')
+    expect(JSON.parse(String(init.body))).toEqual(input)
+  })
+
+  it('claimShift POSTs to the claim route with no body', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { shift: { id: SHIFT_ID } }))
+    await claimShift(SHIFT_ID)
+    const { url, init } = lastCall()
+    expect(url).toBe(`/api/shifts/${SHIFT_ID}/claim`)
+    expect(init.method).toBe('POST')
+    expect(init.body).toBeUndefined()
+    expect(init.credentials).toBe('include')
+  })
+
+  it('claimShift surfaces rule failures as ApiError', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse(422, { error: { code: 'credential_expired', message: 'Credential expired' } }),
+    )
+    await expect(claimShift(SHIFT_ID)).rejects.toMatchObject({ status: 422, code: 'credential_expired' })
+  })
+
+  it('encodes path segments', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { events: [] }))
+    await listShiftEvents('../auth/me')
+    expect(lastCall().url).toBe('/api/shifts/..%2Fauth%2Fme/events')
+  })
+
+  it('reads My Shifts and branches from their routes', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { upcoming: [], past: [] }))
+    await expect(listMyShifts()).resolves.toEqual({ upcoming: [], past: [] })
+    expect(lastCall().url).toBe('/api/me/shifts')
+
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { branches: [] }))
+    await expect(listBranches()).resolves.toEqual([])
+    expect(lastCall().url).toBe('/api/branches')
   })
 })
