@@ -1,0 +1,31 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders every shift status 1`] = `
+<div>
+  <span
+    class="badge badge-open"
+  >
+    Open
+  </span>
+  <span
+    class="badge badge-claimed"
+  >
+    Claimed
+  </span>
+  <span
+    class="badge badge-completed"
+  >
+    Completed
+  </span>
+  <span
+    class="badge badge-cancelled"
+  >
+    Cancelled
+  </span>
+  <span
+    class="badge badge-no_show"
+  >
+    No-show
+  </span>
+</div>
+`;

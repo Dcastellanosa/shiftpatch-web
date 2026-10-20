@@ -1,0 +1,70 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`shows empty upcoming and past sections 1`] = `
+<section
+  aria-labelledby="mine-heading"
+  class="page"
+>
+  <header
+    class="page-header"
+  >
+    <div>
+      <h1
+        id="mine-heading"
+      >
+        My Shifts
+      </h1>
+      <p
+        class="muted"
+      >
+        Shifts you have claimed.
+      </p>
+    </div>
+  </header>
+  <section
+    aria-labelledby="upcoming-heading"
+    class="section"
+  >
+    <h2
+      id="upcoming-heading"
+    >
+      Upcoming (
+      0
+      )
+    </h2>
+    <div
+      class="state state-empty"
+    >
+      <p
+        class="state-title"
+      >
+        No upcoming shifts
+      </p>
+      <p>
+        Claim an open shift to see it here.
+      </p>
+    </div>
+  </section>
+  <section
+    aria-labelledby="past-heading"
+    class="section"
+  >
+    <h2
+      id="past-heading"
+    >
+      Past (
+      0
+      )
+    </h2>
+    <div
+      class="state state-empty"
+    >
+      <p
+        class="state-title"
+      >
+        No past shifts yet
+      </p>
+    </div>
+  </section>
+</section>
+`;

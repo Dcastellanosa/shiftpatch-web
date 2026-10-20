@@ -1,0 +1,103 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`shows the agency page without branches or shifts 1`] = `
+<section
+  aria-labelledby="agency-heading"
+  class="page"
+>
+  <header
+    class="page-header"
+  >
+    <div>
+      <h1
+        id="agency-heading"
+      >
+        Agency Shifts
+      </h1>
+      <p
+        class="muted"
+      >
+        Post open shifts and track who claimed them.
+      </p>
+    </div>
+  </header>
+  <div
+    class="state state-empty"
+  >
+    <p
+      class="state-title"
+    >
+      No branches yet
+    </p>
+    <p>
+      Your agency has no branches to post shifts for.
+    </p>
+  </div>
+  <div
+    aria-live="polite"
+  />
+  <section
+    aria-labelledby="agency-list-heading"
+    class="section"
+  >
+    <div
+      class="section-header"
+    >
+      <h2
+        id="agency-list-heading"
+      >
+        Shifts
+      </h2>
+      <label
+        class="inline-field"
+      >
+        Status
+        <select>
+          <option
+            value=""
+          >
+            All statuses
+          </option>
+          <option
+            value="open"
+          >
+            Open
+          </option>
+          <option
+            value="claimed"
+          >
+            Claimed
+          </option>
+          <option
+            value="cancelled"
+          >
+            Cancelled
+          </option>
+          <option
+            value="completed"
+          >
+            Completed
+          </option>
+          <option
+            value="no_show"
+          >
+            No-show
+          </option>
+        </select>
+      </label>
+    </div>
+    <div
+      class="state state-empty"
+    >
+      <p
+        class="state-title"
+      >
+        No shifts match
+      </p>
+      <p>
+        Create a shift above or change the status filter.
+      </p>
+    </div>
+  </section>
+</section>
+`;

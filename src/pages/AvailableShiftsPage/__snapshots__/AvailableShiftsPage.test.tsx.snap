@@ -1,0 +1,46 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`shows the empty available-shifts state 1`] = `
+<section
+  aria-labelledby="available-heading"
+  class="page"
+>
+  <header
+    class="page-header"
+  >
+    <div>
+      <h1
+        id="available-heading"
+      >
+        Available Shifts
+      </h1>
+      <p
+        class="muted"
+      >
+        Open shifts at branches where you are active.
+      </p>
+    </div>
+    <button
+      class="btn btn-secondary"
+      type="button"
+    >
+      Refresh
+    </button>
+  </header>
+  <div
+    aria-live="polite"
+  />
+  <div
+    class="state state-empty"
+  >
+    <p
+      class="state-title"
+    >
+      No open shifts right now
+    </p>
+    <p>
+      New shifts appear here when an agency you work with posts them.
+    </p>
+  </div>
+</section>
+`;

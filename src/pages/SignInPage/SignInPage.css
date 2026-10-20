@@ -1,0 +1,25 @@
+.brand-lg {
+  font-size: 1.15rem;
+  margin-bottom: 20px;
+}
+
+/* Sign-in ------------------------------------------------------------------ */
+
+.auth-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+}
+
+.auth-card {
+  width: min(380px, 100%);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-card .form {
+  margin-top: 16px;
+}

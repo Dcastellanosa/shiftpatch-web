@@ -13,7 +13,7 @@ separate `shiftpatch-api` repository (Express + TypeScript on Vercel). Supabase 
 Architecture rules:
 
 - Backend-for-frontend (BFF): React only renders UI and calls the API through same-origin `/api/*` paths via
-  `src/lib/api-client.ts`. The Vite dev proxy (local) and `vercel.json` (deployed) forward `/api/*` to shiftpatch-api.
+  `src/lib/api-client/api-client.ts`. The Vite dev proxy (local) and `vercel.json` (deployed) forward `/api/*` to shiftpatch-api.
 - React **never** uses Supabase: no `@supabase/*` dependency, no Supabase client, no `VITE_SUPABASE_*` variables.
   `tests/no-supabase.test.ts` enforces this.
 - Sessions live in HttpOnly cookies managed by the API. React never reads, decodes, stores, or validates tokens.
@@ -39,7 +39,7 @@ Run all of these. CI (`.github/workflows/ci.yml`) runs the same steps on every p
 pnpm install --frozen-lockfile
 pnpm typecheck
 pnpm lint
-pnpm test        # Vitest (tests/**/*.test.{ts,tsx}): API client, components, BFF boundary
+pnpm test        # Vitest (src/**/*.test.{ts,tsx}, tests/**/*.test.{ts,tsx})
 pnpm build
 ```
 
@@ -56,7 +56,7 @@ pnpm test:e2e                           # needs E2E_PASSWORD (in .env.e2e.local)
 - Never commit secrets. `.env`, `.env.*` (except `.env.example`) and `.vercel/` are gitignored. Keep it that way.
 - Every `VITE_*` variable is bundled into public JavaScript. The app currently needs none. Never add Supabase
   keys, URLs, or any other credential to this repository, its environment variables, or client code.
-- Call the backend only through `src/lib/api-client.ts`: relative `/api` paths with `credentials: 'include'`.
+- Call the backend only through `src/lib/api-client/api-client.ts`: relative `/api` paths with `credentials: 'include'`.
   Never call the API by absolute URL, send `Authorization` headers, or store session data in `localStorage`,
   `sessionStorage`, IndexedDB, or `document.cookie`.
 - Never send user IDs, roles, agency IDs, or credential state as authority. The API derives identity from its own
@@ -64,7 +64,7 @@ pnpm test:e2e                           # needs E2E_PASSWORD (in .env.e2e.local)
 - Do not commit machine-specific files or files containing local absolute paths (agent tooling directories such as
   `.claude/`, `.codex/`, `.kiro/`, `.agents/`, `skills/` are gitignored for this reason).
 - Do not add analytics, third-party scripts, or new runtime dependencies without stating why.
-- Routing is a small History API router (`src/lib/router.ts`). There is no routing dependency. Role-based route
+- Routing is a small History API router (`src/lib/router/router.ts`). There is no routing dependency. Role-based route
   guards are UX only. The API returns 401/403/404 regardless.
 
 ## AI session transcripts

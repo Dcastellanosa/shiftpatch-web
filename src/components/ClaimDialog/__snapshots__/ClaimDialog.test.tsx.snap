@@ -1,0 +1,81 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ClaimDialog > summarises the shift and asks for confirmation 1`] = `
+<div
+  class="modal-backdrop"
+>
+  <div
+    aria-labelledby="dialog-title"
+    aria-modal="true"
+    class="modal"
+    role="dialog"
+  >
+    <h2
+      id="dialog-title"
+    >
+      Claim This Shift?
+    </h2>
+    <dl
+      class="summary"
+    >
+      <dt>
+        Shift
+      </dt>
+      <dd>
+        Med-Surg RN — Day
+      </dd>
+      <dt>
+        Where
+      </dt>
+      <dd>
+        Downtown Clinic
+         · 
+        Northwind Care Staffing
+        <span
+          class="muted block"
+        >
+          120 Main Street
+        </span>
+      </dd>
+      <dt>
+        When
+      </dt>
+      <dd>
+        <span
+          class="when"
+        >
+          <time
+            class="when-date"
+            datetime="2030-01-10T13:00:00.000Z"
+          >
+            Thu, Jan 10
+          </time>
+          <span
+            class="when-time"
+          >
+            8:00 AM – 4:00 PM EST
+             · 
+            8 h
+          </span>
+        </span>
+      </dd>
+    </dl>
+    <div
+      class="modal-actions"
+    >
+      <button
+        class="btn btn-secondary"
+        type="button"
+      >
+        Cancel
+      </button>
+      <button
+        class="btn btn-primary"
+        type="button"
+      >
+        Confirm Claim
+      </button>
+    </div>
+  </div>
+</div>
+`;

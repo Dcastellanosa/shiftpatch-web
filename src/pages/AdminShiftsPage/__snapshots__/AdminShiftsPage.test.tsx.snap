@@ -1,0 +1,183 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`shows all status counts and the empty admin table 1`] = `
+<section
+  aria-labelledby="admin-heading"
+  class="page"
+>
+  <header
+    class="page-header"
+  >
+    <div>
+      <h1
+        id="admin-heading"
+      >
+        All Shifts
+      </h1>
+      <p
+        class="muted"
+      >
+        Every agency, branch and nurse assignment.
+      </p>
+    </div>
+  </header>
+  <form
+    aria-label="Filters"
+    class="card filters"
+  >
+    <label
+      class="field"
+    >
+      Agency
+      <select>
+        <option
+          value=""
+        >
+          All agencies
+        </option>
+      </select>
+    </label>
+    <label
+      class="field"
+    >
+      Branch
+      <select>
+        <option
+          value=""
+        >
+          All branches
+        </option>
+      </select>
+    </label>
+    <label
+      class="field"
+    >
+      From (UTC)
+      <input
+        type="date"
+        value=""
+      />
+    </label>
+    <label
+      class="field"
+    >
+      To (UTC)
+      <input
+        type="date"
+        value=""
+      />
+    </label>
+  </form>
+  <div
+    aria-label="Shifts by status"
+    class="stats"
+    role="group"
+  >
+    <button
+      aria-pressed="true"
+      class="stat"
+      type="button"
+    >
+      <span
+        class="stat-value"
+      >
+        0
+      </span>
+      <span
+        class="stat-label"
+      >
+        All
+      </span>
+    </button>
+    <button
+      aria-pressed="false"
+      class="stat stat-open"
+      type="button"
+    >
+      <span
+        class="stat-value"
+      >
+        0
+      </span>
+      <span
+        class="stat-label"
+      >
+        Open
+      </span>
+    </button>
+    <button
+      aria-pressed="false"
+      class="stat stat-claimed"
+      type="button"
+    >
+      <span
+        class="stat-value"
+      >
+        0
+      </span>
+      <span
+        class="stat-label"
+      >
+        Claimed
+      </span>
+    </button>
+    <button
+      aria-pressed="false"
+      class="stat stat-cancelled"
+      type="button"
+    >
+      <span
+        class="stat-value"
+      >
+        0
+      </span>
+      <span
+        class="stat-label"
+      >
+        Cancelled
+      </span>
+    </button>
+    <button
+      aria-pressed="false"
+      class="stat stat-completed"
+      type="button"
+    >
+      <span
+        class="stat-value"
+      >
+        0
+      </span>
+      <span
+        class="stat-label"
+      >
+        Completed
+      </span>
+    </button>
+    <button
+      aria-pressed="false"
+      class="stat stat-no_show"
+      type="button"
+    >
+      <span
+        class="stat-value"
+      >
+        0
+      </span>
+      <span
+        class="stat-label"
+      >
+        No-show
+      </span>
+    </button>
+  </div>
+  <div
+    class="state state-empty"
+  >
+    <p
+      class="state-title"
+    >
+      No shifts match these filters
+    </p>
+  </div>
+</section>
+`;

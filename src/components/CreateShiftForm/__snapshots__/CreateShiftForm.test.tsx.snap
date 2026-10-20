@@ -1,0 +1,122 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders a branch-local shift form 1`] = `
+<form
+  aria-labelledby="_r_1_-legend"
+  class="card form"
+>
+  <h2
+    id="_r_1_-legend"
+  >
+    Create Open Shift
+  </h2>
+  <div
+    class="form-grid"
+  >
+    <div
+      class="field"
+    >
+      <label
+        for="_r_0_"
+      >
+        Branch
+      </label>
+      <select
+        id="_r_0_"
+        name="branchId"
+        required=""
+      >
+        <option
+          value="branch-1"
+        >
+          Downtown Clinic
+        </option>
+      </select>
+    </div>
+    <div
+      class="field field-wide"
+    >
+      <label
+        for="_r_1_"
+      >
+        Title
+      </label>
+      <input
+        autocomplete="off"
+        id="_r_1_"
+        maxlength="200"
+        name="title"
+        placeholder="e.g. Med-Surg RN — Day…"
+        required=""
+      />
+    </div>
+    <div
+      class="field"
+    >
+      <label
+        for="_r_2_"
+      >
+        Date
+      </label>
+      <input
+        id="_r_2_"
+        min="2030-01-01"
+        name="date"
+        required=""
+        type="date"
+      />
+    </div>
+    <div
+      class="field"
+    >
+      <label
+        for="_r_3_"
+      >
+        Start
+      </label>
+      <input
+        id="_r_3_"
+        name="start"
+        required=""
+        type="time"
+        value=""
+      />
+    </div>
+    <div
+      class="field"
+    >
+      <label
+        for="_r_4_"
+      >
+        End
+      </label>
+      <input
+        aria-describedby="_r_5_"
+        id="_r_4_"
+        name="end"
+        required=""
+        type="time"
+        value=""
+      />
+    </div>
+  </div>
+  <p
+    class="muted small"
+    id="_r_5_"
+  >
+    Times are in the branch’s local time
+     (America/New_York)
+    .
+  </p>
+  <div
+    class="form-actions"
+  >
+    <button
+      class="btn btn-primary"
+      type="submit"
+    >
+      Create Shift
+    </button>
+  </div>
+</form>
+`;

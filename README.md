@@ -73,13 +73,15 @@ narrow screens.
 
 | File | Role |
 |---|---|
-| `src/lib/api-client.ts` | The only gateway to the backend: relative `/api` paths, `credentials: 'include'`, `ApiError`. Auth, shift, event, branch and My Shifts calls. |
-| `src/auth/SessionProvider.tsx` | Calls `GET /api/auth/me` on startup and provides `loading`, `user`, `login`, `logout`. |
-| `src/lib/router.ts`, `src/components/Link.tsx` | Minimal History API router (four screens did not justify a dependency). |
-| `src/components/navigation.ts` | Screens per role, home redirects, route guards (UX only). |
-| `src/lib/errors.ts` | User-facing copy for claim error codes. |
-| `src/lib/format.ts` | `Intl` date/time formatting in the branch time zone, and branch-local time → UTC conversion. |
-| `src/pages/*` | One component per screen. |
+| `src/lib/api-client/api-client.ts` | The only gateway to the backend: relative `/api` paths, `credentials: 'include'`, `ApiError`. Auth, shift, event, branch and My Shifts calls. |
+| `src/auth/SessionProvider/SessionProvider.tsx` | Calls `GET /api/auth/me` on startup and provides `loading`, `user`, `login`, `logout`. |
+| `src/lib/router/router.ts`, `src/components/Link/Link.tsx` | Minimal History API router (four screens did not justify a dependency). |
+| `src/components/navigation/navigation.ts` | Screens per role, home redirects, route guards (UX only). |
+| `src/lib/errors/errors.ts` | User-facing copy for claim error codes. |
+| `src/lib/format/format.ts` | `Intl` date/time formatting in the branch time zone, and branch-local time → UTC conversion. |
+| `src/pages/<PageName>/` | One folder per screen, with component, styles, test and snapshot. |
+
+Components, pages, hooks and logic modules keep their tests beside the implementation. Visual pieces also keep their CSS and snapshots there; `src/main.tsx` and `src/index.css` are global entry points.
 
 ## Routing
 

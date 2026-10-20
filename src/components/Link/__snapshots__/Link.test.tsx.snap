@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders a real link and navigates on a plain click 1`] = `
+<a
+  href="/shifts"
+>
+  Available Shifts
+</a>
+`;

@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders an accessible loading label 1`] = `
+<div
+  aria-live="polite"
+  class="state"
+  role="status"
+>
+  <span
+    aria-hidden="true"
+    class="spinner"
+  />
+  Loading shifts…
+</div>
+`;
