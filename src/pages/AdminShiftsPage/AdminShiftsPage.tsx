@@ -1,4 +1,4 @@
-import './AdminShiftsPage.css'
+import './AdminShiftsPage.scss'
 import { ShiftTable } from '../../components/ShiftTable/ShiftTable.tsx'
 import { EmptyState } from '../../components/EmptyState/EmptyState.tsx'
 import { ErrorState } from '../../components/ErrorState/ErrorState.tsx'

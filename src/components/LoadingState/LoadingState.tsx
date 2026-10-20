@@ -1,4 +1,4 @@
-import './LoadingState.css'
+import './LoadingState.scss'
 
 export function LoadingState({ label = 'Loading…' }: { label?: string }) {
   return (

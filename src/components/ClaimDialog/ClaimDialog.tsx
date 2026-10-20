@@ -1,4 +1,4 @@
-import './ClaimDialog.css'
+import './ClaimDialog.scss'
 import { useEffect, useId, useRef, useState } from 'react'
 import { claimShift, type ApiError, type Shift } from '../../lib/api-client/api-client.ts'
 import { describeClaimError, toApiError } from '../../lib/errors/errors.ts'

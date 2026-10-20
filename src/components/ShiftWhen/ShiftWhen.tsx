@@ -1,4 +1,4 @@
-import './ShiftWhen.css'
+import './ShiftWhen.scss'
 import type { Shift } from '../../lib/api-client/api-client.ts'
 import { formatDuration, formatShiftDate, formatShiftTimes } from '../../lib/format/format.ts'
 

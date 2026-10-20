@@ -12,7 +12,7 @@ import { AgencyShiftsPage } from '../pages/AgencyShiftsPage/AgencyShiftsPage.tsx
 import { AvailableShiftsPage } from '../pages/AvailableShiftsPage/AvailableShiftsPage.tsx'
 import { MyShiftsPage } from '../pages/MyShiftsPage/MyShiftsPage.tsx'
 import { SignInPage } from '../pages/SignInPage/SignInPage.tsx'
-import './App.css'
+import './App.scss'
 
 const PAGES: Record<string, () => React.JSX.Element> = {
   '/shifts': AvailableShiftsPage,

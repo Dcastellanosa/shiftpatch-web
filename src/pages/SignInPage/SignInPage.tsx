@@ -1,4 +1,4 @@
-import './SignInPage.css'
+import './SignInPage.scss'
 import { useState, type FormEvent } from 'react'
 import { useSession } from '../../auth/session-context/session-context.ts'
 

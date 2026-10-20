@@ -1,4 +1,4 @@
-import './AgencyShiftsPage.css'
+import './AgencyShiftsPage.scss'
 import { useState } from 'react'
 import { CreateShiftForm } from '../../components/CreateShiftForm/CreateShiftForm.tsx'
 import { ShiftTable } from '../../components/ShiftTable/ShiftTable.tsx'

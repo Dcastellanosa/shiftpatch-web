@@ -1,0 +1,6 @@
+packages:
+  - .
+
+# Keep Vite's optional native sass-embedded peer out of the install.
+# This project uses the portable sass package instead.
+autoInstallPeers: false

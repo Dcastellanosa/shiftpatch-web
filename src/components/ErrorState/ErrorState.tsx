@@ -1,4 +1,4 @@
-import './ErrorState.css'
+import './ErrorState.scss'
 import type { ApiError } from '../../lib/api-client/api-client.ts'
 
 /** Safe error display: shows the API's user-facing message, never internals. */

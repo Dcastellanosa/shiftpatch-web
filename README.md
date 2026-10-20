@@ -81,7 +81,9 @@ narrow screens.
 | `src/lib/format/format.ts` | `Intl` date/time formatting in the branch time zone, and branch-local time → UTC conversion. |
 | `src/pages/<PageName>/` | One folder per screen, with component, styles, test and snapshot. |
 
-Components, pages, hooks and logic modules keep their tests beside the implementation. Visual pieces also keep their CSS and snapshots there; `src/main.tsx` and `src/index.css` are global entry points.
+Components, pages, hooks and logic modules keep their tests beside the implementation. Visual pieces also keep their SCSS and snapshots there; `src/main.tsx` and `src/index.scss` are global entry points.
+
+Styles use SCSS compiled by Vite with the `sass` development dependency. `pnpm-workspace.yaml` disables automatic optional peer installation so Vite uses that compiler consistently.
 
 ## Routing
 

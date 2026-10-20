@@ -1,4 +1,4 @@
-import './ShiftHistory.css'
+import './ShiftHistory.scss'
 import { listShiftEvents, type ShiftEvent } from '../../lib/api-client/api-client.ts'
 import { formatTimestamp } from '../../lib/format/format.ts'
 import { useAsync } from '../../lib/use-async/use-async.ts'

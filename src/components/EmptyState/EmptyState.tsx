@@ -1,4 +1,4 @@
-import './EmptyState.css'
+import './EmptyState.scss'
 import type { ReactNode } from 'react'
 
 export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {

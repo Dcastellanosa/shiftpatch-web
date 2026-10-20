@@ -1,4 +1,4 @@
-import './AppShell.css'
+import './AppShell.scss'
 import type { ReactNode } from 'react'
 import { useSession } from '../../auth/session-context/session-context.ts'
 import type { UserRole } from '../../lib/api-client/api-client.ts'

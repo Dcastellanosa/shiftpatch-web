@@ -1,4 +1,4 @@
-import './ShiftTable.css'
+import './ShiftTable.scss'
 import { Fragment, useState } from 'react'
 import type { Shift } from '../../lib/api-client/api-client.ts'
 import { ShiftHistory } from '../ShiftHistory/ShiftHistory.tsx'

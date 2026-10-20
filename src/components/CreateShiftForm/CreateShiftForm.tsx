@@ -1,4 +1,4 @@
-import './CreateShiftForm.css'
+import './CreateShiftForm.scss'
 import { useId, useState, type FormEvent } from 'react'
 import { createShift, type ApiError, type Branch, type Shift } from '../../lib/api-client/api-client.ts'
 import { toApiError } from '../../lib/errors/errors.ts'

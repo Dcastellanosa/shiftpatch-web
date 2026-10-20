@@ -1,4 +1,4 @@
-import './Link.css'
+import './Link.scss'
 import type { AnchorHTMLAttributes, MouseEvent } from 'react'
 import { navigate } from '../../lib/router/router.ts'
 

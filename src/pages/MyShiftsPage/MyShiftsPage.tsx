@@ -1,4 +1,4 @@
-import './MyShiftsPage.css'
+import './MyShiftsPage.scss'
 import { ShiftWhen } from '../../components/ShiftWhen/ShiftWhen.tsx'
 import { StatusBadge } from '../../components/StatusBadge/StatusBadge.tsx'
 import { EmptyState } from '../../components/EmptyState/EmptyState.tsx'

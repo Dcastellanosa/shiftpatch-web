@@ -1,4 +1,4 @@
-import './StatusBadge.css'
+import './StatusBadge.scss'
 import type { ShiftStatus } from '../../lib/api-client/api-client.ts'
 import { STATUS_LABEL } from '../../lib/status/status.ts'
 

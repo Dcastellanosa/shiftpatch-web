@@ -1,4 +1,4 @@
-import './AvailableShiftsPage.css'
+import './AvailableShiftsPage.scss'
 import { useState } from 'react'
 import { ClaimDialog } from '../../components/ClaimDialog/ClaimDialog.tsx'
 import { Link } from '../../components/Link/Link.tsx'
