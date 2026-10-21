@@ -4,3 +4,9 @@ packages:
 # Keep Vite's optional native sass-embedded peer out of the install.
 # This project uses the portable sass package instead.
 autoInstallPeers: false
+
+# pnpm 11 in CI refuses to ignore postinstall scripts silently. @parcel/watcher
+# (an optional dependency of sass) ships prebuilt binaries; its build script is
+# not needed, so it is declined explicitly.
+allowBuilds:
+  '@parcel/watcher': false
