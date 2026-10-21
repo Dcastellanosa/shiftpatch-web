@@ -159,13 +159,15 @@ whatever `SEED_USER_PASSWORD` was when you seeded. None are stored in this repos
 | `pnpm dev` | Vite dev server with HMR and the `/api` proxy |
 | `pnpm build` | Typecheck (`tsc -b`) and production build to `dist/` |
 | `pnpm typecheck` | Typecheck app, tests, E2E and tooling configs |
-| `pnpm lint` | ESLint |
+| `pnpm lint` | ESLint (with `eslint-config-prettier`) |
+| `pnpm format` / `pnpm format:check` | Prettier: rewrite / verify formatting |
 | `pnpm test` | Vitest: API client contract, BFF boundary, role-aware navigation, route guards, claim error messages, screen states, time-zone conversion. Runs in CI. |
 | `pnpm test:e2e` | Playwright against a freshly reset local stack: claim workflow, agency/branch lifecycle and inactive restrictions, nurse eligibility, invitation + password recovery through the local mail catcher |
 | `pnpm preview` | Serve the production build locally (with the `/api` proxy) |
 
-CI (`.github/workflows/ci.yml`) runs install → typecheck → lint → test → build. The E2E suite needs Docker and
-the local Supabase stack, so it runs locally.
+CI (`.github/workflows/ci.yml`) runs install → typecheck → lint → format check → test → build on every push to
+`main` and every pull request, plus an advisory `pnpm audit`; Dependabot opens weekly grouped updates. The E2E
+suite needs Docker, the local Supabase stack and a sibling shiftpatch-api checkout, so it runs locally.
 
 ### End-to-end tests
 

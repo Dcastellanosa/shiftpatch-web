@@ -61,6 +61,7 @@ Run all of these. CI (`.github/workflows/ci.yml`) runs the same steps on every p
 pnpm install --frozen-lockfile
 pnpm typecheck
 pnpm lint
+pnpm format:check   # Prettier (`pnpm format` rewrites)
 pnpm test        # Vitest (src/**/*.test.{ts,tsx}, tests/**/*.test.{ts,tsx})
 pnpm build
 ```

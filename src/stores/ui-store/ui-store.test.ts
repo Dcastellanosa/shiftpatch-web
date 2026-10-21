@@ -20,13 +20,11 @@ it('queues and dismisses toasts in order', () => {
 })
 
 it('holds only the notification queue, never server state', () => {
-  useUiStore
-    .getState()
-    .pushToast({
-      kind: 'success',
-      title: 'Shift created',
-      body: 'Night RN at Downtown Clinic is open for eligible nurses.',
-    })
+  useUiStore.getState().pushToast({
+    kind: 'success',
+    title: 'Shift created',
+    body: 'Night RN at Downtown Clinic is open for eligible nurses.',
+  })
   const state = useUiStore.getState()
   expect(Object.keys(state).sort()).toEqual(['dismissToast', 'pushToast', 'toasts'])
   for (const toast of state.toasts) {
