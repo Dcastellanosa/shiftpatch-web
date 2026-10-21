@@ -16,7 +16,20 @@ const routed = () => (
 )
 
 it('shows the agency, its status and its branches', async () => {
-  stubApi({ [`GET /api/admin/agencies/${AGENCY_ID}`]: () => json(200, { agency: makeAgency(), branches: [makeAgencyBranch(), makeAgencyBranch({ id: 'b1000000-0000-4000-8000-000000000002', name: 'Riverside Hospital', status: 'inactive' })] }) })
+  stubApi({
+    [`GET /api/admin/agencies/${AGENCY_ID}`]: () =>
+      json(200, {
+        agency: makeAgency(),
+        branches: [
+          makeAgencyBranch(),
+          makeAgencyBranch({
+            id: 'b1000000-0000-4000-8000-000000000002',
+            name: 'Riverside Hospital',
+            status: 'inactive',
+          }),
+        ],
+      }),
+  })
   renderWithProviders(routed(), { path: `/admin/agencies/${AGENCY_ID}` })
   expect(await screen.findByRole('heading', { level: 1, name: 'Northwind Care Staffing' })).toBeTruthy()
   const rows = within(screen.getByTestId('branches-table')).getAllByRole('row').slice(1)
@@ -49,7 +62,10 @@ it('creates a branch and edits one inline', async () => {
   const fetchMock = stubApi({
     [`GET /api/admin/agencies/${AGENCY_ID}`]: () => json(200, { agency: makeAgency(), branches }),
     [`POST /api/admin/agencies/${AGENCY_ID}/branches`]: () => {
-      branches = [...branches, makeAgencyBranch({ id: 'b1000000-0000-4000-8000-000000000009', name: 'Uptown Clinic', address: '1 Up Street' })]
+      branches = [
+        ...branches,
+        makeAgencyBranch({ id: 'b1000000-0000-4000-8000-000000000009', name: 'Uptown Clinic', address: '1 Up Street' }),
+      ]
       return json(201, { branch: branches[1] })
     },
     [`PATCH /api/admin/agencies/${AGENCY_ID}/branches/${BRANCH_ID}`]: () => {
@@ -64,7 +80,10 @@ it('creates a branch and edits one inline', async () => {
   await userEvent.type(screen.getByLabelText('Address'), '1 Up Street')
   await userEvent.click(screen.getByRole('button', { name: 'Create branch' }))
   expect(await screen.findByText('Uptown Clinic')).toBeTruthy()
-  expect(JSON.parse(String(fetchMock.mock.calls[1]![1]?.body))).toMatchObject({ name: 'Uptown Clinic', address: '1 Up Street' })
+  expect(JSON.parse(String(fetchMock.mock.calls[1]![1]?.body))).toMatchObject({
+    name: 'Uptown Clinic',
+    address: '1 Up Street',
+  })
 
   await userEvent.click(screen.getAllByRole('button', { name: 'Edit' })[0]!)
   const form = screen.getByRole('form', { name: 'Edit Downtown Clinic' })
@@ -75,7 +94,10 @@ it('creates a branch and edits one inline', async () => {
 })
 
 it('explains an inactive agency and hides the branch form', async () => {
-  stubApi({ [`GET /api/admin/agencies/${AGENCY_ID}`]: () => json(200, { agency: makeAgency({ status: 'inactive' }), branches: [] }) })
+  stubApi({
+    [`GET /api/admin/agencies/${AGENCY_ID}`]: () =>
+      json(200, { agency: makeAgency({ status: 'inactive' }), branches: [] }),
+  })
   renderWithProviders(routed(), { path: `/admin/agencies/${AGENCY_ID}` })
   expect(await screen.findByText('This agency is inactive')).toBeTruthy()
   expect(screen.queryByLabelText('Branch name')).toBeNull()
@@ -83,7 +105,10 @@ it('explains an inactive agency and hides the branch form', async () => {
 })
 
 it('shows an error state with retry when the agency cannot be loaded', async () => {
-  stubApi({ [`GET /api/admin/agencies/${AGENCY_ID}`]: () => json(404, { error: { code: 'agency_not_found', message: 'Agency not found' } }) })
+  stubApi({
+    [`GET /api/admin/agencies/${AGENCY_ID}`]: () =>
+      json(404, { error: { code: 'agency_not_found', message: 'Agency not found' } }),
+  })
   renderWithProviders(routed(), { path: `/admin/agencies/${AGENCY_ID}` })
   expect(await screen.findByText('Something went wrong')).toBeTruthy()
   expect(screen.getByRole('button', { name: 'Try Again' })).toBeTruthy()
@@ -106,5 +131,9 @@ it('deletes the agency after the warning and returns to the list', async () => {
   const dialog = screen.getByRole('dialog', { name: 'Delete Northwind Care Staffing?' })
   await userEvent.click(within(dialog).getByRole('button', { name: 'Delete agency' }))
   expect(await screen.findByText('list screen')).toBeTruthy()
-  expect(fetchMock.mock.calls.some(([url, init]) => String(url) === `/api/admin/agencies/${AGENCY_ID}` && init?.method === 'DELETE')).toBe(true)
+  expect(
+    fetchMock.mock.calls.some(
+      ([url, init]) => String(url) === `/api/admin/agencies/${AGENCY_ID}` && init?.method === 'DELETE',
+    ),
+  ).toBe(true)
 })

@@ -15,7 +15,8 @@ function Probe() {
   const client = useQueryClient()
   return (
     <p>
-      {session.loading ? 'Checking' : session.user?.fullName} at {pathname}; retry={String(client.getDefaultOptions().queries?.retry !== false)}
+      {session.loading ? 'Checking' : session.user?.fullName} at {pathname}; retry=
+      {String(client.getDefaultOptions().queries?.retry !== false)}
     </p>
   )
 }

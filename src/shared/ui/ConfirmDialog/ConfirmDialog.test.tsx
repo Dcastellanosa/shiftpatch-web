@@ -8,7 +8,13 @@ it('focuses the confirm button, confirms, and cancels on Escape', async () => {
   const onConfirm = vi.fn()
   const onCancel = vi.fn()
   const { container } = render(
-    <ConfirmDialog title="Deactivate Downtown Clinic?" confirmLabel="Deactivate" destructive onConfirm={onConfirm} onCancel={onCancel}>
+    <ConfirmDialog
+      title="Deactivate Downtown Clinic?"
+      confirmLabel="Deactivate"
+      destructive
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+    >
       Nurses will no longer see its shifts.
     </ConfirmDialog>,
   )

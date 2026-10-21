@@ -20,5 +20,7 @@ it('sends branch and date filters and keeps the previous rows while a new filter
   expect(result.current.data).toEqual([shift])
   expect(result.current.isPlaceholderData).toBe(true)
   await waitFor(() => expect(result.current.isPlaceholderData).toBe(false))
-  expect(String(fetchMock.mock.calls[1]![0])).toBe('/api/shifts?branchId=branch-1&from=2030-01-01T00%3A00%3A00Z&to=2030-02-01T00%3A00%3A00Z')
+  expect(String(fetchMock.mock.calls[1]![0])).toBe(
+    '/api/shifts?branchId=branch-1&from=2030-01-01T00%3A00%3A00Z&to=2030-02-01T00%3A00%3A00Z',
+  )
 })

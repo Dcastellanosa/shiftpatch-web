@@ -21,7 +21,9 @@ export function AgencyNursesPage() {
       <header className="page__header">
         <div>
           <h1 id="nurses-heading">Nurses</h1>
-          <p className="muted">Activate a nurse at a branch to let them see and claim its open shifts. Suspending hides future shifts only.</p>
+          <p className="muted">
+            Activate a nurse at a branch to let them see and claim its open shifts. Suspending hides future shifts only.
+          </p>
         </div>
       </header>
 
@@ -32,7 +34,9 @@ export function AgencyNursesPage() {
           <LoadingState label="Loading nurses…" />
         )
       ) : nurses.data.length === 0 ? (
-        <EmptyState title="No nurses yet">Ask a ShiftPatch administrator to invite nurses to one of your branches.</EmptyState>
+        <EmptyState title="No nurses yet">
+          Ask a ShiftPatch administrator to invite nurses to one of your branches.
+        </EmptyState>
       ) : (
         <NurseEligibilityTable nurses={nurses.data} branches={branches.data} />
       )}

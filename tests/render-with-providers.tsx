@@ -19,7 +19,10 @@ interface ProviderOptions {
 }
 
 /** Wrapper for `renderHook` and `render`: router + query client (+ session). */
-export function withProviders({ session = false, queryClient = createTestQueryClient() }: Omit<ProviderOptions, 'path'> = {}) {
+export function withProviders({
+  session = false,
+  queryClient = createTestQueryClient(),
+}: Omit<ProviderOptions, 'path'> = {}) {
   return function Providers({ children }: { children: ReactNode }) {
     return (
       <QueryClientProvider client={queryClient}>
@@ -31,7 +34,12 @@ export function withProviders({ session = false, queryClient = createTestQueryCl
 
 export function renderWithProviders(
   ui: ReactElement,
-  { path = '/', session = false, queryClient = createTestQueryClient(), ...options }: ProviderOptions & Omit<RenderOptions, 'wrapper'> = {},
+  {
+    path = '/',
+    session = false,
+    queryClient = createTestQueryClient(),
+    ...options
+  }: ProviderOptions & Omit<RenderOptions, 'wrapper'> = {},
 ) {
   window.history.replaceState(null, '', path)
   return { ...render(ui, { wrapper: withProviders({ session, queryClient }), ...options }), queryClient }

@@ -30,7 +30,9 @@ it('keeps the status filter in the URL and sends it to the API', async () => {
   await userEvent.selectOptions(screen.getByLabelText('Status'), 'claimed')
 
   expect(window.location.search).toBe('?status=claimed')
-  await vi.waitFor(() => expect(fetchMock.mock.calls.map(([url]) => String(url))).toContain('/api/shifts?status=claimed'))
+  await vi.waitFor(() =>
+    expect(fetchMock.mock.calls.map(([url]) => String(url))).toContain('/api/shifts?status=claimed'),
+  )
 
   await userEvent.selectOptions(screen.getByLabelText('Status'), '')
   expect(window.location.search).toBe('')

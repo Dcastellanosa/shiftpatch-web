@@ -28,19 +28,31 @@ test('admin creates an agency with a branch and controls their status', async ({
   await expect(branchRow).toContainText('Active')
 
   await branchRow.getByRole('button', { name: 'Deactivate' }).click()
-  await admin.getByRole('dialog', { name: 'Deactivate E2E Uptown Clinic?' }).getByRole('button', { name: 'Deactivate' }).click()
+  await admin
+    .getByRole('dialog', { name: 'Deactivate E2E Uptown Clinic?' })
+    .getByRole('button', { name: 'Deactivate' })
+    .click()
   await expect(admin.getByText('Branch deactivated')).toBeVisible()
   await expect(branchRow).toContainText('Inactive')
   await branchRow.getByRole('button', { name: 'Activate' }).click()
-  await admin.getByRole('dialog', { name: 'Activate E2E Uptown Clinic?' }).getByRole('button', { name: 'Activate' }).click()
+  await admin
+    .getByRole('dialog', { name: 'Activate E2E Uptown Clinic?' })
+    .getByRole('button', { name: 'Activate' })
+    .click()
   await expect(branchRow).toContainText('Active')
 
   await admin.getByRole('button', { name: 'Deactivate' }).first().click()
-  await admin.getByRole('dialog', { name: 'Deactivate E2E Summit Nursing?' }).getByRole('button', { name: 'Deactivate' }).click()
+  await admin
+    .getByRole('dialog', { name: 'Deactivate E2E Summit Nursing?' })
+    .getByRole('button', { name: 'Deactivate' })
+    .click()
   await expect(admin.getByText('This agency is inactive')).toBeVisible()
   await expect(admin.getByLabel('Branch name')).toHaveCount(0)
   await admin.getByRole('button', { name: 'Activate' }).first().click()
-  await admin.getByRole('dialog', { name: 'Activate E2E Summit Nursing?' }).getByRole('button', { name: 'Activate' }).click()
+  await admin
+    .getByRole('dialog', { name: 'Activate E2E Summit Nursing?' })
+    .getByRole('button', { name: 'Activate' })
+    .click()
   await expect(admin.getByText('This agency is inactive')).toHaveCount(0)
 
   await openScreen(admin, 'Agencies')
@@ -58,7 +70,10 @@ test('admin creates an agency with a branch and controls their status', async ({
 
   // An agency with shifts is refused, with the reason.
   await admin.getByRole('button', { name: 'Delete Northwind Care Staffing' }).click()
-  await admin.getByRole('dialog', { name: 'Delete Northwind Care Staffing?' }).getByRole('button', { name: 'Delete agency' }).click()
+  await admin
+    .getByRole('dialog', { name: 'Delete Northwind Care Staffing?' })
+    .getByRole('button', { name: 'Delete agency' })
+    .click()
   await expect(admin.getByText('Agency not deleted')).toBeVisible()
   await expect(admin.getByRole('link', { name: 'Northwind Care Staffing' })).toBeVisible()
 })
@@ -69,7 +84,10 @@ test('an inactive branch rejects new shifts until it is activated again', async 
   await admin.getByRole('link', { name: 'Northwind Care Staffing' }).click()
   const downtown = admin.getByRole('row').filter({ hasText: DOWNTOWN })
   await downtown.getByRole('button', { name: 'Deactivate' }).click()
-  await admin.getByRole('dialog', { name: `Deactivate ${DOWNTOWN}?` }).getByRole('button', { name: 'Deactivate' }).click()
+  await admin
+    .getByRole('dialog', { name: `Deactivate ${DOWNTOWN}?` })
+    .getByRole('button', { name: 'Deactivate' })
+    .click()
   await expect(downtown).toContainText('Inactive')
 
   const agency = await signIn(browser, ACCOUNTS.northwind)
@@ -78,7 +96,10 @@ test('an inactive branch rejects new shifts until it is activated again', async 
   await expect(agency.getByRole('row').filter({ hasText: 'E2E Rejected — Inactive' })).toHaveCount(0)
 
   await downtown.getByRole('button', { name: 'Activate' }).click()
-  await admin.getByRole('dialog', { name: `Activate ${DOWNTOWN}?` }).getByRole('button', { name: 'Activate' }).click()
+  await admin
+    .getByRole('dialog', { name: `Activate ${DOWNTOWN}?` })
+    .getByRole('button', { name: 'Activate' })
+    .click()
   await expect(downtown).toContainText('Active')
 
   await agency.reload()

@@ -288,12 +288,18 @@ export async function getAgency(agencyId: string): Promise<AgencyDetail> {
 }
 
 export async function createAgency(input: CreateAgencyInput): Promise<Agency> {
-  const { agency } = await apiRequest<{ agency: Agency }>('/admin/agencies', { method: 'POST', body: JSON.stringify(input) })
+  const { agency } = await apiRequest<{ agency: Agency }>('/admin/agencies', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
   return agency
 }
 
 export async function updateAgency(agencyId: string, input: UpdateAgencyInput): Promise<Agency> {
-  const { agency } = await apiRequest<{ agency: Agency }>(agencyPath(agencyId), { method: 'PATCH', body: JSON.stringify(input) })
+  const { agency } = await apiRequest<{ agency: Agency }>(agencyPath(agencyId), {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  })
   return agency
 }
 
@@ -305,7 +311,11 @@ export async function createBranch(agencyId: string, input: CreateBranchInput): 
   return branch
 }
 
-export async function updateBranch(agencyId: string, branchId: string, input: UpdateBranchInput): Promise<AgencyBranch> {
+export async function updateBranch(
+  agencyId: string,
+  branchId: string,
+  input: UpdateBranchInput,
+): Promise<AgencyBranch> {
   const { branch } = await apiRequest<{ branch: AgencyBranch }>(
     `${agencyPath(agencyId)}/branches/${encodeURIComponent(branchId)}`,
     { method: 'PATCH', body: JSON.stringify(input) },
@@ -337,9 +347,7 @@ export interface AdminUser {
 
 /** The assignment depends on the role; the API rejects any mismatch. */
 export type InviteUserInput = { email: string; fullName: string } & (
-  | { role: 'admin' }
-  | { role: 'agency'; agencyIds: string[] }
-  | { role: 'nurse'; branchId: string }
+  { role: 'admin' } | { role: 'agency'; agencyIds: string[] } | { role: 'nurse'; branchId: string }
 )
 
 export async function listAdminUsers(): Promise<AdminUser[]> {
@@ -349,7 +357,10 @@ export async function listAdminUsers(): Promise<AdminUser[]> {
 
 /** Invites someone by email; the API sends the link. The response never carries it. */
 export async function inviteUser(input: InviteUserInput): Promise<AdminUser> {
-  const { user } = await apiRequest<{ user: AdminUser }>('/admin/users', { method: 'POST', body: JSON.stringify(input) })
+  const { user } = await apiRequest<{ user: AdminUser }>('/admin/users', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
   return user
 }
 
@@ -384,13 +395,17 @@ const eligibilityPath = (nurseId: string, branchId: string) =>
 
 /** Makes the nurse eligible at the branch (creates the record when missing). */
 export async function activateEligibility(nurseId: string, branchId: string): Promise<EligibilityRecord> {
-  const { eligibility } = await apiRequest<{ eligibility: EligibilityRecord }>(eligibilityPath(nurseId, branchId), { method: 'PUT' })
+  const { eligibility } = await apiRequest<{ eligibility: EligibilityRecord }>(eligibilityPath(nurseId, branchId), {
+    method: 'PUT',
+  })
   return eligibility
 }
 
 /** Suspends the nurse at the branch; existing claims are untouched. */
 export async function suspendEligibility(nurseId: string, branchId: string): Promise<EligibilityRecord> {
-  const { eligibility } = await apiRequest<{ eligibility: EligibilityRecord }>(eligibilityPath(nurseId, branchId), { method: 'DELETE' })
+  const { eligibility } = await apiRequest<{ eligibility: EligibilityRecord }>(eligibilityPath(nurseId, branchId), {
+    method: 'DELETE',
+  })
   return eligibility
 }
 
@@ -408,7 +423,10 @@ export interface CompletePasswordInput {
 
 /** Sets the password behind an invitation or recovery link and starts a session (cookies set by the API). */
 export async function completePassword(input: CompletePasswordInput): Promise<SessionUser> {
-  const { user } = await apiRequest<SessionPayload>('/auth/complete-password', { method: 'POST', body: JSON.stringify(input) })
+  const { user } = await apiRequest<SessionPayload>('/auth/complete-password', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
   return user
 }
 

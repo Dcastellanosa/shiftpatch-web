@@ -58,7 +58,13 @@ export function CreateShiftForm({ branches, onCreated }: CreateShiftFormProps) {
       <div className="form__grid">
         <div className="field">
           <label htmlFor={ids.branch}>Branch</label>
-          <select id={ids.branch} name="branchId" value={branchId} onChange={(e) => setBranchId(e.target.value)} required>
+          <select
+            id={ids.branch}
+            name="branchId"
+            value={branchId}
+            onChange={(e) => setBranchId(e.target.value)}
+            required
+          >
             {branches.map((b) => (
               <option key={b.id} value={b.id}>
                 {b.name}
@@ -83,7 +89,14 @@ export function CreateShiftForm({ branches, onCreated }: CreateShiftFormProps) {
         </div>
         <div className="field">
           <label htmlFor={ids.start}>Start</label>
-          <input id={ids.start} name="start" type="time" required value={start} onChange={(e) => setStart(e.target.value)} />
+          <input
+            id={ids.start}
+            name="start"
+            type="time"
+            required
+            value={start}
+            onChange={(e) => setStart(e.target.value)}
+          />
         </div>
         <div className="field">
           <label htmlFor={ids.end}>End</label>
@@ -107,9 +120,7 @@ export function CreateShiftForm({ branches, onCreated }: CreateShiftFormProps) {
         <div className="notice notice--error" role="alert">
           <p className="notice__title">The shift was not created</p>
           <p>
-            {error.code === 'validation_error'
-              ? 'Check the title, date and times, then try again.'
-              : error.message}
+            {error.code === 'validation_error' ? 'Check the title, date and times, then try again.' : error.message}
           </p>
         </div>
       )}

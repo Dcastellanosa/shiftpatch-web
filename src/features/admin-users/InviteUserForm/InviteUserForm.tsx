@@ -38,7 +38,9 @@ export function InviteUserForm({ pending, error, onSubmit }: InviteUserFormProps
   const activeBranches = (branches.data ?? []).filter((branch) => branch.status === 'active')
   const field = error ? FIELD_ERRORS[error.code] : undefined
   const complete =
-    email.trim() !== '' && fullName.trim() !== '' && (role === 'admin' || (role === 'agency' ? agencyIds.length > 0 : branchId !== ''))
+    email.trim() !== '' &&
+    fullName.trim() !== '' &&
+    (role === 'admin' || (role === 'agency' ? agencyIds.length > 0 : branchId !== ''))
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -55,7 +57,15 @@ export function InviteUserForm({ pending, error, onSubmit }: InviteUserFormProps
       <div className="invite-form__grid">
         <div className="field">
           <label htmlFor={ids.name}>Full name</label>
-          <input id={ids.name} name="fullName" required maxLength={200} autoComplete="off" value={fullName} onChange={(event) => setFullName(event.target.value)} />
+          <input
+            id={ids.name}
+            name="fullName"
+            required
+            maxLength={200}
+            autoComplete="off"
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+          />
         </div>
         <div className="field">
           <label htmlFor={ids.email}>Email</label>
@@ -108,7 +118,9 @@ export function InviteUserForm({ pending, error, onSubmit }: InviteUserFormProps
                 </option>
               ))}
             </select>
-            <p className="muted small">{agencies.isPending ? 'Loading agencies…' : 'Hold Ctrl or ⌘ to select several.'}</p>
+            <p className="muted small">
+              {agencies.isPending ? 'Loading agencies…' : 'Hold Ctrl or ⌘ to select several.'}
+            </p>
           </div>
         )}
         {role === 'nurse' && (

@@ -10,7 +10,9 @@ import App from './index.ts'
 function renderAt(path: string, user: SessionUser | null, extra: Parameters<typeof stubApi>[0] = {}) {
   const fetchMock = stubApi({
     'GET /api/auth/me': () =>
-      user ? json(200, { user }) : json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
+      user
+        ? json(200, { user })
+        : json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
     'GET /api/shifts': () => json(200, { shifts: [] }),
     'GET /api/branches': () => json(200, { branches: [] }),
     'GET /api/me/shifts': () => json(200, { upcoming: [], past: [] }),
@@ -104,7 +106,9 @@ describe('role-aware navigation', () => {
     let signedIn = true
     const { queryClient, fetchMock } = renderAt('/shifts', NURSE, {
       'GET /api/auth/me': () =>
-        signedIn ? json(200, { user: NURSE }) : json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
+        signedIn
+          ? json(200, { user: NURSE })
+          : json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
       'POST /api/auth/logout': () => {
         signedIn = false
         return json(204)
@@ -118,7 +122,12 @@ describe('role-aware navigation', () => {
     expect(await screen.findByRole('heading', { name: 'Sign In' })).toBeTruthy()
     await vi.waitFor(() => expect(window.location.pathname).toBe('/'))
     expect(queryClient.getQueryData(['shifts', 'list', {}])).toBeUndefined()
-    expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual(['/api/auth/me', '/api/shifts', '/api/auth/logout', '/api/auth/me'])
+    expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual([
+      '/api/auth/me',
+      '/api/shifts',
+      '/api/auth/logout',
+      '/api/auth/me',
+    ])
   })
 })
 

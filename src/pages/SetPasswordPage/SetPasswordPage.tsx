@@ -30,14 +30,19 @@ export function SetPasswordPage() {
           <>
             <h1>{link.type === 'recovery' ? 'Choose a new password' : 'Welcome to ShiftPatch'}</h1>
             <p className="muted">
-              {link.type === 'recovery' ? 'Set a new password for your account.' : 'Set a password to finish creating your account.'}
+              {link.type === 'recovery'
+                ? 'Set a new password for your account.'
+                : 'Set a password to finish creating your account.'}
             </p>
             <SetPasswordForm
               type={link.type}
               pending={complete.isPending}
               error={complete.error ? toApiError(complete.error) : null}
               onSubmit={(password) =>
-                complete.mutate({ tokenHash: link.tokenHash, type: link.type, password }, { onSuccess: () => void navigate('/', { replace: true }) })
+                complete.mutate(
+                  { tokenHash: link.tokenHash, type: link.type, password },
+                  { onSuccess: () => void navigate('/', { replace: true }) },
+                )
               }
             />
           </>

@@ -23,7 +23,9 @@ it('reads the session once from GET /api/auth/me', async () => {
 })
 
 it('resolves to null when the API reports no session', async () => {
-  stubApi({ 'GET /api/auth/me': () => json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }) })
+  stubApi({
+    'GET /api/auth/me': () => json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
+  })
   const { result } = renderHook(useSessionQuery, { wrapper: withProviders() })
   await waitFor(() => expect(result.current.isSuccess).toBe(true))
   expect(result.current.data).toBeNull()

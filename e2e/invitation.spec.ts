@@ -70,12 +70,19 @@ test('an invited nurse sets a password from the email and can later recover it',
   await expect(invitee.getByRole('navigation', { name: 'Main' })).toBeVisible()
 })
 
-test('an admin deletes a user who has no history after confirming, and cannot delete themselves', async ({ browser }) => {
+test('an admin deletes a user who has no history after confirming, and cannot delete themselves', async ({
+  browser,
+}) => {
   const admin = await signIn(browser, ACCOUNTS.admin)
   await openScreen(admin, 'Users')
   const row = admin.getByRole('row').filter({ hasText: EMAIL })
   await expect(row).toBeVisible()
-  await expect(admin.getByRole('row').filter({ hasText: ACCOUNTS.admin }).getByRole('button', { name: /^Delete/ })).toHaveCount(0)
+  await expect(
+    admin
+      .getByRole('row')
+      .filter({ hasText: ACCOUNTS.admin })
+      .getByRole('button', { name: /^Delete/ }),
+  ).toHaveCount(0)
 
   await row.getByRole('button', { name: 'Delete E2E Nurse' }).click()
   const dialog = admin.getByRole('dialog', { name: 'Delete E2E Nurse?' })

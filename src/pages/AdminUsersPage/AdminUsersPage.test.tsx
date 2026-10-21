@@ -9,7 +9,13 @@ import { AdminUsersPage } from './index.ts'
 
 afterEach(() => vi.unstubAllGlobals())
 
-const SELF = makeAdminUser({ id: ADMIN.id, fullName: ADMIN.fullName!, email: ADMIN.email, role: 'admin', eligibleBranches: [] })
+const SELF = makeAdminUser({
+  id: ADMIN.id,
+  fullName: ADMIN.fullName!,
+  email: ADMIN.email,
+  role: 'admin',
+  eligibleBranches: [],
+})
 const lookups = {
   'GET /api/auth/me': () => json(200, { user: ADMIN }),
   'GET /api/admin/agencies': () => json(200, { agencies: [makeAgency()] }),
@@ -23,7 +29,16 @@ it('lists users and invites a nurse from the modal, then refreshes the list', as
     ...lookups,
     'GET /api/admin/users': () => json(200, { users }),
     'POST /api/admin/users': () => {
-      users = [...users, makeAdminUser({ id: 'c1000000-0000-4000-8000-000000000009', fullName: 'New Nurse', email: 'new@example.test', status: 'invited', lastSignInAt: null })]
+      users = [
+        ...users,
+        makeAdminUser({
+          id: 'c1000000-0000-4000-8000-000000000009',
+          fullName: 'New Nurse',
+          email: 'new@example.test',
+          status: 'invited',
+          lastSignInAt: null,
+        }),
+      ]
       return json(201, { user: users[2] })
     },
   })
@@ -43,14 +58,20 @@ it('lists users and invites a nurse from the modal, then refreshes the list', as
   expect(await screen.findByText('New Nurse')).toBeTruthy()
   expect(screen.queryByRole('dialog')).toBeNull()
   const post = fetchMock.mock.calls.find(([, init]) => init?.method === 'POST')!
-  expect(JSON.parse(String(post[1]?.body))).toEqual({ email: 'new@example.test', fullName: 'New Nurse', role: 'nurse', branchId: BRANCH_ID })
+  expect(JSON.parse(String(post[1]?.body))).toEqual({
+    email: 'new@example.test',
+    fullName: 'New Nurse',
+    role: 'nurse',
+    branchId: BRANCH_ID,
+  })
 })
 
 it('keeps the modal open and shows an existing email on the field', async () => {
   stubApi({
     ...lookups,
     'GET /api/admin/users': () => json(200, { users: [SELF] }),
-    'POST /api/admin/users': () => json(409, { error: { code: 'email_exists', message: 'An account with this email already exists' } }),
+    'POST /api/admin/users': () =>
+      json(409, { error: { code: 'email_exists', message: 'An account with this email already exists' } }),
   })
   render()
   await screen.findByTestId('users-table')
@@ -66,7 +87,13 @@ it('keeps the modal open and shows an existing email on the field', async () => 
 
 it('deletes a user after the warning, never offers to delete the viewer, and explains a refusal', async () => {
   const ava = makeAdminUser()
-  const riley = makeAdminUser({ id: 'c1000000-0000-4000-8000-000000000002', fullName: 'Riley Northwind', email: 'riley@example.test', role: 'agency', eligibleBranches: [] })
+  const riley = makeAdminUser({
+    id: 'c1000000-0000-4000-8000-000000000002',
+    fullName: 'Riley Northwind',
+    email: 'riley@example.test',
+    role: 'agency',
+    eligibleBranches: [],
+  })
   let users = [SELF, ava, riley]
   stubApi({
     ...lookups,
@@ -75,7 +102,10 @@ it('deletes a user after the warning, never offers to delete the viewer, and exp
       users = [SELF, ava]
       return { status: 204 }
     },
-    [`DELETE /api/admin/users/${ava.id}`]: () => json(409, { error: { code: 'user_has_history', message: 'This user has shifts or recorded actions and cannot be deleted' } }),
+    [`DELETE /api/admin/users/${ava.id}`]: () =>
+      json(409, {
+        error: { code: 'user_has_history', message: 'This user has shifts or recorded actions and cannot be deleted' },
+      }),
   })
   render()
   await screen.findByTestId('users-table')

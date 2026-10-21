@@ -15,7 +15,9 @@ it('suspends a nurse and shows the refreshed status', async () => {
     'GET /api/agency/nurses': () => json(200, { nurses: [nurse] }),
     [`DELETE /api/nurses/${NURSE_ID}/eligibility/${BRANCH_ID}`]: () => {
       nurse = makeNurseEligibility({ branches: [{ ...nurse.branches[0]!, status: 'suspended' }] })
-      return json(200, { eligibility: { nurseId: NURSE_ID, branchId: BRANCH_ID, status: 'suspended', activatedAt: null } })
+      return json(200, {
+        eligibility: { nurseId: NURSE_ID, branchId: BRANCH_ID, status: 'suspended', activatedAt: null },
+      })
     },
   })
   renderWithProviders(<AgencyNursesPage />, { path: '/agency/nurses' })
@@ -26,12 +28,18 @@ it('suspends a nurse and shows the refreshed status', async () => {
 })
 
 it('shows the empty state and an error state with retry', async () => {
-  stubApi({ 'GET /api/branches': () => json(200, { branches: [makeBranch()] }), 'GET /api/agency/nurses': () => json(200, { nurses: [] }) })
+  stubApi({
+    'GET /api/branches': () => json(200, { branches: [makeBranch()] }),
+    'GET /api/agency/nurses': () => json(200, { nurses: [] }),
+  })
   const { unmount } = renderWithProviders(<AgencyNursesPage />, { path: '/agency/nurses' })
   expect(await screen.findByText('No nurses yet')).toBeTruthy()
   unmount()
 
-  stubApi({ 'GET /api/branches': () => json(200, { branches: [] }), 'GET /api/agency/nurses': () => json(403, { error: { code: 'forbidden', message: 'Forbidden' } }) })
+  stubApi({
+    'GET /api/branches': () => json(200, { branches: [] }),
+    'GET /api/agency/nurses': () => json(403, { error: { code: 'forbidden', message: 'Forbidden' } }),
+  })
   renderWithProviders(<AgencyNursesPage />, { path: '/agency/nurses' })
   expect(await screen.findByText('Something went wrong')).toBeTruthy()
   expect(screen.getByRole('button', { name: 'Try Again' })).toBeTruthy()

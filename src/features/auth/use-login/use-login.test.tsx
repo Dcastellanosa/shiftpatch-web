@@ -28,11 +28,19 @@ it('clears the cache only after a successful login, right before storing the ses
   expect(clear.mock.invocationCallOrder[0]!).toBeLessThan(setQueryData.mock.invocationCallOrder.at(-1)!)
   expect(queryClient.getQueryData(['shifts', 'list', {}])).toBeUndefined()
   expect(queryClient.getQueryData(SESSION_QUERY_KEY)).toEqual(NURSE)
-  expect(queryClient.getQueryCache().getAll().map((query) => query.queryKey)).toEqual([SESSION_QUERY_KEY])
+  expect(
+    queryClient
+      .getQueryCache()
+      .getAll()
+      .map((query) => query.queryKey),
+  ).toEqual([SESSION_QUERY_KEY])
 })
 
 it('leaves the cache untouched when the credentials are rejected', async () => {
-  stubApi({ 'POST /api/auth/login': () => json(401, { error: { code: 'invalid_credentials', message: 'Invalid email or password' } }) })
+  stubApi({
+    'POST /api/auth/login': () =>
+      json(401, { error: { code: 'invalid_credentials', message: 'Invalid email or password' } }),
+  })
   const queryClient = seededClient()
   const clear = vi.spyOn(queryClient, 'clear')
   const { result } = renderHook(useLogin, { wrapper: withProviders({ queryClient }) })

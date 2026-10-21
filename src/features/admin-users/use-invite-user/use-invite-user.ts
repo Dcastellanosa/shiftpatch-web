@@ -10,7 +10,11 @@ export function useInviteUser() {
   return useMutation({
     mutationFn: (input: InviteUserInput) => inviteUser(input),
     onSuccess: (user) => {
-      pushToast({ kind: 'success', title: 'Invitation sent', body: `${user.fullName} will receive an email to set a password.` })
+      pushToast({
+        kind: 'success',
+        title: 'Invitation sent',
+        body: `${user.fullName} will receive an email to set a password.`,
+      })
       void queryClient.invalidateQueries({ queryKey: ADMIN_USERS_QUERY_KEY })
     },
   })

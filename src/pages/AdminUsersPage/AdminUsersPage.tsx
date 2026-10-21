@@ -32,7 +32,9 @@ export function AdminUsersPage() {
       <header className="page__header">
         <div>
           <h1 id="users-heading">Users</h1>
-          <p className="muted">Invite administrators, agency users and nurses. Each one sets their own password from the email.</p>
+          <p className="muted">
+            Invite administrators, agency users and nurses. Each one sets their own password from the email.
+          </p>
         </div>
         <button type="button" className="btn btn--primary" onClick={() => setInviting(true)}>
           Invite user
@@ -40,7 +42,11 @@ export function AdminUsersPage() {
       </header>
 
       {inviting && (
-        <Modal title="Invite a user" description="They receive an email with a link to set their password." onClose={closeInvite}>
+        <Modal
+          title="Invite a user"
+          description="They receive an email with a link to set their password."
+          onClose={closeInvite}
+        >
           <InviteUserForm
             pending={invite.isPending}
             error={invite.error ? toApiError(invite.error) : null}
@@ -58,8 +64,8 @@ export function AdminUsersPage() {
           onConfirm={() => remove.mutate(deleting, { onSettled: () => setDeleting(null) })}
           onCancel={() => setDeleting(null)}
         >
-          This removes the account{deleting.email ? ` for ${deleting.email}` : ''}, its sign-in and its access. It cannot be undone. Users who
-          have shifts or recorded actions cannot be deleted.
+          This removes the account{deleting.email ? ` for ${deleting.email}` : ''}, its sign-in and its access. It
+          cannot be undone. Users who have shifts or recorded actions cannot be deleted.
         </ConfirmDialog>
       )}
 

@@ -29,7 +29,9 @@ it('empties the whole cache after logging out', async () => {
 })
 
 it('still empties the cache when the API rejects the sign-out, and says so', async () => {
-  stubApi({ 'POST /api/auth/logout': () => json(500, { error: { code: 'internal_error', message: 'Internal server error' } }) })
+  stubApi({
+    'POST /api/auth/logout': () => json(500, { error: { code: 'internal_error', message: 'Internal server error' } }),
+  })
   const queryClient = seededClient()
   const clear = vi.spyOn(queryClient, 'clear')
   const { result } = renderHook(useLogout, { wrapper: withProviders({ queryClient }) })
@@ -38,7 +40,9 @@ it('still empties the cache when the API rejects the sign-out, and says so', asy
 
   expect(clear).toHaveBeenCalledTimes(1)
   expect(queryClient.getQueryCache().getAll()).toEqual([])
-  expect(useUiStore.getState().toasts).toEqual([expect.objectContaining({ kind: 'error', title: 'Could not sign out' })])
+  expect(useUiStore.getState().toasts).toEqual([
+    expect.objectContaining({ kind: 'error', title: 'Could not sign out' }),
+  ])
 })
 
 it('still empties the cache when the API cannot be reached', async () => {

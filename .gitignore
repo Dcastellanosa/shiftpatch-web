@@ -47,3 +47,7 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Supabase CLI local state (machine-specific)
+supabase/.temp
+supabase/.branches

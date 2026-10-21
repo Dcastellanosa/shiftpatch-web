@@ -35,7 +35,10 @@ it('claims, refreshes shift data and announces the result', async () => {
 
 it('surfaces rule failures without a toast', async () => {
   const shift = makeShift()
-  stubApi({ [`POST /api/shifts/${shift.id}/claim`]: () => json(422, { error: { code: 'credential_expired', message: 'Expired' } }) })
+  stubApi({
+    [`POST /api/shifts/${shift.id}/claim`]: () =>
+      json(422, { error: { code: 'credential_expired', message: 'Expired' } }),
+  })
   const { result } = renderHook(useClaimShift, { wrapper: withProviders() })
 
   await act(() => result.current.mutateAsync(shift.id).catch(() => undefined))

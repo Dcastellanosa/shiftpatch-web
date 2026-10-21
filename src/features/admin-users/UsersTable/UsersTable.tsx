@@ -37,7 +37,9 @@ export function UsersTable({ users, currentUserId, pendingUserId, onDelete }: Us
               </td>
               <td data-label="Role">{USER_ROLE_LABEL[user.role]}</td>
               <td data-label="Status">
-                <span className={`badge badge--${user.status === 'active' ? 'active' : 'invited'}`}>{USER_STATUS_LABEL[user.status]}</span>
+                <span className={`badge badge--${user.status === 'active' ? 'active' : 'invited'}`}>
+                  {USER_STATUS_LABEL[user.status]}
+                </span>
               </td>
               <td data-label="Access">
                 <Access user={user} />

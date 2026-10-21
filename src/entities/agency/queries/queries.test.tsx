@@ -23,5 +23,8 @@ it('loads the list and one detail through /api/admin', async () => {
   await waitFor(() => expect(list.result.current.data).toEqual([agency]))
   const detail = renderHook(() => useAgency(AGENCY_ID), { wrapper: withProviders() })
   await waitFor(() => expect(detail.result.current.data?.branches).toHaveLength(1))
-  expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual(['/api/admin/agencies', `/api/admin/agencies/${AGENCY_ID}`])
+  expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual([
+    '/api/admin/agencies',
+    `/api/admin/agencies/${AGENCY_ID}`,
+  ])
 })

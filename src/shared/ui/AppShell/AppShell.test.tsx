@@ -12,7 +12,9 @@ afterEach(() => vi.unstubAllGlobals())
 it('renders nurse navigation and account details', async () => {
   stubApi({ 'GET /api/auth/me': () => json(200, { user: NURSE }) })
   const { container } = renderWithProviders(
-    <AppShell role="nurse"><h1>Available Shifts</h1></AppShell>,
+    <AppShell role="nurse">
+      <h1>Available Shifts</h1>
+    </AppShell>,
     { path: '/shifts', session: true },
   )
   await screen.findByText('Ava Thompson')
@@ -24,7 +26,12 @@ it('renders nurse navigation and account details', async () => {
 
 it('shows queued notifications', async () => {
   stubApi({ 'GET /api/auth/me': () => json(200, { user: NURSE }) })
-  renderWithProviders(<AppShell role="nurse"><h1>Available Shifts</h1></AppShell>, { path: '/shifts', session: true })
+  renderWithProviders(
+    <AppShell role="nurse">
+      <h1>Available Shifts</h1>
+    </AppShell>,
+    { path: '/shifts', session: true },
+  )
   await screen.findByText('Ava Thompson')
   useUiStore.getState().pushToast({ kind: 'success', title: 'Shift claimed' })
   expect(await screen.findByText('Shift claimed')).toBeTruthy()
@@ -34,13 +41,20 @@ it('signs out through the API', async () => {
   let signedIn = true
   const fetchMock = stubApi({
     'GET /api/auth/me': () =>
-      signedIn ? json(200, { user: NURSE }) : json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
+      signedIn
+        ? json(200, { user: NURSE })
+        : json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
     'POST /api/auth/logout': () => {
       signedIn = false
       return json(204)
     },
   })
-  const { queryClient } = renderWithProviders(<AppShell role="nurse"><h1>Available Shifts</h1></AppShell>, { path: '/shifts', session: true })
+  const { queryClient } = renderWithProviders(
+    <AppShell role="nurse">
+      <h1>Available Shifts</h1>
+    </AppShell>,
+    { path: '/shifts', session: true },
+  )
   await screen.findByText('Ava Thompson')
 
   await userEvent.click(screen.getByRole('button', { name: 'Sign Out' }))

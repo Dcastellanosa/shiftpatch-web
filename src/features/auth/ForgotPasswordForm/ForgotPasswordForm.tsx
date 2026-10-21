@@ -23,7 +23,10 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
     return (
       <div className="forgot-password" role="status">
         <p className="forgot-password__done">Check your email</p>
-        <p className="muted">If an account exists for that address, a link to set a new password is on its way. It expires after a short while.</p>
+        <p className="muted">
+          If an account exists for that address, a link to set a new password is on its way. It expires after a short
+          while.
+        </p>
         <button type="button" className="btn btn--link" onClick={onBack}>
           Back to sign in
         </button>
@@ -36,7 +39,17 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
     <form className="form forgot-password" onSubmit={handleSubmit}>
       <div className="field">
         <label htmlFor={emailId}>Email</label>
-        <input id={emailId} name="email" type="email" autoComplete="username" spellCheck={false} required maxLength={320} value={email} onChange={(event) => setEmail(event.target.value)} />
+        <input
+          id={emailId}
+          name="email"
+          type="email"
+          autoComplete="username"
+          spellCheck={false}
+          required
+          maxLength={320}
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        />
       </div>
       {error && (
         <p role="alert" className="notice notice--error">
@@ -46,7 +59,12 @@ export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
       <button type="submit" className="btn btn--primary btn--block" disabled={recovery.isPending || !email.trim()}>
         {recovery.isPending ? 'Sending…' : 'Email me a link'}
       </button>
-      <button type="button" className="btn btn--link forgot-password__back" onClick={onBack} disabled={recovery.isPending}>
+      <button
+        type="button"
+        className="btn btn--link forgot-password__back"
+        onClick={onBack}
+        disabled={recovery.isPending}
+      >
         Back to sign in
       </button>
     </form>

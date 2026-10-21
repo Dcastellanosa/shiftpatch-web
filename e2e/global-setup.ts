@@ -16,11 +16,17 @@ const LOOPBACK = /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/
 export default function globalSetup() {
   const pkg = join(API_DIR, 'package.json')
   if (!existsSync(pkg) || (JSON.parse(readFileSync(pkg, 'utf8')) as { name?: string }).name !== 'shiftpatch-api') {
-    throw new Error(`shiftpatch-api was not found at ${API_DIR}. Clone it next to this repo or set E2E_API_DIR in .env.e2e.local.`)
+    throw new Error(
+      `shiftpatch-api was not found at ${API_DIR}. Clone it next to this repo or set E2E_API_DIR in .env.e2e.local.`,
+    )
   }
 
   const status = JSON.parse(
-    execFileSync('supabase', ['status', '-o', 'json'], { cwd: API_DIR, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }),
+    execFileSync('supabase', ['status', '-o', 'json'], {
+      cwd: API_DIR,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }),
   ) as Record<string, string | undefined>
   const mailUrl = status.MAILPIT_URL ?? status.INBUCKET_URL ?? ''
   if (!LOOPBACK.test(status.API_URL ?? '') || !LOOPBACK.test(mailUrl)) {

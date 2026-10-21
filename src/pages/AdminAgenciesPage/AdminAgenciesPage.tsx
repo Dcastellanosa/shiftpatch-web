@@ -41,7 +41,11 @@ export function AdminAgenciesPage() {
       </header>
 
       {creating && (
-        <Modal title="New agency" description="An agency groups branches and the users who manage them." onClose={closeCreate}>
+        <Modal
+          title="New agency"
+          description="An agency groups branches and the users who manage them."
+          onClose={closeCreate}
+        >
           <AgencyForm
             pending={create.isPending}
             error={create.error ? toApiError(create.error) : null}
@@ -60,8 +64,8 @@ export function AdminAgenciesPage() {
           onConfirm={() => remove.mutate(deleting, { onSettled: () => setDeleting(null) })}
           onCancel={() => setDeleting(null)}
         >
-          This removes the agency, its branches, its users’ memberships and nurse eligibility. It cannot be undone. Agencies that
-          already have shifts cannot be deleted; deactivate them instead.
+          This removes the agency, its branches, its users’ memberships and nurse eligibility. It cannot be undone.
+          Agencies that already have shifts cannot be deleted; deactivate them instead.
         </ConfirmDialog>
       )}
 
@@ -91,7 +95,10 @@ export function AdminAgenciesPage() {
               </thead>
               <tbody>
                 {agencies.data.map((agency) => (
-                  <tr key={agency.id} className={agency.status === 'inactive' ? 'agency-table__row--inactive' : undefined}>
+                  <tr
+                    key={agency.id}
+                    className={agency.status === 'inactive' ? 'agency-table__row--inactive' : undefined}
+                  >
                     <td data-label="Agency" className="table__cell--strong">
                       <Link to={`/admin/agencies/${agency.id}`}>{agency.name}</Link>
                     </td>

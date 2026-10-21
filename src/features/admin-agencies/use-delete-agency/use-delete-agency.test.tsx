@@ -19,13 +19,25 @@ it('sends DELETE, drops the detail query and refreshes the lists', async () => {
   expect(fetchMock.mock.calls[0]![1]?.method).toBe('DELETE')
   expect(queryClient.getQueryData(agencyKeys.detail(AGENCY_ID))).toBeUndefined()
   expect(invalidate).toHaveBeenCalledWith({ queryKey: agencyKeys.all })
-  expect(useUiStore.getState().toasts).toEqual([expect.objectContaining({ kind: 'success', title: 'Agency deleted', body: 'Northwind' })])
+  expect(useUiStore.getState().toasts).toEqual([
+    expect.objectContaining({ kind: 'success', title: 'Agency deleted', body: 'Northwind' }),
+  ])
 })
 
 it('reports agency_has_shifts as an error toast', async () => {
-  stubApi({ [`DELETE /api/admin/agencies/${AGENCY_ID}`]: () => json(409, { error: { code: 'agency_has_shifts', message: 'This agency has shifts and cannot be deleted; deactivate it instead' } }) })
+  stubApi({
+    [`DELETE /api/admin/agencies/${AGENCY_ID}`]: () =>
+      json(409, {
+        error: {
+          code: 'agency_has_shifts',
+          message: 'This agency has shifts and cannot be deleted; deactivate it instead',
+        },
+      }),
+  })
   const { result } = renderHook(useDeleteAgency, { wrapper: withProviders() })
   await act(() => result.current.mutateAsync({ id: AGENCY_ID, name: 'Northwind' }).catch(() => undefined))
-  expect(useUiStore.getState().toasts).toEqual([expect.objectContaining({ kind: 'error', title: 'Agency not deleted' })])
+  expect(useUiStore.getState().toasts).toEqual([
+    expect.objectContaining({ kind: 'error', title: 'Agency not deleted' }),
+  ])
   expect(useUiStore.getState().toasts[0]!.body).toContain('deactivate it instead')
 })

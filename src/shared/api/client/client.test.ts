@@ -261,7 +261,12 @@ describe('user administration endpoints', () => {
     await inviteUser({ email: 'new@example.test', fullName: 'New Nurse', role: 'nurse', branchId: 'b-1' })
     expect(lastCall().url).toBe('/api/admin/users')
     expect(lastCall().init.method).toBe('POST')
-    expect(JSON.parse(String(lastCall().init.body))).toEqual({ email: 'new@example.test', fullName: 'New Nurse', role: 'nurse', branchId: 'b-1' })
+    expect(JSON.parse(String(lastCall().init.body))).toEqual({
+      email: 'new@example.test',
+      fullName: 'New Nurse',
+      role: 'nurse',
+      branchId: 'b-1',
+    })
   })
 })
 
@@ -289,10 +294,16 @@ describe('password link endpoints', () => {
   it('completes a password with the token in the body only, and returns the session user', async () => {
     const user = { id: 'u-1', email: 'new@example.test', fullName: 'New', role: 'nurse', agencyId: null, agencyIds: [] }
     fetchMock.mockResolvedValueOnce(jsonResponse(200, { user }))
-    await expect(completePassword({ tokenHash: 'abcdefghijklmnop', type: 'invite', password: 'correct horse battery' })).resolves.toEqual(user)
+    await expect(
+      completePassword({ tokenHash: 'abcdefghijklmnop', type: 'invite', password: 'correct horse battery' }),
+    ).resolves.toEqual(user)
     expect(lastCall().url).toBe('/api/auth/complete-password')
     expect(lastCall().init.method).toBe('POST')
-    expect(JSON.parse(String(lastCall().init.body))).toEqual({ tokenHash: 'abcdefghijklmnop', type: 'invite', password: 'correct horse battery' })
+    expect(JSON.parse(String(lastCall().init.body))).toEqual({
+      tokenHash: 'abcdefghijklmnop',
+      type: 'invite',
+      password: 'correct horse battery',
+    })
     expect(new Headers(lastCall().init.headers).has('authorization')).toBe(false)
   })
 

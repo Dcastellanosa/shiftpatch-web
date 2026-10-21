@@ -13,9 +13,17 @@ const INACTIVE_AGENCY = 'a1000000-0000-4000-8000-000000000003'
 
 function stubLookups() {
   return stubApi({
-    'GET /api/admin/agencies': () => json(200, { agencies: [makeAgency(), makeAgency({ id: INACTIVE_AGENCY, name: 'Lakeside Staffing', status: 'inactive' })] }),
+    'GET /api/admin/agencies': () =>
+      json(200, {
+        agencies: [makeAgency(), makeAgency({ id: INACTIVE_AGENCY, name: 'Lakeside Staffing', status: 'inactive' })],
+      }),
     'GET /api/branches': () =>
-      json(200, { branches: [makeBranch(), makeBranch({ id: 'b1000000-0000-4000-8000-000000000005', name: 'Lakeside Clinic', status: 'inactive' })] }),
+      json(200, {
+        branches: [
+          makeBranch(),
+          makeBranch({ id: 'b1000000-0000-4000-8000-000000000005', name: 'Lakeside Clinic', status: 'inactive' }),
+        ],
+      }),
   })
 }
 
@@ -25,12 +33,19 @@ it('invites a nurse to one active branch', async () => {
   renderWithProviders(<InviteUserForm pending={false} error={null} onSubmit={onSubmit} />)
   await userEvent.type(screen.getByLabelText('Full name'), ' New Nurse ')
   await userEvent.type(screen.getByLabelText('Email'), 'new@example.test')
-  await waitFor(() => expect(screen.getByRole('option', { name: 'Northwind Care Staffing · Downtown Clinic' })).toBeTruthy())
+  await waitFor(() =>
+    expect(screen.getByRole('option', { name: 'Northwind Care Staffing · Downtown Clinic' })).toBeTruthy(),
+  )
   expect(screen.queryByRole('option', { name: /Lakeside Clinic/ })).toBeNull()
   expect(screen.getByRole('button', { name: 'Send invitation' }).hasAttribute('disabled')).toBe(true)
   await userEvent.selectOptions(screen.getByLabelText('Branch'), BRANCH_ID)
   await userEvent.click(screen.getByRole('button', { name: 'Send invitation' }))
-  expect(onSubmit).toHaveBeenCalledWith({ email: 'new@example.test', fullName: 'New Nurse', role: 'nurse', branchId: BRANCH_ID })
+  expect(onSubmit).toHaveBeenCalledWith({
+    email: 'new@example.test',
+    fullName: 'New Nurse',
+    role: 'nurse',
+    branchId: BRANCH_ID,
+  })
 })
 
 it('invites an agency user to active agencies only, and an admin to nothing else', async () => {
@@ -44,7 +59,12 @@ it('invites an agency user to active agencies only, and an admin to nothing else
   expect(screen.queryByRole('option', { name: 'Lakeside Staffing' })).toBeNull()
   await userEvent.selectOptions(screen.getByLabelText('Agencies'), [AGENCY_ID])
   await userEvent.click(screen.getByRole('button', { name: 'Send invitation' }))
-  expect(onSubmit).toHaveBeenLastCalledWith({ email: 'riley@example.test', fullName: 'Riley', role: 'agency', agencyIds: [AGENCY_ID] })
+  expect(onSubmit).toHaveBeenLastCalledWith({
+    email: 'riley@example.test',
+    fullName: 'Riley',
+    role: 'agency',
+    agencyIds: [AGENCY_ID],
+  })
 
   await userEvent.selectOptions(screen.getByLabelText('Role'), 'admin')
   expect(screen.queryByLabelText('Agencies')).toBeNull()
@@ -59,7 +79,13 @@ it('shows email_exists on the email field and other failures as a notice', () =>
   expect(screen.getByLabelText('Email').getAttribute('aria-invalid')).toBe('true')
   expect(screen.getByRole('alert').textContent).toBe(taken.message)
 
-  rerender(<InviteUserForm pending={false} error={new ApiError(503, 'auth_unavailable', 'Invitations are unavailable right now')} onSubmit={vi.fn()} />)
+  rerender(
+    <InviteUserForm
+      pending={false}
+      error={new ApiError(503, 'auth_unavailable', 'Invitations are unavailable right now')}
+      onSubmit={vi.fn()}
+    />,
+  )
   expect(screen.getByRole('alert').textContent).toContain('unavailable right now')
   expect(screen.getByLabelText('Email').getAttribute('aria-invalid')).toBeNull()
 })

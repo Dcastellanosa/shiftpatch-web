@@ -23,7 +23,12 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
           </p>
         )}
       </div>
-      <button type="button" className="toast__dismiss" aria-label="Dismiss notification" onClick={() => onDismiss(toast.id)}>
+      <button
+        type="button"
+        className="toast__dismiss"
+        aria-label="Dismiss notification"
+        onClick={() => onDismiss(toast.id)}
+      >
         ×
       </button>
     </div>

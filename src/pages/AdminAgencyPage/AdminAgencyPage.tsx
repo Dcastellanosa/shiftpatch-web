@@ -62,11 +62,27 @@ export function AdminAgencyPage() {
           </p>
         </div>
         <div className="agency-header__actions">
-          <button type="button" className="btn btn--secondary" onClick={() => setRenaming((open) => !open)} aria-expanded={renaming}>
+          <button
+            type="button"
+            className="btn btn--secondary"
+            onClick={() => setRenaming((open) => !open)}
+            aria-expanded={renaming}
+          >
             {renaming ? 'Close' : 'Rename'}
           </button>
-          <StatusToggle kind="agency" name={agency.name} status={agency.status} pending={updateAgency.isPending} onChange={(status) => updateAgency.mutate({ status })} />
-          <button type="button" className="btn btn--secondary agency-header__delete" onClick={() => setConfirmingDelete(true)} disabled={remove.isPending}>
+          <StatusToggle
+            kind="agency"
+            name={agency.name}
+            status={agency.status}
+            pending={updateAgency.isPending}
+            onChange={(status) => updateAgency.mutate({ status })}
+          />
+          <button
+            type="button"
+            className="btn btn--secondary agency-header__delete"
+            onClick={() => setConfirmingDelete(true)}
+            disabled={remove.isPending}
+          >
             {remove.isPending ? 'Deleting…' : 'Delete'}
           </button>
         </div>
@@ -86,8 +102,9 @@ export function AdminAgencyPage() {
           }
           onCancel={() => setConfirmingDelete(false)}
         >
-          This removes the agency, its {branches.length} {branches.length === 1 ? 'branch' : 'branches'}, its users’ memberships and nurse
-          eligibility. It cannot be undone. Agencies that already have shifts cannot be deleted; deactivate them instead.
+          This removes the agency, its {branches.length} {branches.length === 1 ? 'branch' : 'branches'}, its users’
+          memberships and nurse eligibility. It cannot be undone. Agencies that already have shifts cannot be deleted;
+          deactivate them instead.
         </ConfirmDialog>
       )}
 
@@ -146,9 +163,15 @@ export function AdminAgencyPage() {
                     branch={branch}
                     editing={editing === branch.id}
                     pending={pendingBranch === branch.id}
-                    error={pendingBranch === null && updateBranch.error && editing === branch.id ? toApiError(updateBranch.error) : null}
+                    error={
+                      pendingBranch === null && updateBranch.error && editing === branch.id
+                        ? toApiError(updateBranch.error)
+                        : null
+                    }
                     onEdit={() => setEditing(editing === branch.id ? null : branch.id)}
-                    onSave={(input) => updateBranch.mutate({ branchId: branch.id, input }, { onSuccess: () => setEditing(null) })}
+                    onSave={(input) =>
+                      updateBranch.mutate({ branchId: branch.id, input }, { onSuccess: () => setEditing(null) })
+                    }
                     onStatus={(status) => updateBranch.mutate({ branchId: branch.id, input: { status } })}
                   />
                 ))}
@@ -184,7 +207,13 @@ function BranchRow({ branch, editing, pending, error, onEdit, onSave, onStatus }
           <span className={`badge badge--${branch.status}`}>{ENTITY_STATUS_LABEL[branch.status]}</span>
         </td>
         <td className="branch-table__actions">
-          <button type="button" className="btn btn--link" onClick={onEdit} aria-expanded={editing} aria-controls={`branch-edit-${branch.id}`}>
+          <button
+            type="button"
+            className="btn btn--link"
+            onClick={onEdit}
+            aria-expanded={editing}
+            aria-controls={`branch-edit-${branch.id}`}
+          >
             {editing ? 'Close' : 'Edit'}
           </button>
           <StatusToggle kind="branch" name={branch.name} status={branch.status} pending={pending} onChange={onStatus} />
@@ -193,7 +222,14 @@ function BranchRow({ branch, editing, pending, error, onEdit, onSave, onStatus }
       {editing && (
         <tr className="table__history-row">
           <td colSpan={5} id={`branch-edit-${branch.id}`}>
-            <BranchForm initial={branch} pending={pending} error={error} submitLabel="Save branch" onSubmit={onSave} onCancel={onEdit} />
+            <BranchForm
+              initial={branch}
+              pending={pending}
+              error={error}
+              submitLabel="Save branch"
+              onSubmit={onSave}
+              onCancel={onEdit}
+            />
           </td>
         </tr>
       )}

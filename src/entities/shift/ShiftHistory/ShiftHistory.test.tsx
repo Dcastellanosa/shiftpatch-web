@@ -10,8 +10,12 @@ afterEach(() => vi.unstubAllGlobals())
 it('renders a recorded shift event', async () => {
   const shift = makeShift()
   const event = {
-    id: 'event-1', eventType: 'claimed', previousStatus: 'open', newStatus: 'claimed',
-    reason: 'Accepted by nurse', occurredAt: '2030-01-10T14:00:00.000Z',
+    id: 'event-1',
+    eventType: 'claimed',
+    previousStatus: 'open',
+    newStatus: 'claimed',
+    reason: 'Accepted by nurse',
+    occurredAt: '2030-01-10T14:00:00.000Z',
     actor: { id: 'nurse-1', fullName: 'Ava Thompson' },
   }
   stubApi({ [`GET /api/shifts/${shift.id}/events`]: () => json(200, { events: [event] }) })
@@ -23,7 +27,10 @@ it('renders a recorded shift event', async () => {
 
 it('shows an error state with retry when the history fails', async () => {
   const shift = makeShift()
-  stubApi({ [`GET /api/shifts/${shift.id}/events`]: () => json(500, { error: { code: 'internal_error', message: 'Internal server error' } }) })
+  stubApi({
+    [`GET /api/shifts/${shift.id}/events`]: () =>
+      json(500, { error: { code: 'internal_error', message: 'Internal server error' } }),
+  })
   renderWithProviders(<ShiftHistory shiftId={shift.id} />)
   expect(await screen.findByText('Something went wrong')).toBeTruthy()
   expect(screen.getByRole('button', { name: 'Try Again' })).toBeTruthy()

@@ -17,11 +17,16 @@ it('sends DELETE and refreshes the user list', async () => {
   await act(() => result.current.mutateAsync({ id: NURSE_ID, fullName: 'Ava Thompson' }))
   expect(fetchMock.mock.calls[0]![1]?.method).toBe('DELETE')
   expect(invalidate).toHaveBeenCalledWith({ queryKey: ADMIN_USERS_QUERY_KEY })
-  expect(useUiStore.getState().toasts).toEqual([expect.objectContaining({ kind: 'success', title: 'User deleted', body: 'Ava Thompson' })])
+  expect(useUiStore.getState().toasts).toEqual([
+    expect.objectContaining({ kind: 'success', title: 'User deleted', body: 'Ava Thompson' }),
+  ])
 })
 
 it('reports cannot_delete_self as an error toast', async () => {
-  stubApi({ [`DELETE /api/admin/users/${NURSE_ID}`]: () => json(409, { error: { code: 'cannot_delete_self', message: 'You cannot delete your own account' } }) })
+  stubApi({
+    [`DELETE /api/admin/users/${NURSE_ID}`]: () =>
+      json(409, { error: { code: 'cannot_delete_self', message: 'You cannot delete your own account' } }),
+  })
   const { result } = renderHook(useDeleteUser, { wrapper: withProviders() })
   await act(() => result.current.mutateAsync({ id: NURSE_ID, fullName: 'Me' }).catch(() => undefined))
   expect(useUiStore.getState().toasts).toEqual([expect.objectContaining({ kind: 'error', title: 'User not deleted' })])

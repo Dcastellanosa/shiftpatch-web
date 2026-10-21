@@ -21,7 +21,9 @@ it('sends the address and shows the same confirmation for any outcome the API ac
 })
 
 it('reports a failure without pretending the email was sent', async () => {
-  stubApi({ 'POST /api/auth/recover': () => json(400, { error: { code: 'validation_error', message: 'Invalid email' } }) })
+  stubApi({
+    'POST /api/auth/recover': () => json(400, { error: { code: 'validation_error', message: 'Invalid email' } }),
+  })
   renderWithProviders(<ForgotPasswordForm onBack={vi.fn()} />)
   await userEvent.type(screen.getByLabelText('Email'), 'bad@example')
   await userEvent.click(screen.getByRole('button', { name: 'Email me a link' }))

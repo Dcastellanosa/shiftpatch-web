@@ -32,5 +32,9 @@ it('refreshes the list after a successful claim', async () => {
 
   expect(await screen.findByText('No open shifts right now')).toBeTruthy()
   expect(screen.queryByRole('dialog')).toBeNull()
-  expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual(['/api/shifts', `/api/shifts/${shift.id}/claim`, '/api/shifts'])
+  expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual([
+    '/api/shifts',
+    `/api/shifts/${shift.id}/claim`,
+    '/api/shifts',
+  ])
 })

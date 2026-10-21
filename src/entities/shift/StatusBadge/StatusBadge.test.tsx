@@ -6,6 +6,12 @@ import { StatusBadge } from './index.ts'
 
 it('renders every shift status', () => {
   const statuses: ShiftStatus[] = ['open', 'claimed', 'completed', 'cancelled', 'no_show']
-  const { container } = render(<>{statuses.map((status) => <StatusBadge key={status} status={status} />)}</>)
+  const { container } = render(
+    <>
+      {statuses.map((status) => (
+        <StatusBadge key={status} status={status} />
+      ))}
+    </>,
+  )
   expect(container).toMatchSnapshot()
 })

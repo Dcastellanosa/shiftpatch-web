@@ -49,7 +49,10 @@ export function AgencyShiftsPage() {
           <h2 id="agency-list-heading">Shifts</h2>
           <label className="inline-field">
             Status
-            <select value={status ?? ''} onChange={(e) => setSearchParams(compactParams({ status: e.target.value }), { replace: true })}>
+            <select
+              value={status ?? ''}
+              onChange={(e) => setSearchParams(compactParams({ status: e.target.value }), { replace: true })}
+            >
               <option value="">All statuses</option>
               {STATUSES.map((s) => (
                 <option key={s} value={s}>

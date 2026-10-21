@@ -67,7 +67,11 @@ describe('server state stays in memory', () => {
 
   it('no source file persists the query cache', () => {
     const offenders = files
-      .filter((file) => /persistQueryClient|PersistQueryClientProvider|create(Sync|Async)StoragePersister|query-persist-client/.test(readFileSync(file, 'utf8')))
+      .filter((file) =>
+        /persistQueryClient|PersistQueryClientProvider|create(Sync|Async)StoragePersister|query-persist-client/.test(
+          readFileSync(file, 'utf8'),
+        ),
+      )
       .map((file) => relative(ROOT, file))
     expect(offenders).toEqual([])
   })

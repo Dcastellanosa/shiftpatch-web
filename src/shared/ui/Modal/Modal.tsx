@@ -50,7 +50,13 @@ export function Modal({ title, description, children, onClose }: ModalProps) {
               </p>
             )}
           </div>
-          <button type="button" className="btn btn--ghost modal-dialog__close" onClick={onClose} aria-label="Close" data-modal-close>
+          <button
+            type="button"
+            className="btn btn--ghost modal-dialog__close"
+            onClick={onClose}
+            aria-label="Close"
+            data-modal-close
+          >
             ×
           </button>
         </header>

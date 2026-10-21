@@ -71,7 +71,9 @@ export function SetPasswordForm({ type, pending, error, onSubmit }: SetPasswordF
       </div>
       {error && !weak && (
         <div className="notice notice--error" role="alert">
-          <p className="notice__title">{error.code === 'invalid_or_expired_link' ? 'This link no longer works' : 'The password was not saved'}</p>
+          <p className="notice__title">
+            {error.code === 'invalid_or_expired_link' ? 'This link no longer works' : 'The password was not saved'}
+          </p>
           <p>{error.status === 0 ? 'The server could not be reached. Try again.' : error.message}</p>
         </div>
       )}

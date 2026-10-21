@@ -27,7 +27,11 @@ function SessionProbe() {
 
 it('reads session truth from GET /api/auth/me', async () => {
   const fetchMock = stubApi({ 'GET /api/auth/me': () => json(200, { user: NURSE }) })
-  renderWithProviders(<SessionProvider><SessionProbe /></SessionProvider>)
+  renderWithProviders(
+    <SessionProvider>
+      <SessionProbe />
+    </SessionProvider>,
+  )
   await screen.findByText('Ava Thompson')
   expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/auth/me')
 })
@@ -37,9 +41,15 @@ it('signs in and keeps a rejected attempt from touching the cache', async () => 
   stubApi({
     'GET /api/auth/me': () => json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
     'POST /api/auth/login': () =>
-      accept ? json(200, { user: NURSE }) : json(401, { error: { code: 'invalid_credentials', message: 'Invalid email or password' } }),
+      accept
+        ? json(200, { user: NURSE })
+        : json(401, { error: { code: 'invalid_credentials', message: 'Invalid email or password' } }),
   })
-  const { queryClient } = renderWithProviders(<SessionProvider><SessionProbe /></SessionProvider>)
+  const { queryClient } = renderWithProviders(
+    <SessionProvider>
+      <SessionProbe />
+    </SessionProvider>,
+  )
   await screen.findByText('Signed out')
   queryClient.setQueryData(['shifts', 'list', {}], [makeShift()])
 
@@ -58,13 +68,19 @@ it('signs out, clears the cache and re-asks the API for the session', async () =
   let signedIn = true
   const fetchMock = stubApi({
     'GET /api/auth/me': () =>
-      signedIn ? json(200, { user: NURSE }) : json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
+      signedIn
+        ? json(200, { user: NURSE })
+        : json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
     'POST /api/auth/logout': () => {
       signedIn = false
       return json(204)
     },
   })
-  const { queryClient } = renderWithProviders(<SessionProvider><SessionProbe /></SessionProvider>)
+  const { queryClient } = renderWithProviders(
+    <SessionProvider>
+      <SessionProbe />
+    </SessionProvider>,
+  )
   await screen.findByText('Ava Thompson')
   queryClient.setQueryData(['shifts', 'list', {}], [makeShift()])
 

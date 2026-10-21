@@ -12,7 +12,8 @@ export const DOWNTOWN = 'Downtown Clinic'
 
 export function seededPassword(): string {
   const password = process.env.E2E_SEED_PASSWORD
-  if (!password) throw new Error('E2E_SEED_PASSWORD is set by e2e/global-setup.ts; run the suite through `pnpm test:e2e`')
+  if (!password)
+    throw new Error('E2E_SEED_PASSWORD is set by e2e/global-setup.ts; run the suite through `pnpm test:e2e`')
   return password
 }
 
@@ -60,14 +61,19 @@ interface MailpitMessage {
 export async function passwordLinkFor(email: string, type: 'invite' | 'recovery', notBefore: number): Promise<string> {
   const mailpit = process.env.E2E_MAILPIT_URL
   if (!mailpit) throw new Error('E2E_MAILPIT_URL is set by e2e/global-setup.ts')
-  const pattern = new RegExp(`/set-password#token_hash=[A-Za-z0-9._~-]+&amp;type=${type}|/set-password#token_hash=[A-Za-z0-9._~-]+&type=${type}`)
+  const pattern = new RegExp(
+    `/set-password#token_hash=[A-Za-z0-9._~-]+&amp;type=${type}|/set-password#token_hash=[A-Za-z0-9._~-]+&type=${type}`,
+  )
   for (let attempt = 0; attempt < 40; attempt++) {
     const list = (await (await fetch(`${mailpit}/api/v1/messages?limit=50`)).json()) as { messages: MailpitMessage[] }
     const candidates = list.messages.filter(
       (m) => m.To.some((to) => to.Address.toLowerCase() === email.toLowerCase()) && Date.parse(m.Created) >= notBefore,
     )
     for (const candidate of candidates) {
-      const message = (await (await fetch(`${mailpit}/api/v1/message/${candidate.ID}`)).json()) as { HTML: string; Text: string }
+      const message = (await (await fetch(`${mailpit}/api/v1/message/${candidate.ID}`)).json()) as {
+        HTML: string
+        Text: string
+      }
       const match = pattern.exec(message.HTML) ?? pattern.exec(message.Text)
       if (match) return match[0].replace('&amp;', '&')
     }

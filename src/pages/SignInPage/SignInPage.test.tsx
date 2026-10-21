@@ -9,7 +9,9 @@ import { SignInPage } from './index.ts'
 it('renders the sign-in form and delegates credentials to the session', async () => {
   const login = vi.fn(async () => {})
   const { container } = render(
-    <SessionContext value={{ loading: false, authenticated: false, user: null, error: null, login, logout: vi.fn(async () => {}) }}>
+    <SessionContext
+      value={{ loading: false, authenticated: false, user: null, error: null, login, logout: vi.fn(async () => {}) }}
+    >
       <SignInPage />
     </SessionContext>,
   )
@@ -22,7 +24,16 @@ it('renders the sign-in form and delegates credentials to the session', async ()
 
 it('switches to the recovery form and back', async () => {
   render(
-    <SessionContext value={{ loading: false, authenticated: false, user: null, error: null, login: vi.fn(async () => {}), logout: vi.fn(async () => {}) }}>
+    <SessionContext
+      value={{
+        loading: false,
+        authenticated: false,
+        user: null,
+        error: null,
+        login: vi.fn(async () => {}),
+        logout: vi.fn(async () => {}),
+      }}
+    >
       <QueryClientProvider client={createTestQueryClient()}>
         <SignInPage />
       </QueryClientProvider>

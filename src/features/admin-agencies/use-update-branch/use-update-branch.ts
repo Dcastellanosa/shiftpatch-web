@@ -10,9 +10,14 @@ export function useUpdateBranch(agencyId: string) {
   const queryClient = useQueryClient()
   const pushToast = useUiStore((state) => state.pushToast)
   return useMutation({
-    mutationFn: ({ branchId, input }: { branchId: string; input: UpdateBranchInput }) => updateBranch(agencyId, branchId, input),
+    mutationFn: ({ branchId, input }: { branchId: string; input: UpdateBranchInput }) =>
+      updateBranch(agencyId, branchId, input),
     onSuccess: (branch, { input }) => {
-      const title = input.status ? (input.status === 'active' ? 'Branch activated' : 'Branch deactivated') : 'Branch updated'
+      const title = input.status
+        ? input.status === 'active'
+          ? 'Branch activated'
+          : 'Branch deactivated'
+        : 'Branch updated'
       pushToast({ kind: 'success', title, body: branch.name })
       void queryClient.invalidateQueries({ queryKey: agencyKeys.all })
       void queryClient.invalidateQueries({ queryKey: BRANCHES_QUERY_KEY })

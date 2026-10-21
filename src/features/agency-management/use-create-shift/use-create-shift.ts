@@ -10,7 +10,11 @@ export function useCreateShift() {
   return useMutation({
     mutationFn: (input: CreateShiftInput) => createShift(input),
     onSuccess: (shift) => {
-      pushToast({ kind: 'success', title: 'Shift created', body: `${shift.title} at ${shift.branch.name} is open for eligible nurses.` })
+      pushToast({
+        kind: 'success',
+        title: 'Shift created',
+        body: `${shift.title} at ${shift.branch.name} is open for eligible nurses.`,
+      })
       void queryClient.invalidateQueries({ queryKey: shiftKeys.all })
     },
   })

@@ -20,10 +20,14 @@ export function BranchForm({ initial, pending, error, submitLabel, onSubmit, onC
   const ids = { legend: useId(), name: useId(), address: useId(), timezone: useId(), error: useId(), hint: useId() }
   const [name, setName] = useState(initial?.name ?? '')
   const [address, setAddress] = useState(initial?.address ?? '')
-  const [timezone, setTimezone] = useState(initial?.timezone ?? (TIMEZONES.includes('America/New_York') ? 'America/New_York' : 'UTC'))
+  const [timezone, setTimezone] = useState(
+    initial?.timezone ?? (TIMEZONES.includes('America/New_York') ? 'America/New_York' : 'UTC'),
+  )
   const nameTaken = error?.code === 'name_taken'
   const input = { name: name.trim(), address: address.trim(), timezone }
-  const unchanged = initial ? input.name === initial.name && input.address === initial.address && input.timezone === initial.timezone : false
+  const unchanged = initial
+    ? input.name === initial.name && input.address === initial.address && input.timezone === initial.timezone
+    : false
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -56,11 +60,25 @@ export function BranchForm({ initial, pending, error, submitLabel, onSubmit, onC
         </div>
         <div className="field branch-form__wide">
           <label htmlFor={ids.address}>Address</label>
-          <input id={ids.address} name="address" required maxLength={500} autoComplete="street-address" value={address} onChange={(event) => setAddress(event.target.value)} />
+          <input
+            id={ids.address}
+            name="address"
+            required
+            maxLength={500}
+            autoComplete="street-address"
+            value={address}
+            onChange={(event) => setAddress(event.target.value)}
+          />
         </div>
         <div className="field">
           <label htmlFor={ids.timezone}>Time zone</label>
-          <select id={ids.timezone} name="timezone" value={timezone} onChange={(event) => setTimezone(event.target.value)} aria-describedby={ids.hint}>
+          <select
+            id={ids.timezone}
+            name="timezone"
+            value={timezone}
+            onChange={(event) => setTimezone(event.target.value)}
+            aria-describedby={ids.hint}
+          >
             {TIMEZONES.map((zone) => (
               <option key={zone} value={zone}>
                 {zone}
@@ -84,7 +102,11 @@ export function BranchForm({ initial, pending, error, submitLabel, onSubmit, onC
             Cancel
           </button>
         )}
-        <button type="submit" className="btn btn--primary" disabled={pending || !input.name || !input.address || unchanged}>
+        <button
+          type="submit"
+          className="btn btn--primary"
+          disabled={pending || !input.name || !input.address || unchanged}
+        >
           {pending ? 'Saving…' : submitLabel}
         </button>
       </div>

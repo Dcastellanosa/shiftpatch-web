@@ -31,7 +31,8 @@ export function ShiftHistory({ shiftId }: { shiftId: string }) {
           <span className="timeline__label">{EVENT_LABEL[event.eventType]}</span>
           <span className="muted">
             {' '}
-            by {event.actor.fullName ?? 'a team member'} · <time dateTime={event.occurredAt}>{formatTimestamp(event.occurredAt)}</time>
+            by {event.actor.fullName ?? 'a team member'} ·{' '}
+            <time dateTime={event.occurredAt}>{formatTimestamp(event.occurredAt)}</time>
           </span>
           {event.reason && <p className="small">{event.reason}</p>}
         </li>

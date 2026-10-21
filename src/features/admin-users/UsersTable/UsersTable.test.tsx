@@ -16,8 +16,23 @@ it('shows role, status and access for each kind of user, with delete for everyon
       onDelete={onDelete}
       users={[
         makeAdminUser(),
-        makeAdminUser({ id: 'c1000000-0000-4000-8000-000000000002', fullName: 'Riley Northwind', email: 'riley@example.test', role: 'agency', agencies: [{ id: AGENCY_ID, name: 'Northwind Care Staffing' }], eligibleBranches: [] }),
-        makeAdminUser({ id: SELF, fullName: 'New Admin', email: 'admin2@example.test', role: 'admin', status: 'invited', lastSignInAt: null, eligibleBranches: [] }),
+        makeAdminUser({
+          id: 'c1000000-0000-4000-8000-000000000002',
+          fullName: 'Riley Northwind',
+          email: 'riley@example.test',
+          role: 'agency',
+          agencies: [{ id: AGENCY_ID, name: 'Northwind Care Staffing' }],
+          eligibleBranches: [],
+        }),
+        makeAdminUser({
+          id: SELF,
+          fullName: 'New Admin',
+          email: 'admin2@example.test',
+          role: 'admin',
+          status: 'invited',
+          lastSignInAt: null,
+          eligibleBranches: [],
+        }),
       ]}
     />,
   )
@@ -41,7 +56,15 @@ it('marks the row being deleted and disables the other delete buttons meanwhile'
       currentUserId={SELF}
       pendingUserId={makeAdminUser().id}
       onDelete={vi.fn()}
-      users={[makeAdminUser(), makeAdminUser({ id: 'c1000000-0000-4000-8000-000000000002', fullName: 'Riley Northwind', role: 'agency', eligibleBranches: [] })]}
+      users={[
+        makeAdminUser(),
+        makeAdminUser({
+          id: 'c1000000-0000-4000-8000-000000000002',
+          fullName: 'Riley Northwind',
+          role: 'agency',
+          eligibleBranches: [],
+        }),
+      ]}
     />,
   )
   expect(screen.getByRole('button', { name: 'Delete Ava Thompson' }).textContent).toBe('Deleting…')

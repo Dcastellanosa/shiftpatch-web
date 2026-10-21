@@ -12,7 +12,9 @@ interface NurseEligibilityTableProps {
 /** Nurses × branches grid: each cell is the nurse's status at that branch and the action that changes it. */
 export function NurseEligibilityTable({ nurses, branches }: NurseEligibilityTableProps) {
   const setEligibility = useSetEligibility()
-  const pendingKey = setEligibility.isPending ? `${setEligibility.variables.nurseId}:${setEligibility.variables.branchId}` : null
+  const pendingKey = setEligibility.isPending
+    ? `${setEligibility.variables.nurseId}:${setEligibility.variables.branchId}`
+    : null
 
   return (
     <div className="table-wrap">
@@ -23,7 +25,9 @@ export function NurseEligibilityTable({ nurses, branches }: NurseEligibilityTabl
             {branches.map((branch) => (
               <th key={branch.id} scope="col">
                 {branch.name}
-                {branch.status === 'inactive' && <span className="muted small eligibility-table__note"> (inactive)</span>}
+                {branch.status === 'inactive' && (
+                  <span className="muted small eligibility-table__note"> (inactive)</span>
+                )}
               </th>
             ))}
           </tr>
@@ -45,7 +49,13 @@ export function NurseEligibilityTable({ nurses, branches }: NurseEligibilityTabl
                       disabled={branch.status !== 'active'}
                       pending={pendingKey === `${nurse.id}:${branch.id}`}
                       onChange={(status) =>
-                        setEligibility.mutate({ nurseId: nurse.id, nurseName: nurse.fullName, branchId: branch.id, branchName: branch.name, status })
+                        setEligibility.mutate({
+                          nurseId: nurse.id,
+                          nurseName: nurse.fullName,
+                          branchId: branch.id,
+                          branchName: branch.name,
+                          status,
+                        })
                       }
                     />
                   </td>

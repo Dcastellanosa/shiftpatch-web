@@ -24,11 +24,25 @@ it('requires a matching password of at least eight characters and submits only t
 })
 
 it('shows a weak password on the field and an expired link as a notice', () => {
-  const { rerender } = render(<SetPasswordForm type="recovery" pending={false} error={new ApiError(422, 'weak_password', 'Choose a longer, less common password')} onSubmit={vi.fn()} />)
+  const { rerender } = render(
+    <SetPasswordForm
+      type="recovery"
+      pending={false}
+      error={new ApiError(422, 'weak_password', 'Choose a longer, less common password')}
+      onSubmit={vi.fn()}
+    />,
+  )
   expect(screen.getByLabelText('New password').getAttribute('aria-invalid')).toBe('true')
   expect(screen.getByRole('alert').textContent).toContain('less common')
 
-  rerender(<SetPasswordForm type="recovery" pending={false} error={new ApiError(401, 'invalid_or_expired_link', 'This link is invalid or has expired. Request a new one.')} onSubmit={vi.fn()} />)
+  rerender(
+    <SetPasswordForm
+      type="recovery"
+      pending={false}
+      error={new ApiError(401, 'invalid_or_expired_link', 'This link is invalid or has expired. Request a new one.')}
+      onSubmit={vi.fn()}
+    />,
+  )
   expect(screen.getByRole('alert').textContent).toContain('no longer works')
   expect(screen.getByRole('button', { name: 'Save new password' })).toBeTruthy()
 })

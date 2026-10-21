@@ -31,7 +31,12 @@ it('stores the new session only after the API accepted the password, and the ses
 })
 
 it('leaves the cache untouched when the link is rejected', async () => {
-  stubApi({ 'POST /api/auth/complete-password': () => json(401, { error: { code: 'invalid_or_expired_link', message: 'This link is invalid or has expired. Request a new one.' } }) })
+  stubApi({
+    'POST /api/auth/complete-password': () =>
+      json(401, {
+        error: { code: 'invalid_or_expired_link', message: 'This link is invalid or has expired. Request a new one.' },
+      }),
+  })
   const queryClient = createTestQueryClient()
   queryClient.setQueryData(['shifts', 'list', {}], [])
   const { result } = renderHook(useCompletePassword, { wrapper: withProviders({ queryClient }) })

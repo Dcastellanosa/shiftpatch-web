@@ -56,10 +56,7 @@ export function AdminShiftsPage() {
       <form className="card filters" aria-label="Filters" onSubmit={(e) => e.preventDefault()}>
         <label className="field">
           Agency
-          <select
-            value={filters.agency}
-            onChange={(e) => update({ agency: e.target.value, branch: '' })}
-          >
+          <select value={filters.agency} onChange={(e) => update({ agency: e.target.value, branch: '' })}>
             <option value="">All agencies</option>
             {[...agencies].map(([id, name]) => (
               <option key={id} value={id}>
@@ -95,12 +92,7 @@ export function AdminShiftsPage() {
       </form>
 
       <div className="stats" role="group" aria-label="Shifts by status">
-        <button
-          type="button"
-          className="stat"
-          aria-pressed={!filters.status}
-          onClick={() => update({ status: '' })}
-        >
+        <button type="button" className="stat" aria-pressed={!filters.status} onClick={() => update({ status: '' })}>
           <span className="stat__value">{inAgency.length}</span>
           <span className="stat__label">All</span>
         </button>

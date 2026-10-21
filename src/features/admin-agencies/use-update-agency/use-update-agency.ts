@@ -15,7 +15,11 @@ export function useUpdateAgency(agencyId: string) {
   return useMutation({
     mutationFn: (input: UpdateAgencyInput) => updateAgency(agencyId, input),
     onSuccess: (agency, input) => {
-      const title = input.status ? (input.status === 'active' ? 'Agency activated' : 'Agency deactivated') : 'Agency updated'
+      const title = input.status
+        ? input.status === 'active'
+          ? 'Agency activated'
+          : 'Agency deactivated'
+        : 'Agency updated'
       pushToast({ kind: 'success', title, body: agency.name })
       void queryClient.invalidateQueries({ queryKey: agencyKeys.all })
       if (input.status) {

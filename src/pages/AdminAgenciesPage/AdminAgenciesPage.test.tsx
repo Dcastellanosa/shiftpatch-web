@@ -25,13 +25,25 @@ it('shows the empty state and opens the create modal', async () => {
 it('lists agencies with status, branch count and a link to the detail page', async () => {
   stubApi({
     'GET /api/admin/agencies': () =>
-      json(200, { agencies: [makeAgency(), makeAgency({ id: 'a1000000-0000-4000-8000-000000000003', name: 'Lakeside Staffing', status: 'inactive', branchCount: 1 })] }),
+      json(200, {
+        agencies: [
+          makeAgency(),
+          makeAgency({
+            id: 'a1000000-0000-4000-8000-000000000003',
+            name: 'Lakeside Staffing',
+            status: 'inactive',
+            branchCount: 1,
+          }),
+        ],
+      }),
   })
   renderWithProviders(<AdminAgenciesPage />, { path: '/admin/agencies' })
   const table = await screen.findByTestId('agencies-table')
   const rows = within(table).getAllByRole('row').slice(1)
   expect(rows).toHaveLength(2)
-  expect(within(rows[0]!).getByRole('link', { name: 'Northwind Care Staffing' }).getAttribute('href')).toBe('/admin/agencies/a1000000-0000-4000-8000-000000000001')
+  expect(within(rows[0]!).getByRole('link', { name: 'Northwind Care Staffing' }).getAttribute('href')).toBe(
+    '/admin/agencies/a1000000-0000-4000-8000-000000000001',
+  )
   expect(within(rows[1]!).getByText('Inactive')).toBeTruthy()
   expect(within(rows[1]!).getByText('1')).toBeTruthy()
 })
@@ -58,7 +70,8 @@ it('creates an agency from the modal, closes it and refreshes the list', async (
 it('keeps the modal open and shows a taken name on the field', async () => {
   stubApi({
     'GET /api/admin/agencies': () => json(200, { agencies: [makeAgency()] }),
-    'POST /api/admin/agencies': () => json(409, { error: { code: 'name_taken', message: 'An agency with this name already exists' } }),
+    'POST /api/admin/agencies': () =>
+      json(409, { error: { code: 'name_taken', message: 'An agency with this name already exists' } }),
   })
   renderWithProviders(<AdminAgenciesPage />, { path: '/admin/agencies' })
   await screen.findByTestId('agencies-table')
@@ -70,10 +83,19 @@ it('keeps the modal open and shows a taken name on the field', async () => {
 })
 
 it('deletes an agency after the warning, and explains a refusal', async () => {
-  let agencies = [makeAgency(), makeAgency({ id: 'a1000000-0000-4000-8000-000000000003', name: 'Lakeside Staffing', branchCount: 0 })]
+  let agencies = [
+    makeAgency(),
+    makeAgency({ id: 'a1000000-0000-4000-8000-000000000003', name: 'Lakeside Staffing', branchCount: 0 }),
+  ]
   stubApi({
     'GET /api/admin/agencies': () => json(200, { agencies }),
-    [`DELETE /api/admin/agencies/${AGENCY_ID}`]: () => json(409, { error: { code: 'agency_has_shifts', message: 'This agency has shifts and cannot be deleted; deactivate it instead' } }),
+    [`DELETE /api/admin/agencies/${AGENCY_ID}`]: () =>
+      json(409, {
+        error: {
+          code: 'agency_has_shifts',
+          message: 'This agency has shifts and cannot be deleted; deactivate it instead',
+        },
+      }),
     'DELETE /api/admin/agencies/a1000000-0000-4000-8000-000000000003': () => {
       agencies = agencies.slice(0, 1)
       return { status: 204 }

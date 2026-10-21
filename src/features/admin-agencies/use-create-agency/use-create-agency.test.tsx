@@ -24,7 +24,10 @@ it('creates the agency, refreshes agency data and announces it', async () => {
 })
 
 it('surfaces name_taken without a toast', async () => {
-  stubApi({ 'POST /api/admin/agencies': () => json(409, { error: { code: 'name_taken', message: 'An agency with this name already exists' } }) })
+  stubApi({
+    'POST /api/admin/agencies': () =>
+      json(409, { error: { code: 'name_taken', message: 'An agency with this name already exists' } }),
+  })
   const { result } = renderHook(useCreateAgency, { wrapper: withProviders() })
   await act(() => result.current.mutateAsync({ name: 'Northwind' }).catch(() => undefined))
   await waitFor(() => expect(result.current.error).toMatchObject({ status: 409, code: 'name_taken' }))

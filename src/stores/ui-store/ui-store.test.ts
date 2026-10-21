@@ -5,7 +5,12 @@ beforeEach(() => useUiStore.setState({ toasts: [] }))
 
 it('queues and dismisses toasts in order', () => {
   const { pushToast, dismissToast } = useUiStore.getState()
-  const first = pushToast({ kind: 'success', title: 'Shift claimed', body: 'Med-Surg RN at Downtown Clinic is now yours.', link: { to: '/my-shifts', label: 'View My Shifts' } })
+  const first = pushToast({
+    kind: 'success',
+    title: 'Shift claimed',
+    body: 'Med-Surg RN at Downtown Clinic is now yours.',
+    link: { to: '/my-shifts', label: 'View My Shifts' },
+  })
   const second = pushToast({ kind: 'error', title: 'Could not refresh' })
   expect(useUiStore.getState().toasts.map((toast) => toast.title)).toEqual(['Shift claimed', 'Could not refresh'])
   expect(first).not.toBe(second)
@@ -15,7 +20,13 @@ it('queues and dismisses toasts in order', () => {
 })
 
 it('holds only the notification queue, never server state', () => {
-  useUiStore.getState().pushToast({ kind: 'success', title: 'Shift created', body: 'Night RN at Downtown Clinic is open for eligible nurses.' })
+  useUiStore
+    .getState()
+    .pushToast({
+      kind: 'success',
+      title: 'Shift created',
+      body: 'Night RN at Downtown Clinic is open for eligible nurses.',
+    })
   const state = useUiStore.getState()
   expect(Object.keys(state).sort()).toEqual(['dismissToast', 'pushToast', 'toasts'])
   for (const toast of state.toasts) {

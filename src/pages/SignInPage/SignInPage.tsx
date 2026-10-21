@@ -25,7 +25,9 @@ export function SignInPage() {
           ShiftPatch
         </p>
         <h1>{forgot ? 'Reset your password' : 'Sign In'}</h1>
-        <p className="muted">{forgot ? 'We will email you a link to choose a new one.' : 'Nursing shifts, staffed safely.'}</p>
+        <p className="muted">
+          {forgot ? 'We will email you a link to choose a new one.' : 'Nursing shifts, staffed safely.'}
+        </p>
         {forgot ? (
           <ForgotPasswordForm onBack={() => setForgot(false)} />
         ) : (

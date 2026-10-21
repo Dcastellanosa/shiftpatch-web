@@ -29,7 +29,13 @@ describe('the API client is the only network gateway', () => {
 
 describe('routing stays declarative', () => {
   it('uses react-router (declarative mode) and never the data router APIs', () => {
-    expect(offenders((source) => /react-router-dom|createBrowserRouter|createHashRouter|RouterProvider|useLoaderData|useActionData|createRoutesFromElements/.test(source))).toEqual([])
+    expect(
+      offenders((source) =>
+        /react-router-dom|createBrowserRouter|createHashRouter|RouterProvider|useLoaderData|useActionData|createRoutesFromElements/.test(
+          source,
+        ),
+      ),
+    ).toEqual([])
   })
 
   it('declares no route loaders or actions', () => {

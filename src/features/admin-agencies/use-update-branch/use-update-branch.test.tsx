@@ -10,7 +10,10 @@ import { useUpdateBranch } from './index.ts'
 afterEach(() => vi.unstubAllGlobals())
 
 it('deactivates a branch through its agency and refreshes shift data', async () => {
-  const fetchMock = stubApi({ [`PATCH /api/admin/agencies/${AGENCY_ID}/branches/${BRANCH_ID}`]: () => json(200, { branch: makeAgencyBranch({ status: 'inactive' }) }) })
+  const fetchMock = stubApi({
+    [`PATCH /api/admin/agencies/${AGENCY_ID}/branches/${BRANCH_ID}`]: () =>
+      json(200, { branch: makeAgencyBranch({ status: 'inactive' }) }),
+  })
   const queryClient = createTestQueryClient()
   const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
   const { result } = renderHook(() => useUpdateBranch(AGENCY_ID), { wrapper: withProviders({ queryClient }) })
@@ -23,7 +26,10 @@ it('deactivates a branch through its agency and refreshes shift data', async () 
 })
 
 it('edits a branch without touching shift data', async () => {
-  stubApi({ [`PATCH /api/admin/agencies/${AGENCY_ID}/branches/${BRANCH_ID}`]: () => json(200, { branch: makeAgencyBranch({ name: 'Renamed' }) }) })
+  stubApi({
+    [`PATCH /api/admin/agencies/${AGENCY_ID}/branches/${BRANCH_ID}`]: () =>
+      json(200, { branch: makeAgencyBranch({ name: 'Renamed' }) }),
+  })
   const queryClient = createTestQueryClient()
   const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
   const { result } = renderHook(() => useUpdateBranch(AGENCY_ID), { wrapper: withProviders({ queryClient }) })

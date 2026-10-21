@@ -18,7 +18,11 @@ export function useLogout() {
   return useMutation({
     mutationFn: logout,
     onError: () => {
-      pushToast({ kind: 'error', title: 'Could not sign out', body: 'The server did not confirm the sign-out. Try again.' })
+      pushToast({
+        kind: 'error',
+        title: 'Could not sign out',
+        body: 'The server did not confirm the sign-out. Try again.',
+      })
     },
     onSettled: () => {
       queryClient.clear()

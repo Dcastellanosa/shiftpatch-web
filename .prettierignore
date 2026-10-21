@@ -1,0 +1,14 @@
+dist
+coverage
+node_modules
+pnpm-lock.yaml
+playwright-report
+test-results
+supabase/.temp
+.agents
+.claude
+.codex
+.kiro
+skills
+**/__snapshots__
+*.md

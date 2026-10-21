@@ -13,8 +13,10 @@ interface StatusToggleProps {
 }
 
 const CONSEQUENCES: Record<'agency' | 'branch', string> = {
-  agency: 'Its branches stop taking new shifts and claims, and nurses no longer see their open shifts, until it is activated again.',
-  branch: 'It stops taking new shifts and claims, and nurses no longer see its open shifts, until it is activated again.',
+  agency:
+    'Its branches stop taking new shifts and claims, and nurses no longer see their open shifts, until it is activated again.',
+  branch:
+    'It stops taking new shifts and claims, and nurses no longer see its open shifts, until it is activated again.',
 }
 
 /** Activate / deactivate with a confirmation step; the API performs the change atomically. */
@@ -25,7 +27,12 @@ export function StatusToggle({ kind, name, status, pending, onChange }: StatusTo
 
   return (
     <>
-      <button type="button" className="btn btn--secondary status-toggle" onClick={() => setConfirming(true)} disabled={pending}>
+      <button
+        type="button"
+        className="btn btn--secondary status-toggle"
+        onClick={() => setConfirming(true)}
+        disabled={pending}
+      >
         {pending ? 'Saving…' : verb}
       </button>
       {confirming && (

@@ -21,10 +21,7 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    plugins: [
-      react(),
-      babel({ presets: [reactCompilerPreset()] })
-    ],
+    plugins: [react(), babel({ presets: [reactCompilerPreset()] })],
     server: { proxy: apiProxy },
     preview: { proxy: apiProxy },
   }

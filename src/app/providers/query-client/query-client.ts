@@ -32,7 +32,10 @@ function notifyBackgroundError(error: ApiError) {
  * The application's single in-memory cache. No persister is ever attached:
  * server state lives only for the page's lifetime and is cleared on logout.
  */
-export function createQueryClient({ retry = true, onBackgroundError = notifyBackgroundError }: QueryClientOptions = {}): QueryClient {
+export function createQueryClient({
+  retry = true,
+  onBackgroundError = notifyBackgroundError,
+}: QueryClientOptions = {}): QueryClient {
   return new QueryClient({
     queryCache: new QueryCache({
       onError: (error, query) => {
