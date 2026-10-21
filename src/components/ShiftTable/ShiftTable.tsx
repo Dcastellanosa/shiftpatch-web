@@ -1,9 +1,9 @@
 import './ShiftTable.scss'
 import { Fragment, useState } from 'react'
-import type { Shift } from '../../lib/api-client/api-client.ts'
-import { ShiftHistory } from '../ShiftHistory/ShiftHistory.tsx'
-import { ShiftWhen } from '../ShiftWhen/ShiftWhen.tsx'
-import { StatusBadge } from '../StatusBadge/StatusBadge.tsx'
+import type { Shift } from '../../lib/api-client/index.ts'
+import { ShiftHistory } from '../ShiftHistory/index.ts'
+import { ShiftWhen } from '../ShiftWhen/index.ts'
+import { StatusBadge } from '../StatusBadge/index.ts'
 
 /** Operational shift table. Collapses into stacked rows on narrow screens. */
 export function ShiftTable({ shifts, showAgency = false }: { shifts: Shift[]; showAgency?: boolean }) {

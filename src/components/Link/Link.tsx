@@ -1,6 +1,6 @@
 import './Link.scss'
 import type { AnchorHTMLAttributes, MouseEvent } from 'react'
-import { navigate } from '../../lib/router/router.ts'
+import { navigate } from '../../lib/router/index.ts'
 
 type LinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & { to: string }
 

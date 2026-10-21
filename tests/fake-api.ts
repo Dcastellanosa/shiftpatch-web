@@ -1,5 +1,5 @@
 import { vi } from 'vitest'
-import type { SessionUser, Shift } from '../src/lib/api-client/api-client.ts'
+import type { SessionUser, Shift } from '../src/lib/api-client/index.ts'
 
 export const NURSE: SessionUser = { id: 'u-nurse', email: 'nurse@example.test', fullName: 'Ava Thompson', role: 'nurse', agencyId: null }
 export const AGENCY: SessionUser = { id: 'u-agency', email: 'agency@example.test', fullName: 'Riley Northwind', role: 'agency', agencyId: 'agency-1' }

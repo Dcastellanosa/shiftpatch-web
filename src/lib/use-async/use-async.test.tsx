@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
-import { useAsync } from './use-async.ts'
+import { useAsync } from './index.ts'
 
 it('loads on mount and reloads on request', async () => {
   const load = vi.fn().mockResolvedValueOnce('first').mockResolvedValueOnce('second')

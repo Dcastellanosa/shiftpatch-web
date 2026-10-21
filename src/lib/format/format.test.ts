@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addDays, formatDuration, zonedTimeToUtc } from './format.ts'
+import { addDays, formatDuration, zonedTimeToUtc } from './index.ts'
 
 describe('zonedTimeToUtc', () => {
   it.each([

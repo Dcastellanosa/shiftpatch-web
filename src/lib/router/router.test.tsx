@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, render, screen } from '@testing-library/react'
 import { expect, it } from 'vitest'
-import { navigate, setSearchParams, useLocation } from './router.ts'
+import { navigate, setSearchParams, useLocation } from './index.ts'
 
 function LocationProbe() {
   const { pathname, search } = useLocation()

@@ -1,6 +1,6 @@
 import './ShiftWhen.scss'
-import type { Shift } from '../../lib/api-client/api-client.ts'
-import { formatDuration, formatShiftDate, formatShiftTimes } from '../../lib/format/format.ts'
+import type { Shift } from '../../lib/api-client/index.ts'
+import { formatDuration, formatShiftDate, formatShiftTimes } from '../../lib/format/index.ts'
 
 /** Date, local times (in the branch's zone) and duration of a shift. */
 export function ShiftWhen({ shift }: { shift: Shift }) {

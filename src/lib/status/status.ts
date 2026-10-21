@@ -1,4 +1,4 @@
-import type { ShiftStatus } from '../api-client/api-client.ts'
+import type { ShiftStatus } from '../api-client/index.ts'
 
 export const STATUS_LABEL: Record<ShiftStatus, string> = {
   open: 'Open',

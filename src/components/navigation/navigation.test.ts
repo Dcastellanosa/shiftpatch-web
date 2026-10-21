@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { homeFor, isAllowed, isKnownPath } from './navigation.ts'
+import { homeFor, isAllowed, isKnownPath } from './index.ts'
 
 it('routes each role only to its screens', () => {
   expect(homeFor('nurse')).toBe('/shifts')

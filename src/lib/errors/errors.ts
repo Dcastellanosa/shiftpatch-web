@@ -1,4 +1,4 @@
-import { ApiError } from '../api-client/api-client.ts'
+import { ApiError } from '../api-client/index.ts'
 
 export function toApiError(error: unknown): ApiError {
   return error instanceof ApiError ? error : new ApiError(0, 'unexpected_error', 'Something went wrong')

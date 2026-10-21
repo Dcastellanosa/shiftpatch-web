@@ -13,7 +13,7 @@ import {
   login,
   logout,
   type SessionUser,
-} from './api-client.ts'
+} from './index.ts'
 
 const USER: SessionUser = {
   id: 'user-1',

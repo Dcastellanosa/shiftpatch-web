@@ -1,4 +1,4 @@
-import type { UserRole } from '../../lib/api-client/api-client.ts'
+import type { UserRole } from '../../lib/api-client/index.ts'
 
 export interface NavItem {
   to: string

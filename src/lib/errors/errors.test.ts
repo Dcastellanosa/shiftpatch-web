@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
-import { ApiError } from '../api-client/api-client.ts'
-import { describeClaimError, toApiError } from './errors.ts'
+import { ApiError } from '../api-client/index.ts'
+import { describeClaimError, toApiError } from './index.ts'
 
 it('preserves API errors and hides unknown errors from the UI', () => {
   const known = new ApiError(409, 'shift_not_open', 'Conflict')

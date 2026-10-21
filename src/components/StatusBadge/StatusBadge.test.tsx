@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { render } from '@testing-library/react'
 import { expect, it } from 'vitest'
-import type { ShiftStatus } from '../../lib/api-client/api-client.ts'
-import { StatusBadge } from './StatusBadge.tsx'
+import type { ShiftStatus } from '../../lib/api-client/index.ts'
+import { StatusBadge } from './index.ts'
 
 it('renders every shift status', () => {
   const statuses: ShiftStatus[] = ['open', 'claimed', 'completed', 'cancelled', 'no_show']

@@ -1,14 +1,14 @@
 import './AgencyShiftsPage.scss'
 import { useState } from 'react'
-import { CreateShiftForm } from '../../components/CreateShiftForm/CreateShiftForm.tsx'
-import { ShiftTable } from '../../components/ShiftTable/ShiftTable.tsx'
-import { EmptyState } from '../../components/EmptyState/EmptyState.tsx'
-import { ErrorState } from '../../components/ErrorState/ErrorState.tsx'
-import { LoadingState } from '../../components/LoadingState/LoadingState.tsx'
-import { listBranches, listShifts, type Shift, type ShiftStatus } from '../../lib/api-client/api-client.ts'
-import { setSearchParams, useLocation } from '../../lib/router/router.ts'
-import { SHIFT_STATUSES as STATUSES, STATUS_LABEL } from '../../lib/status/status.ts'
-import { useAsync } from '../../lib/use-async/use-async.ts'
+import { CreateShiftForm } from '../../components/CreateShiftForm/index.ts'
+import { ShiftTable } from '../../components/ShiftTable/index.ts'
+import { EmptyState } from '../../components/EmptyState/index.ts'
+import { ErrorState } from '../../components/ErrorState/index.ts'
+import { LoadingState } from '../../components/LoadingState/index.ts'
+import { listBranches, listShifts, type Shift, type ShiftStatus } from '../../lib/api-client/index.ts'
+import { setSearchParams, useLocation } from '../../lib/router/index.ts'
+import { SHIFT_STATUSES as STATUSES, STATUS_LABEL } from '../../lib/status/index.ts'
+import { useAsync } from '../../lib/use-async/index.ts'
 
 
 function parseStatus(value: string | null): ShiftStatus | undefined {

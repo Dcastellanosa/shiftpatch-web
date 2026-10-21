@@ -2,9 +2,9 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import App from './App.tsx'
-import { SessionProvider } from '../auth/SessionProvider/SessionProvider.tsx'
-import type { SessionUser } from '../lib/api-client/api-client.ts'
+import App from './index.ts'
+import { SessionProvider } from '../auth/SessionProvider/index.ts'
+import type { SessionUser } from '../lib/api-client/index.ts'
 import { ADMIN, AGENCY, NURSE, json, makeShift, stubApi } from '../../tests/fake-api.ts'
 
 function renderAt(path: string, user: SessionUser | null, extra: Parameters<typeof stubApi>[0] = {}) {

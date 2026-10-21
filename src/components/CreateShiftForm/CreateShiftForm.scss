@@ -1,3 +1,5 @@
+@use '../../styles/breakpoints';
+
 .card.form {
   padding: 18px;
 }
@@ -17,7 +19,7 @@
   justify-content: flex-end;
 }
 
-@media (max-width: 760px) {
+@include breakpoints.compact {
   .field-wide {
     grid-column: auto;
   }

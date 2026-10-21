@@ -82,8 +82,9 @@ narrow screens.
 | `src/pages/<PageName>/` | One folder per screen, with component, styles, test and snapshot. |
 
 Components, pages, hooks and logic modules keep their tests beside the implementation. Visual pieces also keep their SCSS and snapshots there; `src/main.tsx` and `src/index.scss` are global entry points.
+Each module folder exposes its public imports through `index.ts`.
 
-Styles use SCSS compiled by Vite with the `sass` development dependency. `pnpm-workspace.yaml` disables automatic optional peer installation so Vite uses that compiler consistently.
+Styles use SCSS compiled by Vite with the `sass` development dependency. The light and dark palettes live in `src/styles/_theme.scss` and generate CSS custom properties, so the active theme still follows the user's color scheme. The shared narrow-screen breakpoint lives in `src/styles/_breakpoints.scss`; component styles load it with Sass `@use`. `pnpm-workspace.yaml` disables automatic optional peer installation so Vite uses the portable compiler consistently.
 
 ## Routing
 

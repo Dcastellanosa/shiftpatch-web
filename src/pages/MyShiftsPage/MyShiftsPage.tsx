@@ -1,11 +1,11 @@
 import './MyShiftsPage.scss'
-import { ShiftWhen } from '../../components/ShiftWhen/ShiftWhen.tsx'
-import { StatusBadge } from '../../components/StatusBadge/StatusBadge.tsx'
-import { EmptyState } from '../../components/EmptyState/EmptyState.tsx'
-import { ErrorState } from '../../components/ErrorState/ErrorState.tsx'
-import { LoadingState } from '../../components/LoadingState/LoadingState.tsx'
-import { listMyShifts, type Shift } from '../../lib/api-client/api-client.ts'
-import { useAsync } from '../../lib/use-async/use-async.ts'
+import { ShiftWhen } from '../../components/ShiftWhen/index.ts'
+import { StatusBadge } from '../../components/StatusBadge/index.ts'
+import { EmptyState } from '../../components/EmptyState/index.ts'
+import { ErrorState } from '../../components/ErrorState/index.ts'
+import { LoadingState } from '../../components/LoadingState/index.ts'
+import { listMyShifts, type Shift } from '../../lib/api-client/index.ts'
+import { useAsync } from '../../lib/use-async/index.ts'
 
 function ShiftList({ shifts }: { shifts: Shift[] }) {
   return (

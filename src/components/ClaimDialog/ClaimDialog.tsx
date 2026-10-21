@@ -1,8 +1,8 @@
 import './ClaimDialog.scss'
 import { useEffect, useId, useRef, useState } from 'react'
-import { claimShift, type ApiError, type Shift } from '../../lib/api-client/api-client.ts'
-import { describeClaimError, toApiError } from '../../lib/errors/errors.ts'
-import { ShiftWhen } from '../ShiftWhen/ShiftWhen.tsx'
+import { claimShift, type ApiError, type Shift } from '../../lib/api-client/index.ts'
+import { describeClaimError, toApiError } from '../../lib/errors/index.ts'
+import { ShiftWhen } from '../ShiftWhen/index.ts'
 
 interface ClaimDialogProps {
   shift: Shift

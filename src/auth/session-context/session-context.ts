@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react'
-import type { ApiError, SessionUser } from '../../lib/api-client/api-client.ts'
+import type { ApiError, SessionUser } from '../../lib/api-client/index.ts'
 
 export interface SessionContextValue {
   /** True until the initial `GET /api/auth/me` settles. */

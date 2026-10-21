@@ -1,3 +1,5 @@
+@use '../../styles/breakpoints';
+
 .app {
   min-height: 100svh;
   display: flex;
@@ -98,7 +100,7 @@
   outline: none;
 }
 
-@media (max-width: 760px) {
+@include breakpoints.compact {
   .topbar-inner {
     gap: 8px 16px;
   }

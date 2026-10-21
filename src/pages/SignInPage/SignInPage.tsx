@@ -1,6 +1,6 @@
 import './SignInPage.scss'
 import { useState, type FormEvent } from 'react'
-import { useSession } from '../../auth/session-context/session-context.ts'
+import { useSession } from '../../auth/session-context/index.ts'
 
 export function SignInPage() {
   const { login, error } = useSession()

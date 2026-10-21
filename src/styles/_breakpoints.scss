@@ -1,0 +1,5 @@
+@mixin compact {
+  @media (max-width: 760px) {
+    @content;
+  }
+}

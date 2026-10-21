@@ -2,7 +2,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, it } from 'vitest'
-import { Link } from './Link.tsx'
+import { Link } from './index.ts'
 
 it('renders a real link and navigates on a plain click', async () => {
   window.history.replaceState(null, '', '/')

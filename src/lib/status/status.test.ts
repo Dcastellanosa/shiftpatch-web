@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { SHIFT_STATUSES, STATUS_LABEL } from './status.ts'
+import { SHIFT_STATUSES, STATUS_LABEL } from './index.ts'
 
 it('provides a label for every filterable shift status', () => {
   expect(SHIFT_STATUSES).toEqual(['open', 'claimed', 'cancelled', 'completed', 'no_show'])

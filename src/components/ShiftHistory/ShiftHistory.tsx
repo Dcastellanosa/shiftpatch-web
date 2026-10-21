@@ -1,9 +1,9 @@
 import './ShiftHistory.scss'
-import { listShiftEvents, type ShiftEvent } from '../../lib/api-client/api-client.ts'
-import { formatTimestamp } from '../../lib/format/format.ts'
-import { useAsync } from '../../lib/use-async/use-async.ts'
-import { ErrorState } from '../ErrorState/ErrorState.tsx'
-import { LoadingState } from '../LoadingState/LoadingState.tsx'
+import { listShiftEvents, type ShiftEvent } from '../../lib/api-client/index.ts'
+import { formatTimestamp } from '../../lib/format/index.ts'
+import { useAsync } from '../../lib/use-async/index.ts'
+import { ErrorState } from '../ErrorState/index.ts'
+import { LoadingState } from '../LoadingState/index.ts'
 
 const EVENT_LABEL: Record<ShiftEvent['eventType'], string> = {
   created: 'Created',

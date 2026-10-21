@@ -1,13 +1,13 @@
 import './AdminShiftsPage.scss'
-import { ShiftTable } from '../../components/ShiftTable/ShiftTable.tsx'
-import { EmptyState } from '../../components/EmptyState/EmptyState.tsx'
-import { ErrorState } from '../../components/ErrorState/ErrorState.tsx'
-import { LoadingState } from '../../components/LoadingState/LoadingState.tsx'
-import { listBranches, listShifts } from '../../lib/api-client/api-client.ts'
-import { addDays } from '../../lib/format/format.ts'
-import { setSearchParams, useLocation } from '../../lib/router/router.ts'
-import { SHIFT_STATUSES as STATUSES, STATUS_LABEL } from '../../lib/status/status.ts'
-import { useAsync } from '../../lib/use-async/use-async.ts'
+import { ShiftTable } from '../../components/ShiftTable/index.ts'
+import { EmptyState } from '../../components/EmptyState/index.ts'
+import { ErrorState } from '../../components/ErrorState/index.ts'
+import { LoadingState } from '../../components/LoadingState/index.ts'
+import { listBranches, listShifts } from '../../lib/api-client/index.ts'
+import { addDays } from '../../lib/format/index.ts'
+import { setSearchParams, useLocation } from '../../lib/router/index.ts'
+import { SHIFT_STATUSES as STATUSES, STATUS_LABEL } from '../../lib/status/index.ts'
+import { useAsync } from '../../lib/use-async/index.ts'
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 

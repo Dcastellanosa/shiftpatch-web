@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { render, screen } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
-import { SessionProvider } from '../../auth/SessionProvider/SessionProvider.tsx'
+import { SessionProvider } from '../../auth/SessionProvider/index.ts'
 import { NURSE, json, stubApi } from '../../../tests/fake-api.ts'
-import { AppShell } from './AppShell.tsx'
+import { AppShell } from './index.ts'
 
 afterEach(() => vi.unstubAllGlobals())
 

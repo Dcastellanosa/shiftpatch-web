@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import * as api from '../../lib/api-client/api-client.ts'
-import { toApiError } from '../../lib/errors/errors.ts'
-import { SessionContext } from '../session-context/session-context.ts'
+import * as api from '../../lib/api-client/index.ts'
+import { toApiError } from '../../lib/errors/index.ts'
+import { SessionContext } from '../session-context/index.ts'
 
 interface SessionState {
   loading: boolean

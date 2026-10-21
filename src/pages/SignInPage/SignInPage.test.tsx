@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
-import { SessionContext } from '../../auth/session-context/session-context.ts'
-import { SignInPage } from './SignInPage.tsx'
+import { SessionContext } from '../../auth/session-context/index.ts'
+import { SignInPage } from './index.ts'
 
 it('renders the sign-in form and delegates credentials to the session', async () => {
   const login = vi.fn(async () => {})

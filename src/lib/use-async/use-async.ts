@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import type { ApiError } from '../api-client/api-client.ts'
-import { toApiError } from '../errors/errors.ts'
+import type { ApiError } from '../api-client/index.ts'
+import { toApiError } from '../errors/index.ts'
 
 export interface AsyncState<T> {
   loading: boolean

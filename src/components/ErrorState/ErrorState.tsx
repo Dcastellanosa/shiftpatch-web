@@ -1,5 +1,5 @@
 import './ErrorState.scss'
-import type { ApiError } from '../../lib/api-client/api-client.ts'
+import type { ApiError } from '../../lib/api-client/index.ts'
 
 /** Safe error display: shows the API's user-facing message, never internals. */
 export function ErrorState({ error, onRetry }: { error: ApiError; onRetry?: () => void }) {

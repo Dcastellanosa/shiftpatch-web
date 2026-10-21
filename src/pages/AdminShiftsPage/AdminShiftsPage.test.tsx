@@ -2,7 +2,7 @@
 import { render, screen } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import { json, stubApi } from '../../../tests/fake-api.ts'
-import { AdminShiftsPage } from './AdminShiftsPage.tsx'
+import { AdminShiftsPage } from './index.ts'
 
 afterEach(() => vi.unstubAllGlobals())
 

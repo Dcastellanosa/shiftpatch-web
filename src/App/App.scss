@@ -1,3 +1,5 @@
+@use '../styles/breakpoints';
+
 /* Layout ------------------------------------------------------------------ */
 
 .brand {
@@ -261,7 +263,7 @@
   color: var(--text-strong);
 }
 
-@media (max-width: 760px) {
+@include breakpoints.compact {
   .shift-card {
     flex-direction: column;
     align-items: stretch;

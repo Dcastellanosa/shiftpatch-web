@@ -1,13 +1,13 @@
 import './AvailableShiftsPage.scss'
 import { useState } from 'react'
-import { ClaimDialog } from '../../components/ClaimDialog/ClaimDialog.tsx'
-import { Link } from '../../components/Link/Link.tsx'
-import { ShiftWhen } from '../../components/ShiftWhen/ShiftWhen.tsx'
-import { EmptyState } from '../../components/EmptyState/EmptyState.tsx'
-import { ErrorState } from '../../components/ErrorState/ErrorState.tsx'
-import { LoadingState } from '../../components/LoadingState/LoadingState.tsx'
-import { listShifts, type Shift } from '../../lib/api-client/api-client.ts'
-import { useAsync } from '../../lib/use-async/use-async.ts'
+import { ClaimDialog } from '../../components/ClaimDialog/index.ts'
+import { Link } from '../../components/Link/index.ts'
+import { ShiftWhen } from '../../components/ShiftWhen/index.ts'
+import { EmptyState } from '../../components/EmptyState/index.ts'
+import { ErrorState } from '../../components/ErrorState/index.ts'
+import { LoadingState } from '../../components/LoadingState/index.ts'
+import { listShifts, type Shift } from '../../lib/api-client/index.ts'
+import { useAsync } from '../../lib/use-async/index.ts'
 
 export function AvailableShiftsPage() {
   const shifts = useAsync(() => listShifts(), 'available')

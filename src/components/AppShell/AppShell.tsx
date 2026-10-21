@@ -1,10 +1,10 @@
 import './AppShell.scss'
 import type { ReactNode } from 'react'
-import { useSession } from '../../auth/session-context/session-context.ts'
-import type { UserRole } from '../../lib/api-client/api-client.ts'
-import { navigate, useLocation } from '../../lib/router/router.ts'
-import { Link } from '../Link/Link.tsx'
-import { NAV_BY_ROLE, ROLE_LABEL } from '../navigation/navigation.ts'
+import { useSession } from '../../auth/session-context/index.ts'
+import type { UserRole } from '../../lib/api-client/index.ts'
+import { navigate, useLocation } from '../../lib/router/index.ts'
+import { Link } from '../Link/index.ts'
+import { NAV_BY_ROLE, ROLE_LABEL } from '../navigation/index.ts'
 
 export function AppShell({ role, children }: { role: UserRole | null; children: ReactNode }) {
   const { user, logout } = useSession()

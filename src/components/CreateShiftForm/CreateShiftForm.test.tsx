@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
-import type { Branch } from '../../lib/api-client/api-client.ts'
+import type { Branch } from '../../lib/api-client/index.ts'
 import { json, makeShift, stubApi } from '../../../tests/fake-api.ts'
-import { CreateShiftForm } from './CreateShiftForm.tsx'
+import { CreateShiftForm } from './index.ts'
 
 const BRANCH: Branch = {
   id: 'branch-1', name: 'Downtown Clinic', address: '120 Main Street', timezone: 'America/New_York',
