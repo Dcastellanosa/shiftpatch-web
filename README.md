@@ -78,7 +78,7 @@ narrow screens.
 | `src/app/providers/query-client/query-client.ts` | TanStack Query client: 30 s `staleTime` for operational data, retries only network failures (max 2), background-refresh failures become toasts. In memory only. |
 | `src/features/auth/` | `SessionProvider` exposes the `['session']` query (`GET /api/auth/me`, `staleTime: Infinity`, no refetch on focus) and the login/logout mutations as `useSession()`. Logout clears the cache; login clears it only after success. |
 | `src/app/router/routes/routes.tsx`, `src/app/router/RequireRole/` | React Router v7 declarative routes (`Routes`/`Route`/`Navigate`) and the UX-only role guard. |
-| `src/app/router/navigation/navigation.ts` | Screens per role (including the agency/admin placeholders), home redirects. |
+| `src/app/router/navigation/navigation.ts` | Screens per role, nested-path rule for the guard, home redirects. |
 | `src/features/shifts/`, `src/features/agency-management/`, `src/features/admin-dashboard/` | Query and mutation hooks per feature (`useAvailableShifts`, `useClaimShift`, `useCreateShift`, `useAdminShifts`, …), the claim dialog and the create-shift form. |
 | `src/entities/shift/`, `src/entities/branch/` | Shift model, query keys and history, the shift table, status badge and when/where pieces; branches. |
 | `src/stores/ui-store/ui-store.ts` | The single Zustand store: the global toast queue, rendered by `src/shared/ui/Toaster/`. Never API data. |

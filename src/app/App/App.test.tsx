@@ -75,10 +75,9 @@ describe('role-aware navigation', () => {
     [NURSE, '/agency/nurses'],
     [AGENCY, '/admin/users'],
     [ADMIN, '/agency/nurses'],
-  ])('keeps the placeholder screens behind the role guard ($role at $1)', async (user, path) => {
+  ])('keeps the administration screens behind the role guard ($role at $1)', async (user, path) => {
     const { fetchMock } = renderAt(path, user)
     expect(await screen.findByText('You do not have access to this page')).toBeTruthy()
-    expect(screen.queryByText('Coming soon')).toBeNull()
     expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual(['/api/auth/me'])
   })
 

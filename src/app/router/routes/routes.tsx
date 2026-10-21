@@ -4,9 +4,9 @@ import { AdminAgenciesPage } from '../../../pages/AdminAgenciesPage/index.ts'
 import { AdminAgencyPage } from '../../../pages/AdminAgencyPage/index.ts'
 import { AdminShiftsPage } from '../../../pages/AdminShiftsPage/index.ts'
 import { AdminUsersPage } from '../../../pages/AdminUsersPage/index.ts'
+import { AgencyNursesPage } from '../../../pages/AgencyNursesPage/index.ts'
 import { AgencyShiftsPage } from '../../../pages/AgencyShiftsPage/index.ts'
 import { AvailableShiftsPage } from '../../../pages/AvailableShiftsPage/index.ts'
-import { ComingSoonPage } from '../../../pages/ComingSoonPage/index.ts'
 import { MyShiftsPage } from '../../../pages/MyShiftsPage/index.ts'
 import type { UserRole } from '../../../shared/api/client/index.ts'
 import { EmptyState } from '../../../shared/ui/EmptyState/index.ts'
@@ -33,10 +33,7 @@ export function AppRoutes({ role }: { role: UserRole }) {
       <Route path="/shifts" element={guarded(<AvailableShiftsPage />)} />
       <Route path="/my-shifts" element={guarded(<MyShiftsPage />)} />
       <Route path="/agency/shifts" element={guarded(<AgencyShiftsPage />)} />
-      <Route
-        path="/agency/nurses"
-        element={guarded(<ComingSoonPage title="Nurses" description="Manage which nurses may work at each of your branches." />)}
-      />
+      <Route path="/agency/nurses" element={guarded(<AgencyNursesPage />)} />
       <Route path="/admin/shifts" element={guarded(<AdminShiftsPage />)} />
       <Route path="/admin/agencies" element={guarded(<AdminAgenciesPage />)} />
       <Route path="/admin/agencies/:agencyId" element={guarded(<AdminAgencyPage />)} />

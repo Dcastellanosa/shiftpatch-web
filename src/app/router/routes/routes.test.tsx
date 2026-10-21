@@ -21,13 +21,11 @@ it('shows "Page not found" for an unknown path', () => {
   expect(screen.getByRole('link', { name: 'Go to your shifts' }).getAttribute('href')).toBe('/admin/shifts')
 })
 
-it.each([
-  ['/agency/nurses', 'agency', 'Nurses'],
-] as const)('renders the %s placeholder for the %s role', (path, role, heading) => {
-  stubApi({})
-  renderWithProviders(<AppRoutes role={role} />, { path })
-  expect(screen.getByRole('heading', { level: 1, name: heading })).toBeTruthy()
-  expect(screen.getByText('Coming soon')).toBeTruthy()
+it('routes the nurses screen for agency users', async () => {
+  stubApi({ 'GET /api/branches': () => json(200, { branches: [] }), 'GET /api/agency/nurses': () => json(200, { nurses: [] }) })
+  renderWithProviders(<AppRoutes role="agency" />, { path: '/agency/nurses' })
+  expect(screen.getByRole('heading', { level: 1, name: 'Nurses' })).toBeTruthy()
+  expect(await screen.findByText('No nurses yet')).toBeTruthy()
 })
 
 it('routes the agency detail screen for admins only', async () => {

@@ -7,8 +7,7 @@ export interface NavItem {
 
 /**
  * Screens available to each role. The API enforces access; this only shapes
- * the UI. Entries beyond the first of agency and admin are placeholders for
- * the agency-administration screens still to come.
+ * the UI.
  */
 export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   nurse: [

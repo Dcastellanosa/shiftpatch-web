@@ -352,3 +352,44 @@ export async function inviteUser(input: InviteUserInput): Promise<AdminUser> {
   const { user } = await apiRequest<{ user: AdminUser }>('/admin/users', { method: 'POST', body: JSON.stringify(input) })
   return user
 }
+
+// ---------------------------------------------------------------------------
+// Nurse eligibility (agency users for their agencies; admins for any).
+// ---------------------------------------------------------------------------
+
+/** One nurse connected to the caller's agencies, with their status at each branch that has a record. */
+export interface NurseEligibility {
+  nurse: { id: string; fullName: string }
+  branches: {
+    branch: { id: string; name: string; agency: { id: string; name: string } }
+    status: EligibilityStatus
+    activatedAt: string | null
+  }[]
+}
+
+export interface EligibilityRecord {
+  nurseId: string
+  branchId: string
+  status: EligibilityStatus
+  activatedAt: string | null
+}
+
+export async function listAgencyNurses(): Promise<NurseEligibility[]> {
+  const { nurses } = await apiRequest<{ nurses: NurseEligibility[] }>('/agency/nurses')
+  return nurses
+}
+
+const eligibilityPath = (nurseId: string, branchId: string) =>
+  `/nurses/${encodeURIComponent(nurseId)}/eligibility/${encodeURIComponent(branchId)}`
+
+/** Makes the nurse eligible at the branch (creates the record when missing). */
+export async function activateEligibility(nurseId: string, branchId: string): Promise<EligibilityRecord> {
+  const { eligibility } = await apiRequest<{ eligibility: EligibilityRecord }>(eligibilityPath(nurseId, branchId), { method: 'PUT' })
+  return eligibility
+}
+
+/** Suspends the nurse at the branch; existing claims are untouched. */
+export async function suspendEligibility(nurseId: string, branchId: string): Promise<EligibilityRecord> {
+  const { eligibility } = await apiRequest<{ eligibility: EligibilityRecord }>(eligibilityPath(nurseId, branchId), { method: 'DELETE' })
+  return eligibility
+}

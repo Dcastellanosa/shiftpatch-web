@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   API_BASE,
   ApiError,
+  activateEligibility,
   apiRequest,
   claimShift,
   createAgency,
@@ -12,12 +13,14 @@ import {
   inviteUser,
   listAdminUsers,
   listAgencies,
+  listAgencyNurses,
   listBranches,
   listMyShifts,
   listShiftEvents,
   listShifts,
   login,
   logout,
+  suspendEligibility,
   updateAgency,
   updateBranch,
   type SessionUser,
@@ -255,5 +258,25 @@ describe('user administration endpoints', () => {
     expect(lastCall().url).toBe('/api/admin/users')
     expect(lastCall().init.method).toBe('POST')
     expect(JSON.parse(String(lastCall().init.body))).toEqual({ email: 'new@example.test', fullName: 'New Nurse', role: 'nurse', branchId: 'b-1' })
+  })
+})
+
+describe('nurse eligibility endpoints', () => {
+  it('lists nurses and toggles eligibility with PUT and DELETE', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { nurses: [] }))
+    await expect(listAgencyNurses()).resolves.toEqual([])
+    expect(lastCall().url).toBe('/api/agency/nurses')
+
+    const record = { nurseId: 'n-1', branchId: 'b-1', status: 'active', activatedAt: null }
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { eligibility: record }))
+    await expect(activateEligibility('n-1', 'b-1')).resolves.toEqual(record)
+    expect(lastCall().url).toBe('/api/nurses/n-1/eligibility/b-1')
+    expect(lastCall().init.method).toBe('PUT')
+    expect(lastCall().init.body).toBeUndefined()
+
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { eligibility: { ...record, status: 'suspended' } }))
+    await suspendEligibility('n-1', 'b-1')
+    expect(lastCall().init.method).toBe('DELETE')
+    expect(lastCall().init.credentials).toBe('include')
   })
 })

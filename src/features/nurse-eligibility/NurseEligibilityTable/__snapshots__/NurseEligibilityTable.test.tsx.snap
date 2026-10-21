@@ -1,0 +1,113 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`shows one column per branch, a cell per nurse, and sends the change for the right pair 1`] = `
+<div
+  class="table-wrap"
+>
+  <table
+    class="table eligibility-table"
+    data-testid="eligibility-table"
+  >
+    <thead>
+      <tr>
+        <th
+          scope="col"
+        >
+          Nurse
+        </th>
+        <th
+          scope="col"
+        >
+          Downtown Clinic
+        </th>
+        <th
+          scope="col"
+        >
+          Riverside Hospital
+        </th>
+        <th
+          scope="col"
+        >
+          Lakeside Clinic
+          <span
+            class="muted small eligibility-table__note"
+          >
+             (inactive)
+          </span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th
+          class="table__cell--strong"
+          scope="row"
+        >
+          Ava Thompson
+        </th>
+        <td
+          data-label="Downtown Clinic"
+        >
+          <span
+            class="eligibility-toggle"
+          >
+            <span
+              class="badge badge--eligibility-active"
+            >
+              Active
+            </span>
+            <button
+              aria-label="Suspend Ava Thompson at Downtown Clinic"
+              class="btn btn--link eligibility-toggle__action"
+              type="button"
+            >
+              Suspend
+            </button>
+          </span>
+        </td>
+        <td
+          data-label="Riverside Hospital"
+        >
+          <span
+            class="eligibility-toggle"
+          >
+            <span
+              class="badge badge--eligibility-none"
+            >
+              Not eligible
+            </span>
+            <button
+              aria-label="Activate Ava Thompson at Riverside Hospital"
+              class="btn btn--link eligibility-toggle__action"
+              type="button"
+            >
+              Activate
+            </button>
+          </span>
+        </td>
+        <td
+          data-label="Lakeside Clinic"
+        >
+          <span
+            class="eligibility-toggle"
+          >
+            <span
+              class="badge badge--eligibility-none"
+            >
+              Not eligible
+            </span>
+            <button
+              aria-label="Activate Ava Thompson at Lakeside Clinic"
+              class="btn btn--link eligibility-toggle__action"
+              disabled=""
+              type="button"
+            >
+              Activate
+            </button>
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;

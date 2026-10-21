@@ -14,7 +14,7 @@ it('routes each role only to its screens', () => {
   expect(isKnownPath('/missing')).toBe(false)
 })
 
-it('lists the placeholder screens for agency and admin users', () => {
+it('lists the administration screens for agency and admin users', () => {
   expect(NAV_BY_ROLE.agency.map((item) => item.to)).toEqual(['/agency/shifts', '/agency/nurses'])
   expect(NAV_BY_ROLE.admin.map((item) => item.to)).toEqual(['/admin/shifts', '/admin/agencies', '/admin/users'])
 })

@@ -1,5 +1,5 @@
 import { vi } from 'vitest'
-import type { AdminUser, Agency, AgencyBranch, Branch, SessionUser, Shift } from '../src/shared/api/client/index.ts'
+import type { AdminUser, Agency, AgencyBranch, Branch, NurseEligibility, SessionUser, Shift } from '../src/shared/api/client/index.ts'
 
 export const NURSE: SessionUser = { id: 'u-nurse', email: 'nurse@example.test', fullName: 'Ava Thompson', role: 'nurse', agencyId: null, agencyIds: [] }
 export const AGENCY: SessionUser = { id: 'u-agency', email: 'agency@example.test', fullName: 'Riley Northwind', role: 'agency', agencyId: 'agency-1', agencyIds: ['agency-1'] }
@@ -96,6 +96,19 @@ export function makeBranch(overrides: Partial<Branch> = {}): Branch {
     timezone: 'America/New_York',
     status: 'active',
     agency: { id: AGENCY_ID, name: 'Northwind Care Staffing' },
+    ...overrides,
+  }
+}
+
+export const NURSE_ID = 'c1000000-0000-4000-8000-000000000001'
+export const BRANCH_2_ID = 'b1000000-0000-4000-8000-000000000002'
+
+export function makeNurseEligibility(overrides: Partial<NurseEligibility> = {}): NurseEligibility {
+  return {
+    nurse: { id: NURSE_ID, fullName: 'Ava Thompson' },
+    branches: [
+      { branch: { id: BRANCH_ID, name: 'Downtown Clinic', agency: { id: AGENCY_ID, name: 'Northwind Care Staffing' } }, status: 'active', activatedAt: '2029-10-01T00:00:00.000Z' },
+    ],
     ...overrides,
   }
 }

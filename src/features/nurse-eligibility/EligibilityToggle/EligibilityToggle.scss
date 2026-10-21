@@ -1,0 +1,16 @@
+.eligibility-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.eligibility-toggle__action {
+  padding: 0;
+}
+
+.badge--eligibility-none {
+  background: transparent;
+  color: var(--muted);
+  border: 1px dashed var(--border);
+}
