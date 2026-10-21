@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
+import { SET_PASSWORD_PATH } from '../../features/auth/password-link/index.ts'
 import { useSession } from '../../features/auth/session-context/index.ts'
+import { SetPasswordPage } from '../../pages/SetPasswordPage/index.ts'
 import { SignInPage } from '../../pages/SignInPage/index.ts'
 import { AppShell } from '../../shared/ui/AppShell/index.ts'
 import { EmptyState } from '../../shared/ui/EmptyState/index.ts'
@@ -12,6 +14,7 @@ import './App.scss'
 function App() {
   const session = useSession()
   const navigate = useNavigate()
+  const location = useLocation()
   const wasAuthenticated = useRef(false)
 
   // When a session ends (sign-out or expiry) return to the root, so the next
@@ -26,6 +29,10 @@ function App() {
       void navigate('/', { replace: true })
     }
   }, [session.authenticated, session.loading, navigate])
+
+  // Invitation and recovery links land here, signed in or not: the page
+  // itself starts the session once the API has accepted the new password.
+  if (location.pathname === SET_PASSWORD_PATH) return <SetPasswordPage />
 
   if (session.loading) {
     return (

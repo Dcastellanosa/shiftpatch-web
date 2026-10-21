@@ -5,6 +5,7 @@ import {
   activateEligibility,
   apiRequest,
   claimShift,
+  completePassword,
   createAgency,
   createBranch,
   createShift,
@@ -20,6 +21,7 @@ import {
   listShifts,
   login,
   logout,
+  requestRecovery,
   suspendEligibility,
   updateAgency,
   updateBranch,
@@ -278,5 +280,24 @@ describe('nurse eligibility endpoints', () => {
     await suspendEligibility('n-1', 'b-1')
     expect(lastCall().init.method).toBe('DELETE')
     expect(lastCall().init.credentials).toBe('include')
+  })
+})
+
+describe('password link endpoints', () => {
+  it('completes a password with the token in the body only, and returns the session user', async () => {
+    const user = { id: 'u-1', email: 'new@example.test', fullName: 'New', role: 'nurse', agencyId: null, agencyIds: [] }
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { user }))
+    await expect(completePassword({ tokenHash: 'abcdefghijklmnop', type: 'invite', password: 'correct horse battery' })).resolves.toEqual(user)
+    expect(lastCall().url).toBe('/api/auth/complete-password')
+    expect(lastCall().init.method).toBe('POST')
+    expect(JSON.parse(String(lastCall().init.body))).toEqual({ tokenHash: 'abcdefghijklmnop', type: 'invite', password: 'correct horse battery' })
+    expect(new Headers(lastCall().init.headers).has('authorization')).toBe(false)
+  })
+
+  it('requests recovery and treats 204 as success', async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }))
+    await expect(requestRecovery('someone@example.test')).resolves.toBeUndefined()
+    expect(lastCall().url).toBe('/api/auth/recover')
+    expect(JSON.parse(String(lastCall().init.body))).toEqual({ email: 'someone@example.test' })
   })
 })

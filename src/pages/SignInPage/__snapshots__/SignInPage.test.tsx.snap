@@ -70,6 +70,12 @@ exports[`renders the sign-in form and delegates credentials to the session 1`] =
       >
         Sign In
       </button>
+      <button
+        class="btn btn--link auth-page__link"
+        type="button"
+      >
+        Forgot your password?
+      </button>
     </form>
   </div>
 </main>

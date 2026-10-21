@@ -70,6 +70,12 @@ exports[`role-aware navigation > shows the sign-in form without a session 1`] = 
       >
         Sign In
       </button>
+      <button
+        class="btn btn--link auth-page__link"
+        type="button"
+      >
+        Forgot your password?
+      </button>
     </form>
   </div>
 </main>

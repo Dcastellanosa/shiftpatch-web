@@ -1,10 +1,11 @@
-import './SignInPage.scss'
 import { useState, type FormEvent } from 'react'
+import { ForgotPasswordForm } from '../../features/auth/ForgotPasswordForm/index.ts'
 import { useSession } from '../../features/auth/session-context/index.ts'
 
 export function SignInPage() {
   const { login, error } = useSession()
   const [submitting, setSubmitting] = useState(false)
+  const [forgot, setForgot] = useState(false)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -23,26 +24,33 @@ export function SignInPage() {
           </span>
           ShiftPatch
         </p>
-        <h1>Sign In</h1>
-        <p className="muted">Nursing shifts, staffed safely.</p>
-        <form className="form" onSubmit={handleSubmit}>
-          <div className="field">
-            <label htmlFor="email">Email</label>
-            <input id="email" name="email" type="email" autoComplete="username" spellCheck={false} required />
-          </div>
-          <div className="field">
-            <label htmlFor="password">Password</label>
-            <input id="password" name="password" type="password" autoComplete="current-password" required />
-          </div>
-          {error && (
-            <p role="alert" className="notice notice--error">
-              {error.status === 0 ? 'The server could not be reached. Try again.' : error.message}
-            </p>
-          )}
-          <button type="submit" className="btn btn--primary btn--block" disabled={submitting}>
-            {submitting ? 'Signing In…' : 'Sign In'}
-          </button>
-        </form>
+        <h1>{forgot ? 'Reset your password' : 'Sign In'}</h1>
+        <p className="muted">{forgot ? 'We will email you a link to choose a new one.' : 'Nursing shifts, staffed safely.'}</p>
+        {forgot ? (
+          <ForgotPasswordForm onBack={() => setForgot(false)} />
+        ) : (
+          <form className="form" onSubmit={handleSubmit}>
+            <div className="field">
+              <label htmlFor="email">Email</label>
+              <input id="email" name="email" type="email" autoComplete="username" spellCheck={false} required />
+            </div>
+            <div className="field">
+              <label htmlFor="password">Password</label>
+              <input id="password" name="password" type="password" autoComplete="current-password" required />
+            </div>
+            {error && (
+              <p role="alert" className="notice notice--error">
+                {error.status === 0 ? 'The server could not be reached. Try again.' : error.message}
+              </p>
+            )}
+            <button type="submit" className="btn btn--primary btn--block" disabled={submitting}>
+              {submitting ? 'Signing In…' : 'Sign In'}
+            </button>
+            <button type="button" className="btn btn--link auth-page__link" onClick={() => setForgot(true)}>
+              Forgot your password?
+            </button>
+          </form>
+        )}
       </div>
     </main>
   )

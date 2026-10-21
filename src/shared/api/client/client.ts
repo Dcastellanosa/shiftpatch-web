@@ -393,3 +393,26 @@ export async function suspendEligibility(nurseId: string, branchId: string): Pro
   const { eligibility } = await apiRequest<{ eligibility: EligibilityRecord }>(eligibilityPath(nurseId, branchId), { method: 'DELETE' })
   return eligibility
 }
+
+// ---------------------------------------------------------------------------
+// Password links (public). The token travels only in the request body, once.
+// ---------------------------------------------------------------------------
+
+export type PasswordLinkType = 'invite' | 'recovery'
+
+export interface CompletePasswordInput {
+  tokenHash: string
+  type: PasswordLinkType
+  password: string
+}
+
+/** Sets the password behind an invitation or recovery link and starts a session (cookies set by the API). */
+export async function completePassword(input: CompletePasswordInput): Promise<SessionUser> {
+  const { user } = await apiRequest<SessionPayload>('/auth/complete-password', { method: 'POST', body: JSON.stringify(input) })
+  return user
+}
+
+/** Asks for a recovery email. The API answers 204 whether or not the address exists. */
+export async function requestRecovery(email: string): Promise<void> {
+  await apiRequest<undefined>('/auth/recover', { method: 'POST', body: JSON.stringify({ email }) })
+}
