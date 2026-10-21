@@ -88,3 +88,23 @@ it('shows an error state with retry when the agency cannot be loaded', async () 
   expect(await screen.findByText('Something went wrong')).toBeTruthy()
   expect(screen.getByRole('button', { name: 'Try Again' })).toBeTruthy()
 })
+
+it('deletes the agency after the warning and returns to the list', async () => {
+  const fetchMock = stubApi({
+    [`GET /api/admin/agencies/${AGENCY_ID}`]: () => json(200, { agency: makeAgency(), branches: [] }),
+    [`DELETE /api/admin/agencies/${AGENCY_ID}`]: () => ({ status: 204 }),
+  })
+  renderWithProviders(
+    <Routes>
+      <Route path="/admin/agencies" element={<p>list screen</p>} />
+      <Route path="/admin/agencies/:agencyId" element={<AdminAgencyPage />} />
+    </Routes>,
+    { path: `/admin/agencies/${AGENCY_ID}` },
+  )
+  await screen.findByRole('heading', { level: 1, name: 'Northwind Care Staffing' })
+  await userEvent.click(screen.getByRole('button', { name: 'Delete' }))
+  const dialog = screen.getByRole('dialog', { name: 'Delete Northwind Care Staffing?' })
+  await userEvent.click(within(dialog).getByRole('button', { name: 'Delete agency' }))
+  expect(await screen.findByText('list screen')).toBeTruthy()
+  expect(fetchMock.mock.calls.some(([url, init]) => String(url) === `/api/admin/agencies/${AGENCY_ID}` && init?.method === 'DELETE')).toBe(true)
+})

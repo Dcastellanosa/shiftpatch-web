@@ -72,12 +72,15 @@ message.
   table shows status, assigned nurse and an expandable event history, with a status filter kept in the URL.
 - **All shifts (admin).** Agency, branch, nurse, time and status for every shift. Status counts double as
   filters. Agency, branch and date-range filters are kept in the URL (`?agency=&branch=&from=&to=&status=`).
-- **Agencies (admin).** Create agencies, open one to add branches (name, address, IANA time zone), rename it, and
-  activate or deactivate agencies and branches after a confirmation. Inactive ones stop taking shifts and claims and
-  disappear from nurses' lists; the API enforces this, the UI explains it.
+- **Agencies (admin).** Create agencies in a modal, open one to add branches (name, address, IANA time zone), rename
+  it, and activate or deactivate agencies and branches after a confirmation. Inactive ones stop taking shifts and
+  claims and disappear from nurses' lists; the API enforces this, the UI explains it. Deleting an agency asks for
+  confirmation and only succeeds while it never had shifts (`agency_has_shifts` otherwise).
 - **Users (admin).** Every account with role, status (invited / active) and access. The invitation form adapts to the
   role: agency users pick one or more active agencies, nurses one active branch, admins nothing else. The API emails
-  the link; the browser never sees it. An existing email is shown on the field (`email_exists`).
+  the link; the browser never sees it. An existing email is shown on the field (`email_exists`). Invitations open in a
+  modal. Deleting a user asks for confirmation; the API refuses users with shifts or recorded actions and the
+  viewer's own account, and the viewer's row shows no delete action.
 - **Nurses (agency).** A nurses × branches grid for the agency's branches. Each cell shows the nurse's status there
   and the one action that changes it (activate / suspend). Suspending hides future shifts only.
 - **Set password.** `/set-password` is the public landing page of invitation and recovery emails. The token in the
@@ -103,7 +106,7 @@ narrow screens.
 | `src/features/admin-users/`, `src/entities/user/` | Users table, role-dependent invitation form, `useInviteUser`, the `['admin','users']` query and role/status labels. |
 | `src/features/nurse-eligibility/` | Nurses × branches grid, eligibility toggle, `['agency','nurses']` query and `useSetEligibility` (PUT activates, DELETE suspends). |
 | `src/features/auth/password-link/`, `src/pages/SetPasswordPage/`, `src/features/auth/ForgotPasswordForm/` | Fragment parsing and clearing, the public set-password page, `useCompletePassword` (drops every other query, overwrites the session) and the recovery form. |
-| `src/shared/ui/ConfirmDialog/` | Focus-managed confirmation dialog used before status changes. |
+| `src/shared/ui/ConfirmDialog/`, `src/shared/ui/Modal/` | Focus-managed confirmation dialog used before status changes and deletions; labelled modal that hosts the create-agency and invite-user forms. |
 | `src/stores/ui-store/ui-store.ts` | The single Zustand store: the global toast queue, rendered by `src/shared/ui/Toaster/`. Never API data. |
 | `src/features/shifts/claim-errors/claim-errors.ts` | User-facing copy for claim error codes. |
 | `src/shared/lib/format/format.ts` | `Intl` date/time formatting in the branch time zone, and branch-local time → UTC conversion. |
@@ -183,10 +186,10 @@ pnpm test:e2e
 
 | Spec | Covers |
 |---|---|
-| `e2e/agency-admin.spec.ts` | Admin creates an agency and a branch, deactivates / reactivates both; an inactive branch rejects new shifts until it is active again |
+| `e2e/agency-admin.spec.ts` | Admin creates an agency (modal) and a branch, deactivates / reactivates both, deletes the agency after confirming, is refused for one with shifts; an inactive branch rejects new shifts until it is active again |
 | `e2e/claim-workflow.spec.ts` | Agency posts a shift → nurse sees and claims it → My Shifts → agency table and history show the assignment |
 | `e2e/eligibility.spec.ts` | Suspending a nurse at a branch hides its open shifts; activating restores them |
-| `e2e/invitation.spec.ts` | Admin invites a nurse → the emailed link (read from the local Mailpit) sets a password and signs in → "Forgot your password?" → recovery link → new password works, old one does not |
+| `e2e/invitation.spec.ts` | Admin invites a nurse (modal) → the emailed link (read from the local Mailpit) sets a password and signs in → "Forgot your password?" → recovery link → new password works, old one does not → the admin deletes the nurse after confirming and she can no longer sign in |
 
 No password is configured: `E2E_PASSWORD` is ignored. Seeded accounts and the password live only in the run.
 Optional `.env.e2e.local` (gitignored): `E2E_API_DIR` when the API checkout is not `../shiftpatch-api`. The suite

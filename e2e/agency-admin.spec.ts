@@ -10,9 +10,12 @@ test('admin creates an agency with a branch and controls their status', async ({
   await openScreen(admin, 'Agencies')
   await expect(admin).toHaveURL(/\/admin\/agencies$/)
 
-  await admin.getByLabel('Name').fill('E2E Summit Nursing')
-  await admin.getByRole('button', { name: 'Create agency' }).click()
+  await admin.getByRole('button', { name: 'New agency' }).click()
+  const createDialog = admin.getByRole('dialog', { name: 'New agency' })
+  await createDialog.getByLabel('Name').fill('E2E Summit Nursing')
+  await createDialog.getByRole('button', { name: 'Create agency' }).click()
   await expect(admin.getByText('Agency created')).toBeVisible()
+  await expect(createDialog).toHaveCount(0)
   await admin.getByRole('link', { name: 'E2E Summit Nursing' }).click()
   await expect(admin.getByRole('heading', { level: 1, name: 'E2E Summit Nursing' })).toBeVisible()
 
@@ -44,6 +47,20 @@ test('admin creates an agency with a branch and controls their status', async ({
   const agencyRow = admin.getByRole('row').filter({ hasText: 'E2E Summit Nursing' })
   await expect(agencyRow).toContainText('Active')
   await expect(agencyRow).toContainText('1')
+
+  // Deletion asks for confirmation; the agency never had shifts, so it goes away.
+  await agencyRow.getByRole('button', { name: 'Delete E2E Summit Nursing' }).click()
+  const deleteDialog = admin.getByRole('dialog', { name: 'Delete E2E Summit Nursing?' })
+  await expect(deleteDialog).toContainText('cannot be undone')
+  await deleteDialog.getByRole('button', { name: 'Delete agency' }).click()
+  await expect(admin.getByText('Agency deleted')).toBeVisible()
+  await expect(agencyRow).toHaveCount(0)
+
+  // An agency with shifts is refused, with the reason.
+  await admin.getByRole('button', { name: 'Delete Northwind Care Staffing' }).click()
+  await admin.getByRole('dialog', { name: 'Delete Northwind Care Staffing?' }).getByRole('button', { name: 'Delete agency' }).click()
+  await expect(admin.getByText('Agency not deleted')).toBeVisible()
+  await expect(admin.getByRole('link', { name: 'Northwind Care Staffing' })).toBeVisible()
 })
 
 test('an inactive branch rejects new shifts until it is activated again', async ({ browser }) => {

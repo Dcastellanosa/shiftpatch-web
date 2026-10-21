@@ -3,8 +3,16 @@ import { ELIGIBILITY_STATUS_LABEL, USER_ROLE_LABEL, USER_STATUS_LABEL } from '..
 import type { AdminUser } from '../../../shared/api/client/index.ts'
 import { formatTimestamp } from '../../../shared/lib/format/index.ts'
 
-/** Every account with its role, status and access. Read-only; invitations happen in the form above. */
-export function UsersTable({ users }: { users: AdminUser[] }) {
+interface UsersTableProps {
+  users: AdminUser[]
+  /** The signed-in admin, who cannot delete themselves. */
+  currentUserId: string
+  pendingUserId: string | null
+  onDelete: (user: AdminUser) => void
+}
+
+/** Every account with its role, status and access, and a delete action for everyone but the viewer. */
+export function UsersTable({ users, currentUserId, pendingUserId, onDelete }: UsersTableProps) {
   return (
     <div className="table-wrap">
       <table className="table users-table" data-testid="users-table">
@@ -15,6 +23,9 @@ export function UsersTable({ users }: { users: AdminUser[] }) {
             <th scope="col">Status</th>
             <th scope="col">Access</th>
             <th scope="col">Last sign-in</th>
+            <th scope="col">
+              <span className="visually-hidden">Actions</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -38,6 +49,19 @@ export function UsersTable({ users }: { users: AdminUser[] }) {
                   <span className="muted">Invited {formatTimestamp(user.invitedAt)}</span>
                 ) : (
                   <span className="muted">Never</span>
+                )}
+              </td>
+              <td className="users-table__actions">
+                {user.id !== currentUserId && (
+                  <button
+                    type="button"
+                    className="btn btn--link users-table__delete"
+                    onClick={() => onDelete(user)}
+                    disabled={pendingUserId !== null}
+                    aria-label={`Delete ${user.fullName}`}
+                  >
+                    {pendingUserId === user.id ? 'Deleting…' : 'Delete'}
+                  </button>
                 )}
               </td>
             </tr>

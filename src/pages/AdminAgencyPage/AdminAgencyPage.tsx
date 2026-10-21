@@ -1,16 +1,18 @@
 import './AdminAgencyPage.scss'
 import { useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { ENTITY_STATUS_LABEL } from '../../entities/agency/model/index.ts'
 import { useAgency } from '../../entities/agency/queries/index.ts'
 import { AgencyForm } from '../../features/admin-agencies/AgencyForm/index.ts'
 import { BranchForm } from '../../features/admin-agencies/BranchForm/index.ts'
 import { StatusToggle } from '../../features/admin-agencies/StatusToggle/index.ts'
 import { useCreateBranch } from '../../features/admin-agencies/use-create-branch/index.ts'
+import { useDeleteAgency } from '../../features/admin-agencies/use-delete-agency/index.ts'
 import { useUpdateAgency } from '../../features/admin-agencies/use-update-agency/index.ts'
 import { useUpdateBranch } from '../../features/admin-agencies/use-update-branch/index.ts'
 import type { AgencyBranch } from '../../shared/api/client/index.ts'
 import { toApiError } from '../../shared/api/errors/index.ts'
+import { ConfirmDialog } from '../../shared/ui/ConfirmDialog/index.ts'
 import { EmptyState } from '../../shared/ui/EmptyState/index.ts'
 import { ErrorState } from '../../shared/ui/ErrorState/index.ts'
 import { LoadingState } from '../../shared/ui/LoadingState/index.ts'
@@ -22,8 +24,11 @@ export function AdminAgencyPage() {
   const updateAgency = useUpdateAgency(agencyId)
   const createBranch = useCreateBranch(agencyId)
   const updateBranch = useUpdateBranch(agencyId)
+  const remove = useDeleteAgency()
+  const navigate = useNavigate()
   const [editing, setEditing] = useState<string | null>(null)
   const [renaming, setRenaming] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   if (detail.data === undefined) {
     return (
@@ -61,8 +66,30 @@ export function AdminAgencyPage() {
             {renaming ? 'Close' : 'Rename'}
           </button>
           <StatusToggle kind="agency" name={agency.name} status={agency.status} pending={updateAgency.isPending} onChange={(status) => updateAgency.mutate({ status })} />
+          <button type="button" className="btn btn--secondary agency-header__delete" onClick={() => setConfirmingDelete(true)} disabled={remove.isPending}>
+            {remove.isPending ? 'Deleting…' : 'Delete'}
+          </button>
         </div>
       </header>
+
+      {confirmingDelete && (
+        <ConfirmDialog
+          title={`Delete ${agency.name}?`}
+          confirmLabel="Delete agency"
+          destructive
+          pending={remove.isPending}
+          onConfirm={() =>
+            remove.mutate(agency, {
+              onSuccess: () => void navigate('/admin/agencies', { replace: true }),
+              onSettled: () => setConfirmingDelete(false),
+            })
+          }
+          onCancel={() => setConfirmingDelete(false)}
+        >
+          This removes the agency, its {branches.length} {branches.length === 1 ? 'branch' : 'branches'}, its users’ memberships and nurse
+          eligibility. It cannot be undone. Agencies that already have shifts cannot be deleted; deactivate them instead.
+        </ConfirmDialog>
+      )}
 
       {agency.status === 'inactive' && (
         <div className="notice notice--error" role="status">

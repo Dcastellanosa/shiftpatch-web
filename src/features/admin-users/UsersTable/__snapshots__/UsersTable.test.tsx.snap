@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`shows role, status and access for each kind of user 1`] = `
+exports[`shows role, status and access for each kind of user, with delete for everyone but the viewer 1`] = `
 <div
   class="table-wrap"
 >
@@ -34,6 +34,15 @@ exports[`shows role, status and access for each kind of user 1`] = `
           scope="col"
         >
           Last sign-in
+        </th>
+        <th
+          scope="col"
+        >
+          <span
+            class="visually-hidden"
+          >
+            Actions
+          </span>
         </th>
       </tr>
     </thead>
@@ -95,6 +104,17 @@ exports[`shows role, status and access for each kind of user 1`] = `
             Dec 1, 2029, 3:00 AM
           </time>
         </td>
+        <td
+          class="users-table__actions"
+        >
+          <button
+            aria-label="Delete Ava Thompson"
+            class="btn btn--link users-table__delete"
+            type="button"
+          >
+            Delete
+          </button>
+        </td>
       </tr>
       <tr>
         <td
@@ -145,6 +165,17 @@ exports[`shows role, status and access for each kind of user 1`] = `
             Dec 1, 2029, 3:00 AM
           </time>
         </td>
+        <td
+          class="users-table__actions"
+        >
+          <button
+            aria-label="Delete Riley Northwind"
+            class="btn btn--link users-table__delete"
+            type="button"
+          >
+            Delete
+          </button>
+        </td>
       </tr>
       <tr>
         <td
@@ -194,6 +225,9 @@ exports[`shows role, status and access for each kind of user 1`] = `
             Sep 30, 2029, 7:00 PM
           </span>
         </td>
+        <td
+          class="users-table__actions"
+        />
       </tr>
     </tbody>
   </table>

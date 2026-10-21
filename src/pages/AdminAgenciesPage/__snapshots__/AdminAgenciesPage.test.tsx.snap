@@ -1,5 +1,57 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`shows the empty state and opens the create modal 1`] = `
+<section
+  aria-labelledby="agencies-heading"
+  class="page"
+>
+  <header
+    class="page__header"
+  >
+    <div>
+      <h1
+        id="agencies-heading"
+      >
+        Agencies
+      </h1>
+      <p
+        class="muted"
+      >
+        Create agencies and manage their branches.
+      </p>
+    </div>
+    <button
+      class="btn btn--primary"
+      type="button"
+    >
+      New agency
+    </button>
+  </header>
+  <section
+    aria-labelledby="agencies-list-heading"
+    class="section"
+  >
+    <h2
+      id="agencies-list-heading"
+    >
+      All agencies
+    </h2>
+    <div
+      class="state state--empty"
+    >
+      <p
+        class="state__title"
+      >
+        No agencies yet
+      </p>
+      <p>
+        Create the first agency with the button above.
+      </p>
+    </div>
+  </section>
+</section>
+`;
+
 exports[`shows the empty state and the create form 1`] = `
 <section
   aria-labelledby="agencies-heading"

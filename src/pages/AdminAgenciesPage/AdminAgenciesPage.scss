@@ -11,3 +11,11 @@
   background: var(--surface-muted);
   color: var(--muted);
 }
+
+.agency-table__actions {
+  text-align: right;
+}
+
+.agency-table__delete {
+  color: var(--danger);
+}

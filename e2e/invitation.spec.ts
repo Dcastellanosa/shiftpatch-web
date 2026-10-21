@@ -14,12 +14,15 @@ test('an invited nurse sets a password from the email and can later recover it',
   await expect(admin).toHaveURL(/\/admin\/users$/)
 
   const invitedAt = Date.now() - 1000
-  await admin.getByLabel('Full name').fill('E2E Nurse')
-  await admin.getByLabel('Email').fill(EMAIL)
-  await admin.getByLabel('Role').selectOption('nurse')
-  await admin.getByLabel('Branch').selectOption({ label: `Northwind Care Staffing · ${DOWNTOWN}` })
-  await admin.getByRole('button', { name: 'Send invitation' }).click()
+  await admin.getByRole('button', { name: 'Invite user' }).click()
+  const inviteDialog = admin.getByRole('dialog', { name: 'Invite a user' })
+  await inviteDialog.getByLabel('Full name').fill('E2E Nurse')
+  await inviteDialog.getByLabel('Email').fill(EMAIL)
+  await inviteDialog.getByLabel('Role').selectOption('nurse')
+  await inviteDialog.getByLabel('Branch').selectOption({ label: `Northwind Care Staffing · ${DOWNTOWN}` })
+  await inviteDialog.getByRole('button', { name: 'Send invitation' }).click()
   await expect(admin.getByText('Invitation sent')).toBeVisible()
+  await expect(inviteDialog).toHaveCount(0)
   const row = admin.getByRole('row').filter({ hasText: EMAIL })
   await expect(row).toContainText('Invited')
   await expect(row).toContainText(DOWNTOWN)
@@ -65,4 +68,27 @@ test('an invited nurse sets a password from the email and can later recover it',
   await invitee.getByLabel('Password').fill('second password e2e')
   await invitee.getByRole('button', { name: 'Sign In' }).click()
   await expect(invitee.getByRole('navigation', { name: 'Main' })).toBeVisible()
+})
+
+test('an admin deletes a user who has no history after confirming, and cannot delete themselves', async ({ browser }) => {
+  const admin = await signIn(browser, ACCOUNTS.admin)
+  await openScreen(admin, 'Users')
+  const row = admin.getByRole('row').filter({ hasText: EMAIL })
+  await expect(row).toBeVisible()
+  await expect(admin.getByRole('row').filter({ hasText: ACCOUNTS.admin }).getByRole('button', { name: /^Delete/ })).toHaveCount(0)
+
+  await row.getByRole('button', { name: 'Delete E2E Nurse' }).click()
+  const dialog = admin.getByRole('dialog', { name: 'Delete E2E Nurse?' })
+  await expect(dialog).toContainText(EMAIL)
+  await dialog.getByRole('button', { name: 'Delete user' }).click()
+  await expect(admin.getByText('User deleted')).toBeVisible()
+  await expect(row).toHaveCount(0)
+
+  // The deleted account can no longer sign in.
+  const gone = await (await browser.newContext()).newPage()
+  await gone.goto('/')
+  await gone.getByLabel('Email').fill(EMAIL)
+  await gone.getByLabel('Password').fill('second password e2e')
+  await gone.getByRole('button', { name: 'Sign In' }).click()
+  await expect(gone.getByRole('alert')).toBeVisible()
 })

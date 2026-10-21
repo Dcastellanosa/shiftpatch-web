@@ -416,3 +416,13 @@ export async function completePassword(input: CompletePasswordInput): Promise<Se
 export async function requestRecovery(email: string): Promise<void> {
   await apiRequest<undefined>('/auth/recover', { method: 'POST', body: JSON.stringify({ email }) })
 }
+
+/** Removes an agency that never had shifts (409 `agency_has_shifts` otherwise). */
+export async function deleteAgency(agencyId: string): Promise<void> {
+  await apiRequest<undefined>(agencyPath(agencyId), { method: 'DELETE' })
+}
+
+/** Removes an account without shifts or recorded actions (409 `user_has_history` / `cannot_delete_self` otherwise). */
+export async function deleteAdminUser(userId: string): Promise<void> {
+  await apiRequest<undefined>(`/admin/users/${encodeURIComponent(userId)}`, { method: 'DELETE' })
+}

@@ -1,0 +1,54 @@
+.modal-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(15, 18, 22, 0.55);
+  overscroll-behavior: contain;
+}
+
+.modal-dialog__panel {
+  width: min(560px, 100%);
+  max-height: calc(100svh - 32px);
+  overflow-y: auto;
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  outline: none;
+}
+
+.modal-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 22px 0;
+}
+
+.modal-dialog__title {
+  margin: 0;
+}
+
+.modal-dialog__description {
+  margin: 4px 0 0;
+}
+
+.modal-dialog__close {
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 2px 8px;
+}
+
+.modal-dialog__body {
+  padding: 16px 22px 22px;
+}
+
+/* Forms inside a modal are not cards of their own. */
+.modal-dialog__body > .card {
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}

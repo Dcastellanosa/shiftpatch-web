@@ -9,6 +9,8 @@ import {
   createAgency,
   createBranch,
   createShift,
+  deleteAdminUser,
+  deleteAgency,
   getAgency,
   getCurrentSession,
   inviteUser,
@@ -299,5 +301,19 @@ describe('password link endpoints', () => {
     await expect(requestRecovery('someone@example.test')).resolves.toBeUndefined()
     expect(lastCall().url).toBe('/api/auth/recover')
     expect(JSON.parse(String(lastCall().init.body))).toEqual({ email: 'someone@example.test' })
+  })
+})
+
+describe('deletion endpoints', () => {
+  it('deletes agencies and users with DELETE and treats 204 as success', async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }))
+    await expect(deleteAgency('a-1')).resolves.toBeUndefined()
+    expect(lastCall().url).toBe('/api/admin/agencies/a-1')
+    expect(lastCall().init.method).toBe('DELETE')
+
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 204 }))
+    await expect(deleteAdminUser('u-1')).resolves.toBeUndefined()
+    expect(lastCall().url).toBe('/api/admin/users/u-1')
+    expect(lastCall().init.method).toBe('DELETE')
   })
 })

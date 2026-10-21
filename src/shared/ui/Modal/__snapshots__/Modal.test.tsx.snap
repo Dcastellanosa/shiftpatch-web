@@ -1,0 +1,53 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`labels the dialog, focuses the first field, and closes on Escape, the close button and the backdrop 1`] = `
+<div
+  class="modal-dialog"
+>
+  <div
+    aria-describedby="_r_1_"
+    aria-labelledby="_r_0_"
+    aria-modal="true"
+    class="modal-dialog__panel"
+    role="dialog"
+    tabindex="-1"
+  >
+    <header
+      class="modal-dialog__header"
+    >
+      <div>
+        <h2
+          class="modal-dialog__title"
+          id="_r_0_"
+        >
+          New agency
+        </h2>
+        <p
+          class="muted modal-dialog__description"
+          id="_r_1_"
+        >
+          Agencies group branches.
+        </p>
+      </div>
+      <button
+        aria-label="Close"
+        class="btn btn--ghost modal-dialog__close"
+        data-modal-close="true"
+        type="button"
+      >
+        ×
+      </button>
+    </header>
+    <div
+      class="modal-dialog__body"
+    >
+      <label>
+        Name 
+        <input
+          name="name"
+        />
+      </label>
+    </div>
+  </div>
+</div>
+`;
