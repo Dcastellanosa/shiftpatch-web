@@ -1,0 +1,34 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders a recorded shift event 1`] = `
+<ol
+  class="timeline"
+  data-testid="shift-history"
+>
+  <li>
+    <span
+      class="timeline__label"
+    >
+      Claimed
+    </span>
+    <span
+      class="muted"
+    >
+       
+      by 
+      Ava Thompson
+       · 
+      <time
+        datetime="2030-01-10T14:00:00.000Z"
+      >
+        Jan 10, 2030, 9:00 AM
+      </time>
+    </span>
+    <p
+      class="small"
+    >
+      Accepted by nurse
+    </p>
+  </li>
+</ol>
+`;

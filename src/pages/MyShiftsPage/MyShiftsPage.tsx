@@ -1,20 +1,21 @@
 import './MyShiftsPage.scss'
-import { ShiftWhen } from '../../components/ShiftWhen/index.ts'
-import { StatusBadge } from '../../components/StatusBadge/index.ts'
-import { EmptyState } from '../../components/EmptyState/index.ts'
-import { ErrorState } from '../../components/ErrorState/index.ts'
-import { LoadingState } from '../../components/LoadingState/index.ts'
-import { listMyShifts, type Shift } from '../../lib/api-client/index.ts'
-import { useAsync } from '../../lib/use-async/index.ts'
+import { ShiftWhen } from '../../entities/shift/ShiftWhen/index.ts'
+import { StatusBadge } from '../../entities/shift/StatusBadge/index.ts'
+import { useMyShifts } from '../../features/shifts/use-my-shifts/index.ts'
+import type { Shift } from '../../shared/api/client/index.ts'
+import { toApiError } from '../../shared/api/errors/index.ts'
+import { EmptyState } from '../../shared/ui/EmptyState/index.ts'
+import { ErrorState } from '../../shared/ui/ErrorState/index.ts'
+import { LoadingState } from '../../shared/ui/LoadingState/index.ts'
 
 function ShiftList({ shifts }: { shifts: Shift[] }) {
   return (
     <ul className="card-list">
       {shifts.map((shift) => (
         <li key={shift.id} className="card shift-card">
-          <div className="shift-card-main">
-            <h3 className="card-title">{shift.title}</h3>
-            <p className="shift-where">
+          <div className="shift-card__main">
+            <h3 className="card__title">{shift.title}</h3>
+            <p className="shift-card__where">
               <span>{shift.branch.name}</span>
               <span className="muted"> · {shift.agency.name}</span>
             </p>
@@ -29,21 +30,23 @@ function ShiftList({ shifts }: { shifts: Shift[] }) {
 }
 
 export function MyShiftsPage() {
-  const mine = useAsync(listMyShifts, 'mine')
+  const mine = useMyShifts()
 
   return (
     <section className="page" aria-labelledby="mine-heading">
-      <header className="page-header">
+      <header className="page__header">
         <div>
           <h1 id="mine-heading">My Shifts</h1>
           <p className="muted">Shifts you have claimed.</p>
         </div>
       </header>
 
-      {mine.error ? (
-        <ErrorState error={mine.error} onRetry={mine.reload} />
-      ) : !mine.data ? (
-        <LoadingState label="Loading your shifts…" />
+      {mine.data === undefined ? (
+        mine.isError ? (
+          <ErrorState error={toApiError(mine.error)} onRetry={() => void mine.refetch()} />
+        ) : (
+          <LoadingState label="Loading your shifts…" />
+        )
       ) : (
         <>
           <section aria-labelledby="upcoming-heading" className="section">

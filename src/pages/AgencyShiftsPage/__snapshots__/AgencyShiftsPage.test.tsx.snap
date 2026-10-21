@@ -6,7 +6,7 @@ exports[`shows the agency page without branches or shifts 1`] = `
   class="page"
 >
   <header
-    class="page-header"
+    class="page__header"
   >
     <div>
       <h1
@@ -22,10 +22,10 @@ exports[`shows the agency page without branches or shifts 1`] = `
     </div>
   </header>
   <div
-    class="state state-empty"
+    class="state state--empty"
   >
     <p
-      class="state-title"
+      class="state__title"
     >
       No branches yet
     </p>
@@ -33,15 +33,12 @@ exports[`shows the agency page without branches or shifts 1`] = `
       Your agency has no branches to post shifts for.
     </p>
   </div>
-  <div
-    aria-live="polite"
-  />
   <section
     aria-labelledby="agency-list-heading"
     class="section"
   >
     <div
-      class="section-header"
+      class="section__header"
     >
       <h2
         id="agency-list-heading"
@@ -87,10 +84,10 @@ exports[`shows the agency page without branches or shifts 1`] = `
       </label>
     </div>
     <div
-      class="state state-empty"
+      class="state state--empty"
     >
       <p
-        class="state-title"
+        class="state__title"
       >
         No shifts match
       </p>

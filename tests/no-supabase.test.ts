@@ -13,6 +13,14 @@ function sourceFiles(dir: string): string[] {
   })
 }
 
+function dependencyNames(): string[] {
+  const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as Record<string, unknown>
+  return Object.keys({
+    ...(pkg.dependencies as object | undefined),
+    ...(pkg.devDependencies as object | undefined),
+  })
+}
+
 describe('BFF boundary: the frontend never talks to Supabase', () => {
   const files = sourceFiles(SRC)
 
@@ -28,12 +36,7 @@ describe('BFF boundary: the frontend never talks to Supabase', () => {
   })
 
   it('package.json has no Supabase dependency', () => {
-    const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as Record<string, unknown>
-    const deps = Object.keys({
-      ...(pkg.dependencies as object | undefined),
-      ...(pkg.devDependencies as object | undefined),
-    })
-    expect(deps.filter((name) => name.includes('supabase'))).toEqual([])
+    expect(dependencyNames().filter((name) => name.includes('supabase'))).toEqual([])
   })
 
   it('.env.example declares no VITE_SUPABASE_* variables', () => {
@@ -50,6 +53,21 @@ describe('BFF boundary: the frontend never talks to Supabase', () => {
   it('no source file sets an Authorization header', () => {
     const offenders = files
       .filter((file) => /['"`]authorization['"`]|\bauthorization\s*:|\bbearer\s/i.test(readFileSync(file, 'utf8')))
+      .map((file) => relative(ROOT, file))
+    expect(offenders).toEqual([])
+  })
+})
+
+describe('server state stays in memory', () => {
+  const files = sourceFiles(SRC)
+
+  it('package.json has no query persister', () => {
+    expect(dependencyNames().filter((name) => /persist/i.test(name))).toEqual([])
+  })
+
+  it('no source file persists the query cache', () => {
+    const offenders = files
+      .filter((file) => /persistQueryClient|PersistQueryClientProvider|create(Sync|Async)StoragePersister|query-persist-client/.test(readFileSync(file, 'utf8')))
       .map((file) => relative(ROOT, file))
     expect(offenders).toEqual([])
   })

@@ -1,13 +1,16 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.scss'
-import App from './App/index.ts'
-import { SessionProvider } from './auth/SessionProvider/index.ts'
+import './app/styles/index.scss'
+import App from './app/App/index.ts'
+import { AppProviders } from './app/providers/AppProviders/index.ts'
+import { ErrorBoundary } from './shared/ui/ErrorBoundary/index.ts'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <SessionProvider>
-      <App />
-    </SessionProvider>
+    <ErrorBoundary>
+      <AppProviders>
+        <App />
+      </AppProviders>
+    </ErrorBoundary>
   </StrictMode>,
 )

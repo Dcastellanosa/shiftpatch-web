@@ -30,14 +30,14 @@
   background: var(--accent-soft);
 }
 
-.stat-value {
+.stat__value {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-strong);
   font-variant-numeric: tabular-nums;
 }
 
-.stat-label {
+.stat__label {
   font-size: 0.82rem;
   font-weight: 500;
 }

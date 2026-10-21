@@ -6,7 +6,7 @@ exports[`shows all status counts and the empty admin table 1`] = `
   class="page"
 >
   <header
-    class="page-header"
+    class="page__header"
   >
     <div>
       <h1
@@ -79,102 +79,102 @@ exports[`shows all status counts and the empty admin table 1`] = `
       type="button"
     >
       <span
-        class="stat-value"
+        class="stat__value"
       >
         0
       </span>
       <span
-        class="stat-label"
+        class="stat__label"
       >
         All
       </span>
     </button>
     <button
       aria-pressed="false"
-      class="stat stat-open"
+      class="stat stat--open"
       type="button"
     >
       <span
-        class="stat-value"
+        class="stat__value"
       >
         0
       </span>
       <span
-        class="stat-label"
+        class="stat__label"
       >
         Open
       </span>
     </button>
     <button
       aria-pressed="false"
-      class="stat stat-claimed"
+      class="stat stat--claimed"
       type="button"
     >
       <span
-        class="stat-value"
+        class="stat__value"
       >
         0
       </span>
       <span
-        class="stat-label"
+        class="stat__label"
       >
         Claimed
       </span>
     </button>
     <button
       aria-pressed="false"
-      class="stat stat-cancelled"
+      class="stat stat--cancelled"
       type="button"
     >
       <span
-        class="stat-value"
+        class="stat__value"
       >
         0
       </span>
       <span
-        class="stat-label"
+        class="stat__label"
       >
         Cancelled
       </span>
     </button>
     <button
       aria-pressed="false"
-      class="stat stat-completed"
+      class="stat stat--completed"
       type="button"
     >
       <span
-        class="stat-value"
+        class="stat__value"
       >
         0
       </span>
       <span
-        class="stat-label"
+        class="stat__label"
       >
         Completed
       </span>
     </button>
     <button
       aria-pressed="false"
-      class="stat stat-no_show"
+      class="stat stat--no_show"
       type="button"
     >
       <span
-        class="stat-value"
+        class="stat__value"
       >
         0
       </span>
       <span
-        class="stat-label"
+        class="stat__label"
       >
         No-show
       </span>
     </button>
   </div>
   <div
-    class="state state-empty"
+    class="state state--empty"
   >
     <p
-      class="state-title"
+      class="state__title"
     >
       No shifts match these filters
     </p>

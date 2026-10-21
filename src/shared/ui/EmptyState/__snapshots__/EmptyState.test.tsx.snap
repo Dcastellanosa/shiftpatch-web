@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders a title and guidance 1`] = `
+<div
+  class="state state--empty"
+>
+  <p
+    class="state__title"
+  >
+    No open shifts
+  </p>
+  <p>
+    Check back later.
+  </p>
+</div>
+`;

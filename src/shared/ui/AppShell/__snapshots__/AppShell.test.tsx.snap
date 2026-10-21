@@ -1,0 +1,88 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders nurse navigation and account details 1`] = `
+<div
+  class="app"
+>
+  <a
+    class="skip-link"
+    href="#main"
+  >
+    Skip to content
+  </a>
+  <header
+    class="topbar"
+  >
+    <div
+      class="topbar__inner"
+    >
+      <span
+        class="brand"
+        translate="no"
+      >
+        <span
+          aria-hidden="true"
+          class="brand__mark"
+        >
+          +
+        </span>
+        ShiftPatch
+      </span>
+      <nav
+        aria-label="Main"
+        class="nav"
+      >
+        <a
+          aria-current="page"
+          class="nav__link"
+          data-discover="true"
+          href="/shifts"
+        >
+          Available Shifts
+        </a>
+        <a
+          class="nav__link"
+          data-discover="true"
+          href="/my-shifts"
+        >
+          My Shifts
+        </a>
+      </nav>
+      <div
+        class="account"
+      >
+        <span
+          class="account__name"
+        >
+          Ava Thompson
+        </span>
+        <span
+          class="role-chip"
+        >
+          Nurse
+        </span>
+        <button
+          class="btn btn--ghost"
+          type="button"
+        >
+          Sign Out
+        </button>
+      </div>
+    </div>
+  </header>
+  <main
+    class="content"
+    id="main"
+    tabindex="-1"
+  >
+    <h1>
+      Available Shifts
+    </h1>
+  </main>
+  <div
+    aria-live="polite"
+    class="toaster"
+    role="status"
+  />
+</div>
+`;

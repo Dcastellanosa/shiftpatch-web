@@ -1,0 +1,26 @@
+@use '../../../app/styles/breakpoints';
+
+.card.form {
+  padding: 18px;
+}
+
+.form__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.field--wide {
+  grid-column: span 2;
+}
+
+.form__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@include breakpoints.compact {
+  .field--wide {
+    grid-column: auto;
+  }
+}

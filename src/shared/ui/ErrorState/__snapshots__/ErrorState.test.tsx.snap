@@ -1,0 +1,23 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders an API error and recovery action 1`] = `
+<div
+  class="state state--error"
+  role="alert"
+>
+  <p
+    class="state__title"
+  >
+    Something went wrong
+  </p>
+  <p>
+    Please try again.
+  </p>
+  <button
+    class="btn btn--secondary"
+    type="button"
+  >
+    Try Again
+  </button>
+</div>
+`;

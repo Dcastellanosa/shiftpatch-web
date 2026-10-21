@@ -1,46 +1,37 @@
 import './AvailableShiftsPage.scss'
 import { useState } from 'react'
-import { ClaimDialog } from '../../components/ClaimDialog/index.ts'
-import { Link } from '../../components/Link/index.ts'
-import { ShiftWhen } from '../../components/ShiftWhen/index.ts'
-import { EmptyState } from '../../components/EmptyState/index.ts'
-import { ErrorState } from '../../components/ErrorState/index.ts'
-import { LoadingState } from '../../components/LoadingState/index.ts'
-import { listShifts, type Shift } from '../../lib/api-client/index.ts'
-import { useAsync } from '../../lib/use-async/index.ts'
+import { ShiftWhen } from '../../entities/shift/ShiftWhen/index.ts'
+import { ClaimDialog } from '../../features/shifts/ClaimDialog/index.ts'
+import { useAvailableShifts } from '../../features/shifts/use-available-shifts/index.ts'
+import type { Shift } from '../../shared/api/client/index.ts'
+import { toApiError } from '../../shared/api/errors/index.ts'
+import { EmptyState } from '../../shared/ui/EmptyState/index.ts'
+import { ErrorState } from '../../shared/ui/ErrorState/index.ts'
+import { LoadingState } from '../../shared/ui/LoadingState/index.ts'
 
 export function AvailableShiftsPage() {
-  const shifts = useAsync(() => listShifts(), 'available')
+  const shifts = useAvailableShifts()
   const [claiming, setClaiming] = useState<Shift | null>(null)
-  const [claimed, setClaimed] = useState<Shift | null>(null)
+  const reload = () => void shifts.refetch()
 
   return (
     <section className="page" aria-labelledby="available-heading">
-      <header className="page-header">
+      <header className="page__header">
         <div>
           <h1 id="available-heading">Available Shifts</h1>
           <p className="muted">Open shifts at branches where you are active.</p>
         </div>
-        <button type="button" className="btn btn-secondary" onClick={shifts.reload} disabled={shifts.loading}>
+        <button type="button" className="btn btn--secondary" onClick={reload} disabled={shifts.isFetching}>
           Refresh
         </button>
       </header>
 
-      <div aria-live="polite">
-        {claimed && (
-          <div className="notice notice-success">
-            <p className="notice-title">Shift claimed</p>
-            <p>
-              {claimed.title} at {claimed.branch.name} is now yours. <Link to="/my-shifts">View My Shifts</Link>
-            </p>
-          </div>
-        )}
-      </div>
-
-      {shifts.error ? (
-        <ErrorState error={shifts.error} onRetry={shifts.reload} />
-      ) : !shifts.data ? (
-        <LoadingState label="Loading shifts…" />
+      {shifts.data === undefined ? (
+        shifts.isError ? (
+          <ErrorState error={toApiError(shifts.error)} onRetry={reload} />
+        ) : (
+          <LoadingState label="Loading shifts…" />
+        )
       ) : shifts.data.length === 0 ? (
         <EmptyState title="No open shifts right now">
           New shifts appear here when an agency you work with posts them.
@@ -49,9 +40,9 @@ export function AvailableShiftsPage() {
         <ul className="card-list">
           {shifts.data.map((shift) => (
             <li key={shift.id} className="card shift-card">
-              <div className="shift-card-main">
-                <h2 className="card-title">{shift.title}</h2>
-                <p className="shift-where">
+              <div className="shift-card__main">
+                <h2 className="card__title">{shift.title}</h2>
+                <p className="shift-card__where">
                   <span>{shift.branch.name}</span>
                   <span className="muted"> · {shift.agency.name}</span>
                 </p>
@@ -59,11 +50,8 @@ export function AvailableShiftsPage() {
               </div>
               <button
                 type="button"
-                className="btn btn-primary"
-                onClick={() => {
-                  setClaimed(null)
-                  setClaiming(shift)
-                }}
+                className="btn btn--primary"
+                onClick={() => setClaiming(shift)}
                 aria-label={`Claim ${shift.title} at ${shift.branch.name}`}
               >
                 Claim
@@ -76,14 +64,10 @@ export function AvailableShiftsPage() {
       {claiming && (
         <ClaimDialog
           shift={claiming}
-          onClaimed={(shift) => {
-            setClaiming(null)
-            setClaimed(shift)
-            shifts.reload()
-          }}
+          onClaimed={() => setClaiming(null)}
           onClose={(failed) => {
             setClaiming(null)
-            if (failed) shifts.reload()
+            if (failed) reload()
           }}
         />
       )}

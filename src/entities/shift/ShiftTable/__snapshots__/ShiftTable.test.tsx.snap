@@ -1,0 +1,120 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders an agency shift with the assigned nurse 1`] = `
+<div
+  class="table-wrap"
+>
+  <table
+    class="table"
+  >
+    <thead>
+      <tr>
+        <th
+          scope="col"
+        >
+          Shift
+        </th>
+        <th
+          scope="col"
+        >
+          Agency
+        </th>
+        <th
+          scope="col"
+        >
+          Branch
+        </th>
+        <th
+          scope="col"
+        >
+          When
+        </th>
+        <th
+          scope="col"
+        >
+          Status
+        </th>
+        <th
+          scope="col"
+        >
+          Assigned Nurse
+        </th>
+        <th
+          scope="col"
+        >
+          <span
+            class="visually-hidden"
+          >
+            History
+          </span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td
+          class="table__cell--strong"
+          data-label="Shift"
+        >
+          Med-Surg RN — Day
+        </td>
+        <td
+          data-label="Agency"
+        >
+          Northwind Care Staffing
+        </td>
+        <td
+          data-label="Branch"
+        >
+          Downtown Clinic
+        </td>
+        <td
+          data-label="When"
+        >
+          <span
+            class="when"
+          >
+            <time
+              class="when__date"
+              datetime="2030-01-10T13:00:00.000Z"
+            >
+              Thu, Jan 10
+            </time>
+            <span
+              class="when__time"
+            >
+              8:00 AM – 4:00 PM EST
+               · 
+              8 h
+            </span>
+          </span>
+        </td>
+        <td
+          data-label="Status"
+        >
+          <span
+            class="badge badge--claimed"
+          >
+            Claimed
+          </span>
+        </td>
+        <td
+          data-label="Assigned Nurse"
+        >
+          Ava Thompson
+        </td>
+        <td>
+          <button
+            aria-controls="history-5f0c1d3e-0000-4000-8000-000000000001"
+            aria-expanded="false"
+            class="btn btn--link"
+            type="button"
+          >
+            History
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;

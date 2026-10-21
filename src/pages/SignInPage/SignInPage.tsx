@@ -1,6 +1,6 @@
 import './SignInPage.scss'
 import { useState, type FormEvent } from 'react'
-import { useSession } from '../../auth/session-context/index.ts'
+import { useSession } from '../../features/auth/session-context/index.ts'
 
 export function SignInPage() {
   const { login, error } = useSession()
@@ -16,9 +16,9 @@ export function SignInPage() {
 
   return (
     <main id="main" className="auth-page">
-      <div className="auth-card card">
-        <p className="brand brand-lg" translate="no">
-          <span className="brand-mark" aria-hidden="true">
+      <div className="auth-page__card card">
+        <p className="brand brand--lg" translate="no">
+          <span className="brand__mark" aria-hidden="true">
             +
           </span>
           ShiftPatch
@@ -35,11 +35,11 @@ export function SignInPage() {
             <input id="password" name="password" type="password" autoComplete="current-password" required />
           </div>
           {error && (
-            <p role="alert" className="notice notice-error">
+            <p role="alert" className="notice notice--error">
               {error.status === 0 ? 'The server could not be reached. Try again.' : error.message}
             </p>
           )}
-          <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
+          <button type="submit" className="btn btn--primary btn--block" disabled={submitting}>
             {submitting ? 'Signing In…' : 'Sign In'}
           </button>
         </form>

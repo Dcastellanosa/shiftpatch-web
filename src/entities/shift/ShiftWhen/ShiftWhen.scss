@@ -1,0 +1,15 @@
+.when {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.when__date {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+
+.when__time {
+  color: var(--text);
+}

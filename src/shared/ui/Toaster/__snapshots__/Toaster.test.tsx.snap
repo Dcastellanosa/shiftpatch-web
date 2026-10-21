@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`announces toasts politely, with their link, and lets the user dismiss them 1`] = `
+<div
+  aria-live="polite"
+  class="toaster"
+  role="status"
+>
+  <div
+    class="toast toast--success"
+  >
+    <div
+      class="toast__content"
+    >
+      <p
+        class="toast__title"
+      >
+        Shift claimed
+      </p>
+      <p
+        class="toast__body"
+      >
+        <span>
+          Med-Surg RN — Day at Downtown Clinic is now yours.
+        </span>
+        <a
+          data-discover="true"
+          href="/my-shifts"
+        >
+          View My Shifts
+        </a>
+      </p>
+    </div>
+    <button
+      aria-label="Dismiss notification"
+      class="toast__dismiss"
+      type="button"
+    >
+      ×
+    </button>
+  </div>
+</div>
+`;

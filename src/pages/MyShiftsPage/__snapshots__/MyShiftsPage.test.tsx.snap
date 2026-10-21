@@ -6,7 +6,7 @@ exports[`shows empty upcoming and past sections 1`] = `
   class="page"
 >
   <header
-    class="page-header"
+    class="page__header"
   >
     <div>
       <h1
@@ -33,10 +33,10 @@ exports[`shows empty upcoming and past sections 1`] = `
       )
     </h2>
     <div
-      class="state state-empty"
+      class="state state--empty"
     >
       <p
-        class="state-title"
+        class="state__title"
       >
         No upcoming shifts
       </p>
@@ -57,10 +57,10 @@ exports[`shows empty upcoming and past sections 1`] = `
       )
     </h2>
     <div
-      class="state state-empty"
+      class="state state--empty"
     >
       <p
-        class="state-title"
+        class="state__title"
       >
         No past shifts yet
       </p>

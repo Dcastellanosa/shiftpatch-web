@@ -1,4 +1,4 @@
-.brand-lg {
+.brand--lg {
   font-size: 1.15rem;
   margin-bottom: 20px;
 }
@@ -12,7 +12,7 @@
   padding: 24px 16px;
 }
 
-.auth-card {
+.auth-page__card {
   width: min(380px, 100%);
   padding: 28px;
   display: flex;
@@ -20,6 +20,6 @@
   gap: 6px;
 }
 
-.auth-card .form {
+.auth-page__card .form {
   margin-top: 16px;
 }

@@ -6,7 +6,7 @@ exports[`shows the empty available-shifts state 1`] = `
   class="page"
 >
   <header
-    class="page-header"
+    class="page__header"
   >
     <div>
       <h1
@@ -21,20 +21,17 @@ exports[`shows the empty available-shifts state 1`] = `
       </p>
     </div>
     <button
-      class="btn btn-secondary"
+      class="btn btn--secondary"
       type="button"
     >
       Refresh
     </button>
   </header>
   <div
-    aria-live="polite"
-  />
-  <div
-    class="state state-empty"
+    class="state state--empty"
   >
     <p
-      class="state-title"
+      class="state__title"
     >
       No open shifts right now
     </p>

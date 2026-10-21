@@ -1,0 +1,76 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`role-aware navigation > shows the sign-in form without a session 1`] = `
+<main
+  class="auth-page"
+  id="main"
+>
+  <div
+    class="auth-page__card card"
+  >
+    <p
+      class="brand brand--lg"
+      translate="no"
+    >
+      <span
+        aria-hidden="true"
+        class="brand__mark"
+      >
+        +
+      </span>
+      ShiftPatch
+    </p>
+    <h1>
+      Sign In
+    </h1>
+    <p
+      class="muted"
+    >
+      Nursing shifts, staffed safely.
+    </p>
+    <form
+      class="form"
+    >
+      <div
+        class="field"
+      >
+        <label
+          for="email"
+        >
+          Email
+        </label>
+        <input
+          autocomplete="username"
+          id="email"
+          name="email"
+          required=""
+          spellcheck="false"
+          type="email"
+        />
+      </div>
+      <div
+        class="field"
+      >
+        <label
+          for="password"
+        >
+          Password
+        </label>
+        <input
+          autocomplete="current-password"
+          id="password"
+          name="password"
+          required=""
+          type="password"
+        />
+      </div>
+      <button
+        class="btn btn--primary btn--block"
+        type="submit"
+      >
+        Sign In
+      </button>
+    </form>
+  </div>
+</main>
+`;

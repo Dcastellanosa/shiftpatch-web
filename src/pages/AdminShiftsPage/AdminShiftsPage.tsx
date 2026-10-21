@@ -1,13 +1,15 @@
 import './AdminShiftsPage.scss'
-import { ShiftTable } from '../../components/ShiftTable/index.ts'
-import { EmptyState } from '../../components/EmptyState/index.ts'
-import { ErrorState } from '../../components/ErrorState/index.ts'
-import { LoadingState } from '../../components/LoadingState/index.ts'
-import { listBranches, listShifts } from '../../lib/api-client/index.ts'
-import { addDays } from '../../lib/format/index.ts'
-import { setSearchParams, useLocation } from '../../lib/router/index.ts'
-import { SHIFT_STATUSES as STATUSES, STATUS_LABEL } from '../../lib/status/index.ts'
-import { useAsync } from '../../lib/use-async/index.ts'
+import { useSearchParams } from 'react-router'
+import { useBranches } from '../../entities/branch/use-branches/index.ts'
+import { SHIFT_STATUSES as STATUSES, STATUS_LABEL } from '../../entities/shift/model/index.ts'
+import { ShiftTable } from '../../entities/shift/ShiftTable/index.ts'
+import { useAdminShifts } from '../../features/admin-dashboard/use-admin-shifts/index.ts'
+import { toApiError } from '../../shared/api/errors/index.ts'
+import { addDays } from '../../shared/lib/format/index.ts'
+import { compactParams } from '../../shared/lib/search-params/index.ts'
+import { EmptyState } from '../../shared/ui/EmptyState/index.ts'
+import { ErrorState } from '../../shared/ui/ErrorState/index.ts'
+import { LoadingState } from '../../shared/ui/LoadingState/index.ts'
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -17,27 +19,23 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/
  * status counts stay visible.
  */
 export function AdminShiftsPage() {
-  const { search } = useLocation()
+  const [searchParams, setSearchParams] = useSearchParams()
   const filters = {
-    status: STATUSES.find((s) => s === search.get('status')),
-    agency: search.get('agency') ?? '',
-    branch: search.get('branch') ?? '',
-    from: DATE.test(search.get('from') ?? '') ? search.get('from')! : '',
-    to: DATE.test(search.get('to') ?? '') ? search.get('to')! : '',
+    status: STATUSES.find((s) => s === searchParams.get('status')),
+    agency: searchParams.get('agency') ?? '',
+    branch: searchParams.get('branch') ?? '',
+    from: DATE.test(searchParams.get('from') ?? '') ? searchParams.get('from')! : '',
+    to: DATE.test(searchParams.get('to') ?? '') ? searchParams.get('to')! : '',
   }
   const update = (patch: Partial<Record<keyof typeof filters, string>>) =>
-    setSearchParams({ ...filters, ...patch } as Record<string, string>)
+    setSearchParams(compactParams({ ...filters, ...patch }), { replace: true })
 
-  const branches = useAsync(listBranches, 'branches')
-  const shifts = useAsync(
-    () =>
-      listShifts({
-        branchId: filters.branch || undefined,
-        from: filters.from ? `${filters.from}T00:00:00Z` : undefined,
-        to: filters.to ? `${addDays(filters.to, 1)}T00:00:00Z` : undefined,
-      }),
-    `admin:${filters.branch}:${filters.from}:${filters.to}`,
-  )
+  const branches = useBranches()
+  const shifts = useAdminShifts({
+    branchId: filters.branch || undefined,
+    from: filters.from ? `${filters.from}T00:00:00Z` : undefined,
+    to: filters.to ? `${addDays(filters.to, 1)}T00:00:00Z` : undefined,
+  })
 
   const agencies = new Map((branches.data ?? []).map((b) => [b.agency.id, b.agency.name]))
   const visibleBranches = (branches.data ?? []).filter((b) => !filters.agency || b.agency.id === filters.agency)
@@ -48,7 +46,7 @@ export function AdminShiftsPage() {
 
   return (
     <section className="page" aria-labelledby="admin-heading">
-      <header className="page-header">
+      <header className="page__header">
         <div>
           <h1 id="admin-heading">All Shifts</h1>
           <p className="muted">Every agency, branch and nurse assignment.</p>
@@ -90,7 +88,7 @@ export function AdminShiftsPage() {
           <input type="date" value={filters.to} onChange={(e) => update({ to: e.target.value })} />
         </label>
         {hasFilters && (
-          <button type="button" className="btn btn-link" onClick={() => setSearchParams({})}>
+          <button type="button" className="btn btn--link" onClick={() => setSearchParams({}, { replace: true })}>
             Clear Filters
           </button>
         )}
@@ -103,27 +101,29 @@ export function AdminShiftsPage() {
           aria-pressed={!filters.status}
           onClick={() => update({ status: '' })}
         >
-          <span className="stat-value">{inAgency.length}</span>
-          <span className="stat-label">All</span>
+          <span className="stat__value">{inAgency.length}</span>
+          <span className="stat__label">All</span>
         </button>
         {STATUSES.map((s) => (
           <button
             key={s}
             type="button"
-            className={`stat stat-${s}`}
+            className={`stat stat--${s}`}
             aria-pressed={filters.status === s}
             onClick={() => update({ status: filters.status === s ? '' : s })}
           >
-            <span className="stat-value">{counts[s]}</span>
-            <span className="stat-label">{STATUS_LABEL[s]}</span>
+            <span className="stat__value">{counts[s]}</span>
+            <span className="stat__label">{STATUS_LABEL[s]}</span>
           </button>
         ))}
       </div>
 
-      {shifts.error ? (
-        <ErrorState error={shifts.error} onRetry={shifts.reload} />
-      ) : !shifts.data ? (
-        <LoadingState label="Loading shifts…" />
+      {shifts.data === undefined ? (
+        shifts.isError ? (
+          <ErrorState error={toApiError(shifts.error)} onRetry={() => void shifts.refetch()} />
+        ) : (
+          <LoadingState label="Loading shifts…" />
+        )
       ) : rows.length === 0 ? (
         <EmptyState title="No shifts match these filters" />
       ) : (

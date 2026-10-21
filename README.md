@@ -3,7 +3,8 @@
 Frontend for ShiftPatch, a healthcare staffing platform where agencies post nursing shifts, nurses claim them, and
 administrators monitor shift status.
 
-Stack: React 19 + Vite 8 + TypeScript, deployed on Vercel.
+Stack: React 19 + Vite 8 + TypeScript, React Router 7 (declarative), TanStack Query 5, Zustand 5 and Sass,
+deployed on Vercel.
 
 > Status: first vertical slice. Sign in, role-aware navigation, nurse shift browsing and claiming, My Shifts,
 > agency shift creation with status and history, and an admin operational list with counts and filters.
@@ -73,18 +74,29 @@ narrow screens.
 
 | File | Role |
 |---|---|
-| `src/lib/api-client/api-client.ts` | The only gateway to the backend: relative `/api` paths, `credentials: 'include'`, `ApiError`. Auth, shift, event, branch and My Shifts calls. |
-| `src/auth/SessionProvider/SessionProvider.tsx` | Calls `GET /api/auth/me` on startup and provides `loading`, `user`, `login`, `logout`. |
-| `src/lib/router/router.ts`, `src/components/Link/Link.tsx` | Minimal History API router (four screens did not justify a dependency). |
-| `src/components/navigation/navigation.ts` | Screens per role, home redirects, route guards (UX only). |
-| `src/lib/errors/errors.ts` | User-facing copy for claim error codes. |
-| `src/lib/format/format.ts` | `Intl` date/time formatting in the branch time zone, and branch-local time → UTC conversion. |
+| `src/shared/api/client/client.ts` | The only gateway to the backend: relative `/api` paths, `credentials: 'include'`, `ApiError`. Auth, shift, event, branch and My Shifts calls. |
+| `src/app/providers/query-client/query-client.ts` | TanStack Query client: 30 s `staleTime` for operational data, retries only network failures (max 2), background-refresh failures become toasts. In memory only. |
+| `src/features/auth/` | `SessionProvider` exposes the `['session']` query (`GET /api/auth/me`, `staleTime: Infinity`, no refetch on focus) and the login/logout mutations as `useSession()`. Logout clears the cache; login clears it only after success. |
+| `src/app/router/routes/routes.tsx`, `src/app/router/RequireRole/` | React Router v7 declarative routes (`Routes`/`Route`/`Navigate`) and the UX-only role guard. |
+| `src/app/router/navigation/navigation.ts` | Screens per role (including the agency/admin placeholders), home redirects. |
+| `src/features/shifts/`, `src/features/agency-management/`, `src/features/admin-dashboard/` | Query and mutation hooks per feature (`useAvailableShifts`, `useClaimShift`, `useCreateShift`, `useAdminShifts`, …), the claim dialog and the create-shift form. |
+| `src/entities/shift/`, `src/entities/branch/` | Shift model, query keys and history, the shift table, status badge and when/where pieces; branches. |
+| `src/stores/ui-store/ui-store.ts` | The single Zustand store: the global toast queue, rendered by `src/shared/ui/Toaster/`. Never API data. |
+| `src/features/shifts/claim-errors/claim-errors.ts` | User-facing copy for claim error codes. |
+| `src/shared/lib/format/format.ts` | `Intl` date/time formatting in the branch time zone, and branch-local time → UTC conversion. |
 | `src/pages/<PageName>/` | One folder per screen, with component, styles, test and snapshot. |
 
-Components, pages, hooks and logic modules keep their tests beside the implementation. Visual pieces also keep their SCSS and snapshots there; `src/main.tsx` and `src/index.scss` are global entry points.
-Each module folder exposes its public imports through `index.ts`.
+Layout: `src/app/` (App, providers, router, global styles), `src/pages/`, `src/features/`, `src/entities/`,
+`src/shared/` (api, ui, lib) and `src/stores/`. Components, pages, hooks and logic modules keep their tests beside
+the implementation. Visual pieces also keep their SCSS and snapshots there; `src/main.tsx` and
+`src/app/styles/index.scss` are the global entry points. Each module folder exposes its public imports through
+`index.ts`. Tests render through `tests/render-with-providers.tsx` (router + query client with `retry: false`).
 
-Styles use SCSS compiled by Vite with the `sass` development dependency. The light and dark palettes live in `src/styles/_theme.scss` and generate CSS custom properties, so the active theme still follows the user's color scheme. The shared narrow-screen breakpoint lives in `src/styles/_breakpoints.scss`; component styles load it with Sass `@use`. `pnpm-workspace.yaml` disables automatic optional peer installation so Vite uses the portable compiler consistently.
+Styles use SCSS compiled by Vite with the `sass` development dependency, with global BEM class names and no CSS
+Modules. The light and dark palettes live in `src/app/styles/_theme.scss` and generate CSS custom properties, so
+the active theme still follows the user's color scheme. The shared narrow-screen breakpoint lives in
+`src/app/styles/_breakpoints.scss`; component styles load it with Sass `@use`. `pnpm-workspace.yaml` disables
+automatic optional peer installation so Vite uses the portable compiler consistently.
 
 ## Routing
 

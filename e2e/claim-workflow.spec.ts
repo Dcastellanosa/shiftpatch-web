@@ -78,7 +78,7 @@ test('nurse claims an eligible open shift and the agency sees the assignment', a
   await expect(row).toContainText('Claimed')
   await expect(row).toContainText(nurseName)
   await row.getByRole('button', { name: 'History' }).click()
-  const history = agency.locator('.timeline')
+  const history = agency.getByTestId('shift-history')
   await expect(history).toContainText('Created')
   await expect(history).toContainText(`Claimed by ${nurseName}`)
 })

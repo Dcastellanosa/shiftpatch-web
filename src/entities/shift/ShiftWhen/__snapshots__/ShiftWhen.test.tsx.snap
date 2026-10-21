@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renders the branch-local date, time and duration 1`] = `
+<span
+  class="when"
+>
+  <time
+    class="when__date"
+    datetime="2030-01-10T13:00:00.000Z"
+  >
+    Thu, Jan 10
+  </time>
+  <span
+    class="when__time"
+  >
+    8:00 AM – 4:00 PM EST
+     · 
+    8 h
+  </span>
+</span>
+`;
