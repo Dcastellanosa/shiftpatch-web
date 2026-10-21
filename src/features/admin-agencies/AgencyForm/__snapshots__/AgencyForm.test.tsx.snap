@@ -1,0 +1,42 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`submits the trimmed name and disables the button until something changed 1`] = `
+<form
+  aria-labelledby="_r_2_"
+  class="card form agency-form"
+>
+  <h2
+    id="_r_2_"
+  >
+    New agency
+  </h2>
+  <div
+    class="field"
+  >
+    <label
+      for="_r_0_"
+    >
+      Name
+    </label>
+    <input
+      autocomplete="organization"
+      id="_r_0_"
+      maxlength="200"
+      name="name"
+      required=""
+      value=""
+    />
+  </div>
+  <div
+    class="form__actions"
+  >
+    <button
+      class="btn btn--primary"
+      disabled=""
+      type="submit"
+    >
+      Create agency
+    </button>
+  </div>
+</form>
+`;

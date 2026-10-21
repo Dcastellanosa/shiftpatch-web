@@ -1,9 +1,9 @@
 import { vi } from 'vitest'
-import type { SessionUser, Shift } from '../src/shared/api/client/index.ts'
+import type { Agency, AgencyBranch, SessionUser, Shift } from '../src/shared/api/client/index.ts'
 
-export const NURSE: SessionUser = { id: 'u-nurse', email: 'nurse@example.test', fullName: 'Ava Thompson', role: 'nurse', agencyId: null }
-export const AGENCY: SessionUser = { id: 'u-agency', email: 'agency@example.test', fullName: 'Riley Northwind', role: 'agency', agencyId: 'agency-1' }
-export const ADMIN: SessionUser = { id: 'u-admin', email: 'admin@example.test', fullName: 'Morgan Admin', role: 'admin', agencyId: null }
+export const NURSE: SessionUser = { id: 'u-nurse', email: 'nurse@example.test', fullName: 'Ava Thompson', role: 'nurse', agencyId: null, agencyIds: [] }
+export const AGENCY: SessionUser = { id: 'u-agency', email: 'agency@example.test', fullName: 'Riley Northwind', role: 'agency', agencyId: 'agency-1', agencyIds: ['agency-1'] }
+export const ADMIN: SessionUser = { id: 'u-admin', email: 'admin@example.test', fullName: 'Morgan Admin', role: 'admin', agencyId: null, agencyIds: [] }
 
 export function makeShift(overrides: Partial<Shift> = {}): Shift {
   return {
@@ -12,7 +12,7 @@ export function makeShift(overrides: Partial<Shift> = {}): Shift {
     startsAt: '2030-01-10T13:00:00.000Z',
     endsAt: '2030-01-10T21:00:00.000Z',
     status: 'open',
-    branch: { id: 'branch-1', name: 'Downtown Clinic', address: '120 Main Street', timezone: 'America/New_York' },
+    branch: { id: 'branch-1', name: 'Downtown Clinic', address: '120 Main Street', timezone: 'America/New_York', status: 'active' },
     agency: { id: 'agency-1', name: 'Northwind Care Staffing' },
     assignedNurse: null,
     createdAt: '2029-12-01T00:00:00.000Z',
@@ -42,4 +42,33 @@ export function stubApi(handlers: Record<string, Handler>) {
   })
   vi.stubGlobal('fetch', fetchMock)
   return fetchMock
+}
+
+export const AGENCY_ID = 'a1000000-0000-4000-8000-000000000001'
+export const BRANCH_ID = 'b1000000-0000-4000-8000-000000000001'
+
+export function makeAgency(overrides: Partial<Agency> = {}): Agency {
+  return {
+    id: AGENCY_ID,
+    name: 'Northwind Care Staffing',
+    status: 'active',
+    branchCount: 2,
+    createdAt: '2029-11-01T00:00:00.000Z',
+    updatedAt: '2029-11-02T00:00:00.000Z',
+    ...overrides,
+  }
+}
+
+export function makeAgencyBranch(overrides: Partial<AgencyBranch> = {}): AgencyBranch {
+  return {
+    id: BRANCH_ID,
+    agencyId: AGENCY_ID,
+    name: 'Downtown Clinic',
+    address: '120 Main Street',
+    timezone: 'America/New_York',
+    status: 'active',
+    createdAt: '2029-11-01T00:00:00.000Z',
+    updatedAt: '2029-11-02T00:00:00.000Z',
+    ...overrides,
+  }
 }

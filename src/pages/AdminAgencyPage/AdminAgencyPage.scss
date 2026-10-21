@@ -1,0 +1,16 @@
+.agency-header__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.branch-table__row--inactive td {
+  color: var(--muted);
+}
+
+.branch-table__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}

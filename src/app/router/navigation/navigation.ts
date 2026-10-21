@@ -28,12 +28,22 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
 
 export const homeFor = (role: UserRole) => NAV_BY_ROLE[role][0]!.to
 
+/** Screens with their own sub-routes: the prefix grants the whole subtree. */
+const NESTED: Record<string, string> = { '/admin/agencies/': '/admin/agencies' }
+
+function topLevel(pathname: string) {
+  const nested = Object.keys(NESTED).find((prefix) => pathname.startsWith(prefix))
+  return nested ? NESTED[nested]! : pathname
+}
+
 export function isAllowed(role: UserRole, pathname: string) {
-  return NAV_BY_ROLE[role].some((item) => item.to === pathname)
+  const path = topLevel(pathname)
+  return NAV_BY_ROLE[role].some((item) => item.to === path)
 }
 
 export function isKnownPath(pathname: string) {
-  return Object.values(NAV_BY_ROLE).some((items) => items.some((item) => item.to === pathname))
+  const path = topLevel(pathname)
+  return Object.values(NAV_BY_ROLE).some((items) => items.some((item) => item.to === path))
 }
 
 export const ROLE_LABEL: Record<UserRole, string> = { nurse: 'Nurse', agency: 'Agency', admin: 'Admin' }

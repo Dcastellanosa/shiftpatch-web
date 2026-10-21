@@ -4,14 +4,20 @@ import {
   ApiError,
   apiRequest,
   claimShift,
+  createAgency,
+  createBranch,
   createShift,
+  getAgency,
   getCurrentSession,
+  listAgencies,
   listBranches,
   listMyShifts,
   listShiftEvents,
   listShifts,
   login,
   logout,
+  updateAgency,
+  updateBranch,
   type SessionUser,
 } from './index.ts'
 
@@ -21,6 +27,7 @@ const USER: SessionUser = {
   fullName: null,
   role: null,
   agencyId: null,
+  agencyIds: [],
 }
 
 const fetchMock = vi.fn<typeof fetch>()
@@ -191,5 +198,46 @@ describe('shift endpoints', () => {
     fetchMock.mockResolvedValueOnce(jsonResponse(200, { branches: [] }))
     await expect(listBranches()).resolves.toEqual([])
     expect(lastCall().url).toBe('/api/branches')
+  })
+})
+
+describe('agency administration endpoints', () => {
+  const AGENCY_ID = 'a1000000-0000-4000-8000-000000000001'
+  const BRANCH_ID = 'b1000000-0000-4000-8000-000000000001'
+
+  it('lists and reads agencies through /api/admin', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { agencies: [] }))
+    await expect(listAgencies()).resolves.toEqual([])
+    expect(lastCall().url).toBe('/api/admin/agencies')
+
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { agency: { id: AGENCY_ID }, branches: [] }))
+    await expect(getAgency(AGENCY_ID)).resolves.toEqual({ agency: { id: AGENCY_ID }, branches: [] })
+    expect(lastCall().url).toBe(`/api/admin/agencies/${AGENCY_ID}`)
+  })
+
+  it('creates and updates agencies with JSON bodies', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(201, { agency: { id: AGENCY_ID } }))
+    await createAgency({ name: 'Summit' })
+    expect(lastCall().init.method).toBe('POST')
+    expect(JSON.parse(String(lastCall().init.body))).toEqual({ name: 'Summit' })
+
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { agency: { id: AGENCY_ID } }))
+    await updateAgency(AGENCY_ID, { status: 'inactive' })
+    expect(lastCall().url).toBe(`/api/admin/agencies/${AGENCY_ID}`)
+    expect(lastCall().init.method).toBe('PATCH')
+    expect(JSON.parse(String(lastCall().init.body))).toEqual({ status: 'inactive' })
+  })
+
+  it('creates and updates branches under their agency', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(201, { branch: { id: BRANCH_ID } }))
+    await createBranch(AGENCY_ID, { name: 'Up', address: '1 Up', timezone: 'UTC' })
+    expect(lastCall().url).toBe(`/api/admin/agencies/${AGENCY_ID}/branches`)
+    expect(lastCall().init.method).toBe('POST')
+
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { branch: { id: BRANCH_ID } }))
+    await updateBranch(AGENCY_ID, BRANCH_ID, { status: 'active' })
+    expect(lastCall().url).toBe(`/api/admin/agencies/${AGENCY_ID}/branches/${BRANCH_ID}`)
+    expect(lastCall().init.method).toBe('PATCH')
+    expect(lastCall().init.credentials).toBe('include')
   })
 })

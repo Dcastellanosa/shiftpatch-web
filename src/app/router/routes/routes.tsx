@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link, Navigate, Route, Routes } from 'react-router'
+import { AdminAgenciesPage } from '../../../pages/AdminAgenciesPage/index.ts'
+import { AdminAgencyPage } from '../../../pages/AdminAgencyPage/index.ts'
 import { AdminShiftsPage } from '../../../pages/AdminShiftsPage/index.ts'
 import { AgencyShiftsPage } from '../../../pages/AgencyShiftsPage/index.ts'
 import { AvailableShiftsPage } from '../../../pages/AvailableShiftsPage/index.ts'
@@ -35,10 +37,8 @@ export function AppRoutes({ role }: { role: UserRole }) {
         element={guarded(<ComingSoonPage title="Nurses" description="Manage which nurses may work at each of your branches." />)}
       />
       <Route path="/admin/shifts" element={guarded(<AdminShiftsPage />)} />
-      <Route
-        path="/admin/agencies"
-        element={guarded(<ComingSoonPage title="Agencies" description="Create agencies and their branches." />)}
-      />
+      <Route path="/admin/agencies" element={guarded(<AdminAgenciesPage />)} />
+      <Route path="/admin/agencies/:agencyId" element={guarded(<AdminAgencyPage />)} />
       <Route path="/admin/users" element={guarded(<ComingSoonPage title="Users" description="Invite staff and assign their agencies." />)} />
       <Route path="*" element={<NotFound role={role} />} />
     </Routes>

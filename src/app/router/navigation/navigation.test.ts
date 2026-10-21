@@ -8,6 +8,9 @@ it('routes each role only to its screens', () => {
   expect(isAllowed('nurse', '/admin/shifts')).toBe(false)
   expect(isAllowed('admin', '/admin/shifts')).toBe(true)
   expect(isAllowed('agency', '/agency/nurses')).toBe(true)
+  expect(isAllowed('admin', '/admin/agencies/a1000000-0000-4000-8000-000000000001')).toBe(true)
+  expect(isAllowed('agency', '/admin/agencies/a1000000-0000-4000-8000-000000000001')).toBe(false)
+  expect(isKnownPath('/admin/agencies/anything')).toBe(true)
   expect(isKnownPath('/missing')).toBe(false)
 })
 

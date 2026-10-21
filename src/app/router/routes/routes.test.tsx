@@ -23,11 +23,18 @@ it('shows "Page not found" for an unknown path', () => {
 
 it.each([
   ['/agency/nurses', 'agency', 'Nurses'],
-  ['/admin/agencies', 'admin', 'Agencies'],
   ['/admin/users', 'admin', 'Users'],
 ] as const)('renders the %s placeholder for the %s role', (path, role, heading) => {
   stubApi({})
   renderWithProviders(<AppRoutes role={role} />, { path })
   expect(screen.getByRole('heading', { level: 1, name: heading })).toBeTruthy()
   expect(screen.getByText('Coming soon')).toBeTruthy()
+})
+
+it('routes the agency detail screen for admins only', async () => {
+  stubApi({
+    'GET /api/admin/agencies/a1000000-0000-4000-8000-000000000001': () => json(200, { agency: { id: 'a1000000-0000-4000-8000-000000000001', name: 'Northwind Care Staffing', status: 'active', branchCount: 0, createdAt: '2029-11-01T00:00:00.000Z', updatedAt: '2029-11-01T00:00:00.000Z' }, branches: [] }),
+  })
+  renderWithProviders(<AppRoutes role="admin" />, { path: '/admin/agencies/a1000000-0000-4000-8000-000000000001' })
+  expect(await screen.findByRole('heading', { level: 1, name: 'Northwind Care Staffing' })).toBeTruthy()
 })

@@ -15,7 +15,10 @@ export interface SessionUser {
   email: string | null
   fullName: string | null
   role: UserRole | null
+  /** First active agency (agency users). Prefer `agencyIds`. */
   agencyId: string | null
+  /** Every agency the user manages through an active membership. */
+  agencyIds: string[]
 }
 
 interface SessionPayload {
@@ -127,7 +130,7 @@ export interface Shift {
   startsAt: string
   endsAt: string
   status: ShiftStatus
-  branch: { id: string; name: string; address: string; timezone: string }
+  branch: { id: string; name: string; address: string; timezone: string; status: EntityStatus }
   agency: { id: string; name: string }
   assignedNurse: { id: string; fullName: string } | null
   createdAt: string
@@ -144,11 +147,14 @@ export interface ShiftEvent {
   actor: { id: string; fullName: string | null }
 }
 
+export type EntityStatus = 'active' | 'inactive'
+
 export interface Branch {
   id: string
   name: string
   address: string
   timezone: string
+  status: EntityStatus
   agency: { id: string; name: string }
 }
 
@@ -217,4 +223,92 @@ export async function listMyShifts(): Promise<{ upcoming: Shift[]; past: Shift[]
 export async function listBranches(): Promise<Branch[]> {
   const { branches } = await apiRequest<{ branches: Branch[] }>('/branches')
   return branches
+}
+
+// ---------------------------------------------------------------------------
+// Agency administration (admin only). Shapes mirror the API's admin schemas.
+// ---------------------------------------------------------------------------
+
+export interface Agency {
+  id: string
+  name: string
+  status: EntityStatus
+  branchCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface AgencyBranch {
+  id: string
+  agencyId: string
+  name: string
+  address: string
+  timezone: string
+  status: EntityStatus
+  createdAt: string
+  updatedAt: string
+}
+
+export interface AgencyDetail {
+  agency: Agency
+  branches: AgencyBranch[]
+}
+
+export interface CreateAgencyInput {
+  name: string
+}
+
+export interface UpdateAgencyInput {
+  name?: string
+  status?: EntityStatus
+}
+
+export interface CreateBranchInput {
+  name: string
+  address: string
+  timezone: string
+}
+
+export interface UpdateBranchInput {
+  name?: string
+  address?: string
+  timezone?: string
+  status?: EntityStatus
+}
+
+const agencyPath = (agencyId: string) => `/admin/agencies/${encodeURIComponent(agencyId)}`
+
+export async function listAgencies(): Promise<Agency[]> {
+  const { agencies } = await apiRequest<{ agencies: Agency[] }>('/admin/agencies')
+  return agencies
+}
+
+export async function getAgency(agencyId: string): Promise<AgencyDetail> {
+  return apiRequest<AgencyDetail>(agencyPath(agencyId))
+}
+
+export async function createAgency(input: CreateAgencyInput): Promise<Agency> {
+  const { agency } = await apiRequest<{ agency: Agency }>('/admin/agencies', { method: 'POST', body: JSON.stringify(input) })
+  return agency
+}
+
+export async function updateAgency(agencyId: string, input: UpdateAgencyInput): Promise<Agency> {
+  const { agency } = await apiRequest<{ agency: Agency }>(agencyPath(agencyId), { method: 'PATCH', body: JSON.stringify(input) })
+  return agency
+}
+
+export async function createBranch(agencyId: string, input: CreateBranchInput): Promise<AgencyBranch> {
+  const { branch } = await apiRequest<{ branch: AgencyBranch }>(`${agencyPath(agencyId)}/branches`, {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+  return branch
+}
+
+export async function updateBranch(agencyId: string, branchId: string, input: UpdateBranchInput): Promise<AgencyBranch> {
+  const { branch } = await apiRequest<{ branch: AgencyBranch }>(
+    `${agencyPath(agencyId)}/branches/${encodeURIComponent(branchId)}`,
+    { method: 'PATCH', body: JSON.stringify(input) },
+  )
+  return branch
 }

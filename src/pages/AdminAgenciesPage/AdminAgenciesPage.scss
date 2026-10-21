@@ -1,0 +1,13 @@
+.agency-table__row--inactive td {
+  color: var(--muted);
+}
+
+.badge--active {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.badge--inactive {
+  background: var(--surface-muted);
+  color: var(--muted);
+}

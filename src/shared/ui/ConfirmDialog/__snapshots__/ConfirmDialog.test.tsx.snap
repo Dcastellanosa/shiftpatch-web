@@ -1,0 +1,43 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`focuses the confirm button, confirms, and cancels on Escape 1`] = `
+<div
+  class="confirm-dialog"
+>
+  <div
+    aria-describedby="_r_1_"
+    aria-labelledby="_r_0_"
+    aria-modal="true"
+    class="confirm-dialog__panel"
+    role="dialog"
+  >
+    <h2
+      id="_r_0_"
+    >
+      Deactivate Downtown Clinic?
+    </h2>
+    <div
+      class="confirm-dialog__body"
+      id="_r_1_"
+    >
+      Nurses will no longer see its shifts.
+    </div>
+    <div
+      class="confirm-dialog__actions"
+    >
+      <button
+        class="btn btn--secondary"
+        type="button"
+      >
+        Cancel
+      </button>
+      <button
+        class="btn btn--danger"
+        type="button"
+      >
+        Deactivate
+      </button>
+    </div>
+  </div>
+</div>
+`;

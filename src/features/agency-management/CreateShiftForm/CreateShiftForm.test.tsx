@@ -8,6 +8,7 @@ import { CreateShiftForm } from './index.ts'
 
 const BRANCH: Branch = {
   id: 'branch-1', name: 'Downtown Clinic', address: '120 Main Street', timezone: 'America/New_York',
+  status: 'active',
   agency: { id: 'agency-1', name: 'Northwind Care Staffing' },
 }
 

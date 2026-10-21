@@ -1,0 +1,136 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`shows the agency, its status and its branches 1`] = `
+<table
+  class="table branch-table"
+  data-testid="branches-table"
+>
+  <thead>
+    <tr>
+      <th
+        scope="col"
+      >
+        Branch
+      </th>
+      <th
+        scope="col"
+      >
+        Address
+      </th>
+      <th
+        scope="col"
+      >
+        Time zone
+      </th>
+      <th
+        scope="col"
+      >
+        Status
+      </th>
+      <th
+        scope="col"
+      >
+        <span
+          class="visually-hidden"
+        >
+          Actions
+        </span>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td
+        class="table__cell--strong"
+        data-label="Branch"
+      >
+        Downtown Clinic
+      </td>
+      <td
+        data-label="Address"
+      >
+        120 Main Street
+      </td>
+      <td
+        data-label="Time zone"
+      >
+        America/New_York
+      </td>
+      <td
+        data-label="Status"
+      >
+        <span
+          class="badge badge--active"
+        >
+          Active
+        </span>
+      </td>
+      <td
+        class="branch-table__actions"
+      >
+        <button
+          aria-controls="branch-edit-b1000000-0000-4000-8000-000000000001"
+          aria-expanded="false"
+          class="btn btn--link"
+          type="button"
+        >
+          Edit
+        </button>
+        <button
+          class="btn btn--secondary status-toggle"
+          type="button"
+        >
+          Deactivate
+        </button>
+      </td>
+    </tr>
+    <tr
+      class="branch-table__row--inactive"
+    >
+      <td
+        class="table__cell--strong"
+        data-label="Branch"
+      >
+        Riverside Hospital
+      </td>
+      <td
+        data-label="Address"
+      >
+        120 Main Street
+      </td>
+      <td
+        data-label="Time zone"
+      >
+        America/New_York
+      </td>
+      <td
+        data-label="Status"
+      >
+        <span
+          class="badge badge--inactive"
+        >
+          Inactive
+        </span>
+      </td>
+      <td
+        class="branch-table__actions"
+      >
+        <button
+          aria-controls="branch-edit-b1000000-0000-4000-8000-000000000002"
+          aria-expanded="false"
+          class="btn btn--link"
+          type="button"
+        >
+          Edit
+        </button>
+        <button
+          class="btn btn--secondary status-toggle"
+          type="button"
+        >
+          Activate
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+`;

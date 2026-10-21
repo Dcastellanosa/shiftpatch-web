@@ -1,0 +1,21 @@
+@use '../../../app/styles/breakpoints';
+
+.branch-form {
+  padding: 18px;
+}
+
+.branch-form__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.branch-form__wide {
+  grid-column: span 2;
+}
+
+@include breakpoints.compact {
+  .branch-form__wide {
+    grid-column: auto;
+  }
+}
