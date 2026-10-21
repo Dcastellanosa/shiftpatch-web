@@ -101,7 +101,7 @@ exports[`shows role, status and access for each kind of user, with delete for ev
           <time
             datetime="2029-12-01T08:00:00.000Z"
           >
-            Dec 1, 2029, 3:00 AM
+            Dec 1, 2029, 8:00 AM
           </time>
         </td>
         <td
@@ -162,7 +162,7 @@ exports[`shows role, status and access for each kind of user, with delete for ev
           <time
             datetime="2029-12-01T08:00:00.000Z"
           >
-            Dec 1, 2029, 3:00 AM
+            Dec 1, 2029, 8:00 AM
           </time>
         </td>
         <td
@@ -222,7 +222,7 @@ exports[`shows role, status and access for each kind of user, with delete for ev
             class="muted"
           >
             Invited 
-            Sep 30, 2029, 7:00 PM
+            Oct 1, 2029, 12:00 AM
           </span>
         </td>
         <td

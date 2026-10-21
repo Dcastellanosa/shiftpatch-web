@@ -22,7 +22,7 @@ exports[`renders a recorded shift event 1`] = `
       <time
         datetime="2030-01-10T14:00:00.000Z"
       >
-        Jan 10, 2030, 9:00 AM
+        Jan 10, 2030, 2:00 PM
       </time>
     </span>
     <p
