@@ -30,11 +30,13 @@ Architecture rules:
 - Exactly one Zustand store, `src/stores/ui-store/`, holds the global toast queue and nothing else: never the
   session, shifts, branches, events, errors or any other API data.
 - Routing is React Router v7 in declarative mode only: `BrowserRouter`, `Routes`, `Route`, `Navigate`, `NavLink`,
-  `Link`, `useSearchParams`. Never `createBrowserRouter`, `RouterProvider`, loaders or actions. Route guards
-  (`src/app/router/RequireRole/`) are UX only; the API returns 401/403/404 regardless.
+  `Link`, `useSearchParams`, `useParams`, `useLocation`, `useNavigate`. Never `createBrowserRouter`, `RouterProvider`,
+  loaders or actions. Route guards (`src/app/router/RequireRole/`) are UX only; the API returns 401/403/404
+  regardless. `/set-password` is the one public screen: `App` renders it before the session gate, the link token is
+  read from the URL fragment once and removed from the address bar, and nothing about it is stored or logged.
 - Feature-oriented layout: `src/app/` (App, providers, router, global styles), `src/pages/`, `src/features/`
-  (auth, shifts, agency-management, admin-dashboard), `src/entities/` (shift, branch), `src/shared/` (api, ui,
-  lib), `src/stores/`. Every component, page, hook and logic module is a folder holding its file, its `.scss`
+  (auth, shifts, agency-management, admin-dashboard, admin-agencies, admin-users, nurse-eligibility),
+  `src/entities/` (shift, branch, agency, user), `src/shared/` (api, ui, lib), `src/stores/`. Every component, page, hook and logic module is a folder holding its file, its `.scss`
   (components and pages), its test and an `index.ts` barrel.
 - Styles are Sass with global BEM class names: `block`, `block__element`, `block--modifier` (for example
   `btn--primary`, `state__title`, `shift-card__main`, `badge--open`). Hyphenated block names such as `shift-card`
@@ -63,13 +65,16 @@ pnpm test        # Vitest (src/**/*.test.{ts,tsx}, tests/**/*.test.{ts,tsx})
 pnpm build
 ```
 
-For workflow changes, also run the Playwright flow against a running, seeded shiftpatch-api
-(see README → End-to-end test):
+For workflow changes, also run the Playwright suite. It is fully local: it starts shiftpatch-api (sibling checkout
+or `E2E_API_DIR`) on `:3100` against the local Supabase stack, Vite on `:5174`, resets and seeds the local database
+with a per-run password and reads invitation emails from the local Mailpit (see README → End-to-end tests):
 
 ```bash
 pnpm exec playwright install chromium   # once
-pnpm test:e2e                           # needs E2E_PASSWORD (in .env.e2e.local)
+pnpm test:e2e                           # needs Docker and `pnpm db:start` in shiftpatch-api; no password to configure
 ```
+
+The suite must never depend on, modify or restore remote or shared users or data.
 
 ## Security rules
 
