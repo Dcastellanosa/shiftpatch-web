@@ -9,6 +9,8 @@ import {
   createShift,
   getAgency,
   getCurrentSession,
+  inviteUser,
+  listAdminUsers,
   listAgencies,
   listBranches,
   listMyShifts,
@@ -239,5 +241,19 @@ describe('agency administration endpoints', () => {
     expect(lastCall().url).toBe(`/api/admin/agencies/${AGENCY_ID}/branches/${BRANCH_ID}`)
     expect(lastCall().init.method).toBe('PATCH')
     expect(lastCall().init.credentials).toBe('include')
+  })
+})
+
+describe('user administration endpoints', () => {
+  it('lists users and invites one through /api/admin/users', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { users: [] }))
+    await expect(listAdminUsers()).resolves.toEqual([])
+    expect(lastCall().url).toBe('/api/admin/users')
+
+    fetchMock.mockResolvedValueOnce(jsonResponse(201, { user: { id: 'u-1' } }))
+    await inviteUser({ email: 'new@example.test', fullName: 'New Nurse', role: 'nurse', branchId: 'b-1' })
+    expect(lastCall().url).toBe('/api/admin/users')
+    expect(lastCall().init.method).toBe('POST')
+    expect(JSON.parse(String(lastCall().init.body))).toEqual({ email: 'new@example.test', fullName: 'New Nurse', role: 'nurse', branchId: 'b-1' })
   })
 })

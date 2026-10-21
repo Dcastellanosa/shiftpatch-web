@@ -23,7 +23,6 @@ it('shows "Page not found" for an unknown path', () => {
 
 it.each([
   ['/agency/nurses', 'agency', 'Nurses'],
-  ['/admin/users', 'admin', 'Users'],
 ] as const)('renders the %s placeholder for the %s role', (path, role, heading) => {
   stubApi({})
   renderWithProviders(<AppRoutes role={role} />, { path })

@@ -1,0 +1,37 @@
+.users-table__name,
+.users-table__email {
+  display: block;
+}
+
+.users-table__access {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.badge--invited,
+.badge--eligibility-pending {
+  background: #fef0c7;
+  color: #93370d;
+}
+
+.badge--eligibility-active {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.badge--eligibility-suspended {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge--invited,
+  .badge--eligibility-pending {
+    background: rgba(251, 191, 36, 0.16);
+    color: #fcd34d;
+  }
+}

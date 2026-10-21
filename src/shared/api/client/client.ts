@@ -312,3 +312,43 @@ export async function updateBranch(agencyId: string, branchId: string, input: Up
   )
   return branch
 }
+
+// ---------------------------------------------------------------------------
+// User administration (admin only).
+// ---------------------------------------------------------------------------
+
+export type EligibilityStatus = 'pending' | 'active' | 'suspended'
+/** `invited` until the person has completed the invitation. */
+export type UserStatus = 'invited' | 'active'
+
+export interface AdminUser {
+  id: string
+  email: string | null
+  fullName: string
+  role: UserRole
+  status: UserStatus
+  invitedAt: string | null
+  lastSignInAt: string | null
+  /** Agencies managed through an active membership (agency users). */
+  agencies: { id: string; name: string }[]
+  /** Every eligibility row of a nurse, with its status. */
+  eligibleBranches: { id: string; name: string; agency: { id: string; name: string }; status: EligibilityStatus }[]
+}
+
+/** The assignment depends on the role; the API rejects any mismatch. */
+export type InviteUserInput = { email: string; fullName: string } & (
+  | { role: 'admin' }
+  | { role: 'agency'; agencyIds: string[] }
+  | { role: 'nurse'; branchId: string }
+)
+
+export async function listAdminUsers(): Promise<AdminUser[]> {
+  const { users } = await apiRequest<{ users: AdminUser[] }>('/admin/users')
+  return users
+}
+
+/** Invites someone by email; the API sends the link. The response never carries it. */
+export async function inviteUser(input: InviteUserInput): Promise<AdminUser> {
+  const { user } = await apiRequest<{ user: AdminUser }>('/admin/users', { method: 'POST', body: JSON.stringify(input) })
+  return user
+}

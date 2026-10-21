@@ -1,0 +1,201 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`shows role, status and access for each kind of user 1`] = `
+<div
+  class="table-wrap"
+>
+  <table
+    class="table users-table"
+    data-testid="users-table"
+  >
+    <thead>
+      <tr>
+        <th
+          scope="col"
+        >
+          User
+        </th>
+        <th
+          scope="col"
+        >
+          Role
+        </th>
+        <th
+          scope="col"
+        >
+          Status
+        </th>
+        <th
+          scope="col"
+        >
+          Access
+        </th>
+        <th
+          scope="col"
+        >
+          Last sign-in
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td
+          data-label="User"
+        >
+          <span
+            class="table__cell--strong users-table__name"
+          >
+            Ava Thompson
+          </span>
+          <span
+            class="muted small users-table__email"
+          >
+            ava@example.test
+          </span>
+        </td>
+        <td
+          data-label="Role"
+        >
+          Nurse
+        </td>
+        <td
+          data-label="Status"
+        >
+          <span
+            class="badge badge--active"
+          >
+            Active
+          </span>
+        </td>
+        <td
+          data-label="Access"
+        >
+          <ul
+            class="users-table__access"
+          >
+            <li>
+              Northwind Care Staffing
+               · 
+              Downtown Clinic
+               
+              <span
+                class="badge badge--eligibility-active"
+              >
+                Active
+              </span>
+            </li>
+          </ul>
+        </td>
+        <td
+          data-label="Last sign-in"
+        >
+          <time
+            datetime="2029-12-01T08:00:00.000Z"
+          >
+            Dec 1, 2029, 3:00 AM
+          </time>
+        </td>
+      </tr>
+      <tr>
+        <td
+          data-label="User"
+        >
+          <span
+            class="table__cell--strong users-table__name"
+          >
+            Riley Northwind
+          </span>
+          <span
+            class="muted small users-table__email"
+          >
+            riley@example.test
+          </span>
+        </td>
+        <td
+          data-label="Role"
+        >
+          Agency
+        </td>
+        <td
+          data-label="Status"
+        >
+          <span
+            class="badge badge--active"
+          >
+            Active
+          </span>
+        </td>
+        <td
+          data-label="Access"
+        >
+          <ul
+            class="users-table__access"
+          >
+            <li>
+              Northwind Care Staffing
+            </li>
+          </ul>
+        </td>
+        <td
+          data-label="Last sign-in"
+        >
+          <time
+            datetime="2029-12-01T08:00:00.000Z"
+          >
+            Dec 1, 2029, 3:00 AM
+          </time>
+        </td>
+      </tr>
+      <tr>
+        <td
+          data-label="User"
+        >
+          <span
+            class="table__cell--strong users-table__name"
+          >
+            New Admin
+          </span>
+          <span
+            class="muted small users-table__email"
+          >
+            admin2@example.test
+          </span>
+        </td>
+        <td
+          data-label="Role"
+        >
+          Admin
+        </td>
+        <td
+          data-label="Status"
+        >
+          <span
+            class="badge badge--invited"
+          >
+            Invited
+          </span>
+        </td>
+        <td
+          data-label="Access"
+        >
+          <span
+            class="muted"
+          >
+            All agencies
+          </span>
+        </td>
+        <td
+          data-label="Last sign-in"
+        >
+          <span
+            class="muted"
+          >
+            Invited 
+            Sep 30, 2029, 7:00 PM
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
