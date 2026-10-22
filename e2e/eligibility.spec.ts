@@ -1,25 +1,31 @@
 import { expect, test } from '@playwright/test'
-import { ACCOUNTS, AVA, DOWNTOWN, openScreen, signIn } from './support.ts'
+import { resetSeed } from './reset.ts'
+import { ACCOUNTS, MAIN, banner, futureSlot, openScreen, postShift, signIn, uniqueName } from './support.ts'
 
-/** Agency users control which nurses see each branch's open shifts. */
-test('suspending a nurse at a branch hides its open shifts until she is activated again', async ({ browser }) => {
-  const nurse = await signIn(browser, ACCOUNTS.ava)
-  await expect(nurse.getByRole('listitem').filter({ hasText: DOWNTOWN }).first()).toBeVisible()
+test.beforeAll(() => resetSeed())
 
-  const agency = await signIn(browser, ACCOUNTS.northwind)
+/** Agency users control who may claim at each branch; the marketplace still lists every shift. */
+test('suspending a nurse at a branch blocks her claims there until she is activated again', async ({ browser }) => {
+  const role = uniqueName('RN eligibility')
+  const agency = await signIn(browser, ACCOUNTS.sunrise)
+  await postShift(agency, role, futureSlot(40))
+
   await openScreen(agency, 'Nurses')
   await expect(agency).toHaveURL(/\/agency\/nurses$/)
-  await agency.getByRole('button', { name: `Suspend ${AVA} at ${DOWNTOWN}` }).click()
-  await expect(agency.getByText('Nurse suspended')).toBeVisible()
-  await expect(agency.getByRole('button', { name: `Activate ${AVA} at ${DOWNTOWN}` })).toBeVisible()
+  await agency.getByRole('button', { name: `Suspend Maria Lopez at ${MAIN}` }).click()
+  await expect(banner(agency, 'Nurse suspended')).toBeVisible()
 
-  await nurse.reload()
-  await expect(nurse.getByRole('navigation', { name: 'Main' })).toBeVisible()
-  await expect(nurse.getByRole('listitem').filter({ hasText: DOWNTOWN })).toHaveCount(0)
+  const nurse = await signIn(browser, ACCOUNTS.maria)
+  const card = nurse.getByTestId('shift-list-item').filter({ hasText: role })
+  await expect(card).toBeVisible()
+  await card.getByTestId('shift-claim-button').click()
+  await expect(banner(nurse, 'Shift not claimed')).toContainText('not active at this branch')
+  await expect(card).toBeVisible()
 
-  await agency.getByRole('button', { name: `Activate ${AVA} at ${DOWNTOWN}` }).click()
-  await expect(agency.getByText('Nurse activated')).toBeVisible()
+  await agency.getByRole('button', { name: `Activate Maria Lopez at ${MAIN}` }).click()
+  await expect(banner(agency, 'Nurse activated')).toBeVisible()
 
-  await nurse.reload()
-  await expect(nurse.getByRole('listitem').filter({ hasText: DOWNTOWN }).first()).toBeVisible()
+  await card.getByTestId('shift-claim-button').click()
+  await expect(banner(nurse, 'Shift claimed')).toBeVisible()
+  await expect(card).toHaveCount(0)
 })

@@ -1,34 +1,41 @@
-import { expect, type Browser, type Page } from '@playwright/test'
+import { expect, type Browser, type Locator, type Page } from '@playwright/test'
 
-/** Seeded accounts (shiftpatch-api `scripts/seed-data.ts`). The password is generated per run by global-setup. */
+/** The trial specification's accounts (shiftpatch-api `scripts/seed-data.ts`) and their public password. */
+export const PASSWORD = 'Trial2026!'
 export const ACCOUNTS = {
-  admin: 'admin@shiftpatch.test',
-  northwind: 'agency.northwind@shiftpatch.test',
-  ava: 'nurse.ava@shiftpatch.test',
+  admin: 'alex.kim@example.com',
+  sunrise: 'admin@sunrisehealth.example',
+  metro: 'admin@metrocare.example',
+  maria: 'maria.lopez@example.com',
+  james: 'james.cook@example.com',
 } as const
 
-export const AVA = 'Ava Thompson'
-export const DOWNTOWN = 'Downtown Clinic'
+export const SUNRISE = 'Sunrise Health Staffing'
+export const METRO = 'Metro Care Partners'
+export const MAIN = 'Main'
 
-export function seededPassword(): string {
-  const password = process.env.E2E_SEED_PASSWORD
-  if (!password)
-    throw new Error('E2E_SEED_PASSWORD is set by e2e/global-setup.ts; run the suite through `pnpm test:e2e`')
-  return password
-}
-
-export async function signIn(browser: Browser, email: string, password = seededPassword()): Promise<Page> {
+/**
+ * Signs in through the sign-in form in a fresh browser context. The bearer
+ * token lives only in that page's memory: never reload or `goto` after this,
+ * sign in again instead.
+ */
+export async function signIn(browser: Browser, email: string, password = PASSWORD): Promise<Page> {
   const page = await (await browser.newContext()).newPage()
   await page.goto('/')
-  await page.getByLabel('Email').fill(email)
-  await page.getByLabel('Password').fill(password)
-  await page.getByRole('button', { name: 'Sign In' }).click()
+  await page.getByTestId('login-email-input').fill(email)
+  await page.getByTestId('login-password-input').fill(password)
+  await page.getByTestId('login-submit-button').click()
   await expect(page.getByRole('navigation', { name: 'Main' })).toBeVisible()
   return page
 }
 
 export async function openScreen(page: Page, link: string) {
   await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: link }).click()
+}
+
+/** The notification banner carrying `text` (banners stack; the test id is shared by successes and errors). */
+export function banner(page: Page, text: string | RegExp): Locator {
+  return page.getByTestId('notification-banner').filter({ hasText: text })
 }
 
 /** A future slot (days ahead, afternoon) that never overlaps another spec's shift. */
@@ -38,13 +45,20 @@ export function futureSlot(daysAhead: number, hour = 13) {
   return { date: day, start: `${pad(hour)}:00`, end: `${pad(hour + 4)}:00` }
 }
 
-export async function createShift(agency: Page, branch: string, title: string, slot: ReturnType<typeof futureSlot>) {
-  await agency.getByLabel('Branch').selectOption({ label: branch })
-  await agency.getByLabel('Title').fill(title)
-  await agency.getByLabel('Date').fill(slot.date)
-  await agency.getByLabel('Start').fill(slot.start)
-  await agency.getByLabel('End').fill(slot.end)
-  await agency.getByRole('button', { name: 'Create Shift' }).click()
+/** A name that cannot collide with the seed or with another run. */
+export const uniqueName = (prefix: string) => `${prefix} ${Date.now().toString(36)}`
+
+/** Posts a shift from the agency screen through the dialog (the required test ids). */
+export async function postShift(agency: Page, role: string, slot: ReturnType<typeof futureSlot>) {
+  await agency.getByTestId('agency-post-shift-button').click()
+  const dialog = agency.getByRole('dialog', { name: 'Post a shift' })
+  await dialog.getByLabel('Role').fill(role)
+  await dialog.getByLabel('Date').fill(slot.date)
+  await dialog.getByLabel('Start').fill(slot.start)
+  await dialog.getByLabel('End').fill(slot.end)
+  await agency.getByTestId('agency-post-shift-submit-button').click()
+  await expect(banner(agency, 'Shift posted')).toBeVisible()
+  await expect(dialog).toHaveCount(0)
 }
 
 interface MailpitMessage {

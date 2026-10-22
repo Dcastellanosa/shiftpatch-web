@@ -1,12 +1,16 @@
 import { expect, test } from '@playwright/test'
-import { ACCOUNTS, DOWNTOWN, openScreen, passwordLinkFor, signIn } from './support.ts'
+import { resetSeed } from './reset.ts'
+import { ACCOUNTS, MAIN, SUNRISE, banner, openScreen, passwordLinkFor, signIn } from './support.ts'
 
 const EMAIL = 'e2e.nurse@shiftpatch.test'
+
+test.beforeAll(() => resetSeed())
 
 /**
  * Invitation and password recovery through the local mail catcher: the admin
  * invites a nurse, the nurse sets a password from the emailed link and lands
- * signed in, then recovers a forgotten password the same way.
+ * signed in (the bearer session the API returned), then recovers a forgotten
+ * password the same way.
  */
 test('an invited nurse sets a password from the email and can later recover it', async ({ browser }) => {
   const admin = await signIn(browser, ACCOUNTS.admin)
@@ -19,15 +23,15 @@ test('an invited nurse sets a password from the email and can later recover it',
   await inviteDialog.getByLabel('Full name').fill('E2E Nurse')
   await inviteDialog.getByLabel('Email').fill(EMAIL)
   await inviteDialog.getByLabel('Role').selectOption('nurse')
-  await inviteDialog.getByLabel('Branch').selectOption({ label: `Northwind Care Staffing · ${DOWNTOWN}` })
+  await inviteDialog.getByLabel('Branch').selectOption({ label: `${SUNRISE} · ${MAIN}` })
   await inviteDialog.getByRole('button', { name: 'Send invitation' }).click()
-  await expect(admin.getByText('Invitation sent')).toBeVisible()
+  await expect(banner(admin, 'Invitation sent')).toBeVisible()
   await expect(inviteDialog).toHaveCount(0)
   const row = admin.getByRole('row').filter({ hasText: EMAIL })
   await expect(row).toContainText('Invited')
-  await expect(row).toContainText(DOWNTOWN)
+  await expect(row).toContainText(MAIN)
 
-  // The nurse opens the link in a fresh browser context (no cookies).
+  // The nurse opens the link in a fresh browser context.
   const invitee = await (await browser.newContext()).newPage()
   await invitee.goto(await passwordLinkFor(EMAIL, 'invite', invitedAt))
   await expect(invitee.getByRole('heading', { level: 1, name: 'Welcome to ShiftPatch' })).toBeVisible()
@@ -37,10 +41,12 @@ test('an invited nurse sets a password from the email and can later recover it',
   await invitee.getByRole('button', { name: 'Set password and sign in' }).click()
   await expect(invitee.getByRole('navigation', { name: 'Main' })).toBeVisible()
   await expect(invitee).toHaveURL(/\/shifts$/)
-  await expect(invitee.getByRole('listitem').filter({ hasText: DOWNTOWN }).first()).toBeVisible()
+  await expect(invitee.getByTestId('shift-list-item').first()).toBeVisible()
 
-  await admin.reload()
-  await expect(admin.getByRole('row').filter({ hasText: EMAIL })).toContainText('Active')
+  // A fresh admin session (the token is in memory only; no reload) shows the account as active.
+  const adminAgain = await signIn(browser, ACCOUNTS.admin)
+  await openScreen(adminAgain, 'Users')
+  await expect(adminAgain.getByRole('row').filter({ hasText: EMAIL })).toContainText('Active')
 
   // Sign out, then recover the password from the sign-in page.
   await invitee.getByRole('button', { name: 'Sign Out' }).click()
@@ -61,12 +67,12 @@ test('an invited nurse sets a password from the email and can later recover it',
   // The new password works for a normal sign-in; the old one does not.
   await invitee.getByRole('button', { name: 'Sign Out' }).click()
   await expect(invitee.getByRole('heading', { name: 'Sign In' })).toBeVisible()
-  await invitee.getByLabel('Email').fill(EMAIL)
-  await invitee.getByLabel('Password').fill('first password e2e')
-  await invitee.getByRole('button', { name: 'Sign In' }).click()
-  await expect(invitee.getByRole('alert')).toBeVisible()
-  await invitee.getByLabel('Password').fill('second password e2e')
-  await invitee.getByRole('button', { name: 'Sign In' }).click()
+  await invitee.getByTestId('login-email-input').fill(EMAIL)
+  await invitee.getByTestId('login-password-input').fill('first password e2e')
+  await invitee.getByTestId('login-submit-button').click()
+  await expect(invitee.getByRole('alert')).toContainText('Invalid email or password')
+  await invitee.getByTestId('login-password-input').fill('second password e2e')
+  await invitee.getByTestId('login-submit-button').click()
   await expect(invitee.getByRole('navigation', { name: 'Main' })).toBeVisible()
 })
 
@@ -88,14 +94,14 @@ test('an admin deletes a user who has no history after confirming, and cannot de
   const dialog = admin.getByRole('dialog', { name: 'Delete E2E Nurse?' })
   await expect(dialog).toContainText(EMAIL)
   await dialog.getByRole('button', { name: 'Delete user' }).click()
-  await expect(admin.getByText('User deleted')).toBeVisible()
+  await expect(banner(admin, 'User deleted')).toBeVisible()
   await expect(row).toHaveCount(0)
 
   // The deleted account can no longer sign in.
   const gone = await (await browser.newContext()).newPage()
   await gone.goto('/')
-  await gone.getByLabel('Email').fill(EMAIL)
-  await gone.getByLabel('Password').fill('second password e2e')
-  await gone.getByRole('button', { name: 'Sign In' }).click()
+  await gone.getByTestId('login-email-input').fill(EMAIL)
+  await gone.getByTestId('login-password-input').fill('second password e2e')
+  await gone.getByTestId('login-submit-button').click()
   await expect(gone.getByRole('alert')).toBeVisible()
 })

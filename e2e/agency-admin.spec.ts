@@ -1,108 +1,85 @@
 import { expect, test } from '@playwright/test'
-import { ACCOUNTS, DOWNTOWN, createShift, futureSlot, openScreen, signIn } from './support.ts'
+import { resetSeed } from './reset.ts'
+import { ACCOUNTS, SUNRISE, banner, openScreen, signIn, uniqueName } from './support.ts'
+
+test.beforeAll(() => resetSeed())
 
 /**
- * Admin agency management: create an agency and a branch, deactivate and
- * reactivate both, and verify that an inactive branch cannot take shifts.
+ * Admin agency management on entities this test creates: an agency and a
+ * branch, their status, deletion, and the refusal to delete an agency with
+ * shift history (Sunrise).
  */
 test('admin creates an agency with a branch and controls their status', async ({ browser }) => {
+  const agencyName = uniqueName('E2E Summit Nursing')
+  const branchName = uniqueName('E2E Uptown Clinic')
   const admin = await signIn(browser, ACCOUNTS.admin)
   await openScreen(admin, 'Agencies')
   await expect(admin).toHaveURL(/\/admin\/agencies$/)
 
   await admin.getByRole('button', { name: 'New agency' }).click()
   const createDialog = admin.getByRole('dialog', { name: 'New agency' })
-  await createDialog.getByLabel('Name').fill('E2E Summit Nursing')
+  await createDialog.getByLabel('Name').fill(agencyName)
   await createDialog.getByRole('button', { name: 'Create agency' }).click()
-  await expect(admin.getByText('Agency created')).toBeVisible()
+  await expect(banner(admin, 'Agency created')).toBeVisible()
   await expect(createDialog).toHaveCount(0)
-  await admin.getByRole('link', { name: 'E2E Summit Nursing' }).click()
-  await expect(admin.getByRole('heading', { level: 1, name: 'E2E Summit Nursing' })).toBeVisible()
+  await admin.getByRole('link', { name: agencyName }).click()
+  await expect(admin.getByRole('heading', { level: 1, name: agencyName })).toBeVisible()
 
-  await admin.getByLabel('Branch name').fill('E2E Uptown Clinic')
+  await admin.getByLabel('Branch name').fill(branchName)
   await admin.getByLabel('Address').fill('1 Up Street')
   await admin.getByLabel('Time zone').selectOption('America/Chicago')
   await admin.getByRole('button', { name: 'Create branch' }).click()
-  await expect(admin.getByText('Branch created')).toBeVisible()
-  const branchRow = admin.getByRole('row').filter({ hasText: 'E2E Uptown Clinic' })
+  await expect(banner(admin, 'Branch created')).toBeVisible()
+  const branchRow = admin.getByRole('row').filter({ hasText: branchName })
   await expect(branchRow).toContainText('Active')
 
   await branchRow.getByRole('button', { name: 'Deactivate' }).click()
   await admin
-    .getByRole('dialog', { name: 'Deactivate E2E Uptown Clinic?' })
+    .getByRole('dialog', { name: `Deactivate ${branchName}?` })
     .getByRole('button', { name: 'Deactivate' })
     .click()
-  await expect(admin.getByText('Branch deactivated')).toBeVisible()
+  await expect(banner(admin, 'Branch deactivated')).toBeVisible()
   await expect(branchRow).toContainText('Inactive')
   await branchRow.getByRole('button', { name: 'Activate' }).click()
   await admin
-    .getByRole('dialog', { name: 'Activate E2E Uptown Clinic?' })
+    .getByRole('dialog', { name: `Activate ${branchName}?` })
     .getByRole('button', { name: 'Activate' })
     .click()
   await expect(branchRow).toContainText('Active')
 
   await admin.getByRole('button', { name: 'Deactivate' }).first().click()
   await admin
-    .getByRole('dialog', { name: 'Deactivate E2E Summit Nursing?' })
+    .getByRole('dialog', { name: `Deactivate ${agencyName}?` })
     .getByRole('button', { name: 'Deactivate' })
     .click()
   await expect(admin.getByText('This agency is inactive')).toBeVisible()
   await expect(admin.getByLabel('Branch name')).toHaveCount(0)
   await admin.getByRole('button', { name: 'Activate' }).first().click()
   await admin
-    .getByRole('dialog', { name: 'Activate E2E Summit Nursing?' })
+    .getByRole('dialog', { name: `Activate ${agencyName}?` })
     .getByRole('button', { name: 'Activate' })
     .click()
   await expect(admin.getByText('This agency is inactive')).toHaveCount(0)
 
   await openScreen(admin, 'Agencies')
-  const agencyRow = admin.getByRole('row').filter({ hasText: 'E2E Summit Nursing' })
+  const agencyRow = admin.getByRole('row').filter({ hasText: agencyName })
   await expect(agencyRow).toContainText('Active')
   await expect(agencyRow).toContainText('1')
 
   // Deletion asks for confirmation; the agency never had shifts, so it goes away.
-  await agencyRow.getByRole('button', { name: 'Delete E2E Summit Nursing' }).click()
-  const deleteDialog = admin.getByRole('dialog', { name: 'Delete E2E Summit Nursing?' })
+  await agencyRow.getByRole('button', { name: `Delete ${agencyName}` }).click()
+  const deleteDialog = admin.getByRole('dialog', { name: `Delete ${agencyName}?` })
   await expect(deleteDialog).toContainText('cannot be undone')
   await deleteDialog.getByRole('button', { name: 'Delete agency' }).click()
-  await expect(admin.getByText('Agency deleted')).toBeVisible()
+  await expect(banner(admin, 'Agency deleted')).toBeVisible()
   await expect(agencyRow).toHaveCount(0)
 
   // An agency with shifts is refused, with the reason.
-  await admin.getByRole('button', { name: 'Delete Northwind Care Staffing' }).click()
+  await admin.getByRole('button', { name: `Delete ${SUNRISE}` }).click()
   await admin
-    .getByRole('dialog', { name: 'Delete Northwind Care Staffing?' })
+    .getByRole('dialog', { name: `Delete ${SUNRISE}?` })
     .getByRole('button', { name: 'Delete agency' })
     .click()
-  await expect(admin.getByText('Agency not deleted')).toBeVisible()
-  await expect(admin.getByRole('link', { name: 'Northwind Care Staffing' })).toBeVisible()
-})
-
-test('an inactive branch rejects new shifts until it is activated again', async ({ browser }) => {
-  const admin = await signIn(browser, ACCOUNTS.admin)
-  await admin.goto('/admin/agencies')
-  await admin.getByRole('link', { name: 'Northwind Care Staffing' }).click()
-  const downtown = admin.getByRole('row').filter({ hasText: DOWNTOWN })
-  await downtown.getByRole('button', { name: 'Deactivate' }).click()
-  await admin
-    .getByRole('dialog', { name: `Deactivate ${DOWNTOWN}?` })
-    .getByRole('button', { name: 'Deactivate' })
-    .click()
-  await expect(downtown).toContainText('Inactive')
-
-  const agency = await signIn(browser, ACCOUNTS.northwind)
-  await createShift(agency, DOWNTOWN, 'E2E Rejected — Inactive', futureSlot(31))
-  await expect(agency.getByRole('alert')).toContainText(/inactive/i)
-  await expect(agency.getByRole('row').filter({ hasText: 'E2E Rejected — Inactive' })).toHaveCount(0)
-
-  await downtown.getByRole('button', { name: 'Activate' }).click()
-  await admin
-    .getByRole('dialog', { name: `Activate ${DOWNTOWN}?` })
-    .getByRole('button', { name: 'Activate' })
-    .click()
-  await expect(downtown).toContainText('Active')
-
-  await agency.reload()
-  await createShift(agency, DOWNTOWN, 'E2E Accepted — Active', futureSlot(32))
-  await expect(agency.getByText('Shift created')).toBeVisible()
+  await expect(banner(admin, 'Agency not deleted')).toBeVisible()
+  await expect(admin.getByRole('link', { name: SUNRISE })).toBeVisible()
 })

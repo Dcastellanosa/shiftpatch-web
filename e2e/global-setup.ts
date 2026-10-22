@@ -1,17 +1,16 @@
 import { execFileSync } from 'node:child_process'
-import { randomBytes } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { API_DIR } from './local.ts'
+import { resetSeed } from './reset.ts'
 
 const LOOPBACK = /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/
 
 /**
- * Resets and seeds the local database through shiftpatch-api's `pnpm e2e:reset`
- * with a password generated for this run, and locates the local Mailpit so the
- * specs can read invitation and recovery emails. Refuses anything non-local.
- * The password lives only in this process's environment (inherited by the
- * test workers) and is never printed or written to disk.
+ * Verifies the sibling API checkout and the local Supabase stack, resets and
+ * seeds the database once (each spec file re-seeds again before it starts),
+ * and locates the local Mailpit so the specs can read invitation and
+ * recovery emails. Refuses anything non-local.
  */
 export default function globalSetup() {
   const pkg = join(API_DIR, 'package.json')
@@ -33,13 +32,6 @@ export default function globalSetup() {
     throw new Error('Refusing to run end-to-end tests against a Supabase stack that is not local')
   }
 
-  const password = randomBytes(18).toString('base64url')
-  execFileSync('pnpm', ['e2e:reset'], {
-    cwd: API_DIR,
-    env: { ...process.env, SEED_USER_PASSWORD: password },
-    stdio: ['ignore', 'inherit', 'inherit'],
-  })
-
-  process.env.E2E_SEED_PASSWORD = password
+  resetSeed()
   process.env.E2E_MAILPIT_URL = mailUrl
 }
