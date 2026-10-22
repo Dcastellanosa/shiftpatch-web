@@ -6,44 +6,56 @@ administrators monitor shift status.
 Stack: React 19 + Vite 8 + TypeScript, React Router 7 (declarative), TanStack Query 5, Zustand 5 and Sass,
 deployed on Vercel.
 
-> Status: vertical slice plus agency administration. Sign in, role-aware navigation, nurse shift browsing and
-> claiming, My Shifts, agency shift creation with status and history, an admin operational list with counts and
-> filters, admin management of agencies, branches and users (email invitations), agency control of nurse
-> eligibility per branch, and invitation / password-recovery links that land on `/set-password`.
+> Status: the challenge baseline. Sign in with a bearer token, role-aware navigation, the nurse marketplace with
+> one-click claims and the required notification banner, My Shifts with advance cancellation, credential upload,
+> agency shift posting from a dialog and no-show / advance cancellation with history, the admin reporting table,
+> audit log and timesheets, admin management of agencies, branches and users (email invitations), agency control of
+> nurse eligibility per branch, and invitation / password-recovery links that land on `/set-password`.
 
-## Architecture: backend-for-frontend (BFF)
+## Architecture: one bearer-token API
 
 ```
 Browser ──same-origin /api/*──▶ Vite dev proxy (local) │ Vercel route (deployed)
-                                       │  strips /api, forwards cookies + Origin
+   Authorization: Bearer <token>       │  strips /api, forwards the Authorization header + Origin
                                        ▼
                                shiftpatch-api (Express) ──▶ Supabase
 ```
 
 - React only renders UI and calls the backend through **relative `/api/*` paths**, both locally and in production.
 - React **never** talks to Supabase. There is no Supabase client, no `@supabase/*` dependency, and no Supabase
-  environment variable. `tests/no-supabase.test.ts` enforces this, and also checks that no source file sets an
-  `Authorization` header or uses browser storage.
-- [shiftpatch-api](https://github.com/Dcastellanosa/shiftpatch-api) owns login, sessions, authorization and all
-  data access. Session tokens live in `HttpOnly` cookies that JavaScript cannot read.
+  environment variable. `tests/no-supabase.test.ts` enforces this, and also checks that the `Authorization` header
+  is built only under `src/shared/api/` and that no source file uses browser storage.
+- [shiftpatch-api](https://github.com/Dcastellanosa/shiftpatch-api) owns login, token verification, authorization
+  and all data access. `POST /api/auth/login` answers `{ token, user: { id, name, role } }`; the token goes into the
+  API client's in-memory holder (`src/shared/api/token/`) and leaves it only as the `Authorization` header. There
+  are no cookies (`credentials: 'omit'`), no refresh tokens and no persistence: **a page reload starts anonymous
+  and the user signs in again** (the token lives one hour).
+- A `401` on any protected request means the token is gone: the client forgets it and the app signs out locally.
 
 ## Security model
 
-- Identity, role and agency come from `GET /api/auth/me`. The client never sends a user ID, role, agency ID or
-  credential state. Creating a shift sends only `{ branchId, title, startsAt, endsAt }`, and claiming sends no body.
-- Role-based navigation and route guards only shape the UI. The API, Row Level Security and the atomic
-  `claim_shift` database function make every authorization decision. A nurse who opens `/admin/shifts` sees
-  "no access" and no admin data is requested.
-- Error screens show the API's safe `error.message` or fixed copy, never stack traces or internals.
+- Identity, role and agency come from the sign-in response (`user.id` is the public id: `nurse-1`, `admin-1`, or
+  the agency `agency-a` for agency logins) and are re-derived by the API from its bearer token on every request.
+  The client never sends a user ID, role, agency ID or credential state. Posting a shift sends only
+  `{ role, date, startTime, endTime }` (+ `branchId` for a multi-branch agency), claiming sends no body,
+  cancelling sends `{ reason }`.
+- Role-based navigation and route guards only shape the UI. The API, Row Level Security and the atomic database
+  commands make every authorization decision. A nurse who opens `/admin/shifts` sees "no access" and no admin data
+  is requested.
+- The API's error envelope is exactly `{ "error": "<message>" }`. Screens and banners show that message (never
+  stack traces or internals) and branch on the HTTP status, never on a machine code.
 
 ## Role matrix (UI)
 
 | Screen | Path | Nurse | Agency | Admin |
 |---|---|---|---|---|
-| Available shifts + claim | `/shifts` | ✓ | | |
-| My shifts (upcoming / past) | `/my-shifts` | ✓ | | |
-| Agency shifts + create form + history | `/agency/shifts` | | ✓ | |
-| All shifts: counts and filters | `/admin/shifts` | | | ✓ |
+| Available shifts (marketplace) + one-click claim | `/shifts` | ✓ | | |
+| My shifts (upcoming / past) + advance cancellation | `/my-shifts` | ✓ | | |
+| Credentials: upload (file + expiry) and the list on file | `/credentials` | ✓ | | |
+| Timesheets (own / agency's / all) | `/timesheets` | ✓ | ✓ | ✓ |
+| Agency shifts + post dialog + cancel (no-show / advance) + history | `/agency/shifts` | | ✓ | |
+| All shifts: reporting table, badges, counts and filters | `/admin/shifts` | | | ✓ |
+| Audit log | `/admin/audit-log` | | | ✓ |
 | Nurses: eligibility per branch | `/agency/nurses` | | ✓ | |
 | Agencies, branches and their status | `/admin/agencies`, `/admin/agencies/:agencyId` | | | ✓ |
 | Users and invitations | `/admin/users` | | | ✓ |
@@ -54,24 +66,32 @@ message.
 
 ## Screens
 
-- **Sign in.** Email and password through `POST /api/auth/login`, with a session loading state.
-- **Available shifts (nurse).** Future open shifts at branches where the nurse is active, showing branch, agency,
-  date, local time (branch time zone) and duration. Claim opens a confirmation dialog. Failures are explained in
-  plain language:
-
-  | API code | Message |
-  |---|---|
-  | `credential_expired` / `credential_missing` / `credential_revoked` | A required credential has expired / is missing / was revoked |
-  | `eligibility_inactive` | You are not active at this branch |
-  | `shift_not_open` | This shift was already claimed (the list refreshes) |
-  | `schedule_conflict` | This overlaps a shift you already have |
-
-- **My shifts (nurse).** Upcoming and past assigned shifts.
-- **Agency shifts.** Create an open shift for one of the agency's branches. Times are entered in the branch's
-  local time and converted to UTC. An end time at or before the start means the shift ends the next day. The
-  table shows status, assigned nurse and an expandable event history, with a status filter kept in the URL.
-- **All shifts (admin).** Agency, branch, nurse, time and status for every shift. Status counts double as
-  filters. Agency, branch and date-range filters are kept in the URL (`?agency=&branch=&from=&to=&status=`).
+- **Sign in.** Email and password through `POST /api/auth/login` (`login-email-input`, `login-password-input`,
+  `login-submit-button`). A wrong password shows the API's "Invalid email or password".
+- **Available shifts (nurse).** The marketplace: every open shift of every agency (`shift-list-item`), with the
+  agency name, the facility-local date and times exactly as the facility reads them (`19:00 – 07:00 (next day)`)
+  and the hours. **One click** on `shift-claim-button` claims; the outcome appears in the notification banner
+  (`notification-banner`): "Shift claimed", or the API's own refusal, for example "Credential expired, cannot
+  claim shift" for James Cook, or "You are not active at this branch…" when the agency suspended the nurse.
+- **My shifts (nurse).** Upcoming and past assigned shifts. An upcoming filled shift carries `shift-cancel-button`,
+  which releases it in advance (the API refuses a nurse's no-show).
+- **Credentials (nurse).** `credential-upload-input` (PDF, PNG or JPEG, 5 MB) and `credential-expiry-date-input`
+  post a multipart form to `POST /api/me/credentials`; the API validates the bytes, stores the document privately
+  and records the expiry. The list on file shows type, expiry, status (an expired date reads "Expired") and the
+  document name. A renewed licence immediately unblocks claims.
+- **Agency shifts.** `agency-post-shift-button` opens the "Post a shift" dialog: role, facility-local date, start
+  and end (an end at or before the start means the next day; a branch picker appears only for multi-branch
+  agencies); `agency-post-shift-submit-button` posts it. The table (own agency, via
+  `GET /api/agencies/:agencyId/shifts`) shows status, the nurse's public id and an expandable history; a filled row
+  has a reason picker (`advance` / `no-show`) next to `shift-cancel-button`, and the banner reports "Shift
+  reopened". A status filter is kept in the URL.
+- **All shifts (admin).** The reporting table (`admin-dashboard-shift-table`) with a status badge per row
+  (`admin-shift-status-badge`), agency, nurse and local times for every shift. Status counts double as filters;
+  agency and date-range filters are kept in the URL (`?agency=&from=&to=&status=`).
+- **Audit log (admin).** `audit-log-table`, read through `GET /api/admin/audit-events` (admin only; the tables are
+  unreadable by every client): who did what, when, on which agency, branch, user, eligibility or shift.
+- **Timesheets (every role).** `timesheet-table`, read through `GET /api/timesheets`: one row per filled shift
+  (nurse, agency, role, date, local times, scheduled hours, scheduled / worked), scoped by the API to the caller.
 - **Agencies (admin).** Create agencies in a modal, open one to add branches (name, address, IANA time zone), rename
   it, and activate or deactivate agencies and branches after a confirmation. Inactive ones stop taking shifts and
   claims and disappear from nurses' lists; the API enforces this, the UI explains it. Deleting an agency asks for
@@ -91,25 +111,36 @@ message.
 Every screen has loading, empty, error (with retry) and unauthorized states. Tables collapse into stacked rows on
 narrow screens.
 
+**Trial-data note.** The specification's sample shifts are dated 2026-10-02 to 2026-10-04 (already in the past) and
+its post example is dated too. The post-shift form therefore has no "today or later" rule and the API has no
+"already started" rule, so the required flows (claim `shift-1`, post a dated shift) work deterministically. A
+claimed dated shift sits under "Past" in My Shifts.
+
+**Intentionally out of scope:** one-click credential export, shift notifications (email on claim / cancellation),
+analytics (no third-party script is loaded) and shift completion (timesheets mark a filled shift as "Worked" once
+it has ended).
+
 ### Frontend pieces
 
 | File | Role |
 |---|---|
-| `src/shared/api/client/client.ts` | The only gateway to the backend: relative `/api` paths, `credentials: 'include'`, `ApiError`. Auth (incl. password links), shift, event, branch, My Shifts, admin agency/user and nurse-eligibility calls. |
+| `src/shared/api/client/client.ts` | The only gateway to the backend: relative `/api` paths, `credentials: 'omit'`, the `Authorization` header from the token holder, `ApiError` (status-derived `code`, the API's message). Auth (incl. password links), shift (marketplace, agency, post, claim, cancel), event, branch, My Shifts, credentials, timesheets, audit log, admin agency/user and nurse-eligibility calls. A `401` on a protected route drops the token and notifies the session. |
+| `src/shared/api/token/token.ts` | The in-memory access token holder: `setAccessToken`, `clearAccessToken`, `authorizationHeaders`, `onSessionLost`. Never persisted, never exposed as a value. |
 | `src/app/providers/query-client/query-client.ts` | TanStack Query client: 30 s `staleTime` for operational data, retries only network failures (max 2), background-refresh failures become toasts. In memory only. |
-| `src/features/auth/` | `SessionProvider` exposes the `['session']` query (`GET /api/auth/me`, `staleTime: Infinity`, no refetch on focus) and the login/logout mutations as `useSession()`. Logout clears the cache; login clears it only after success. |
+| `src/features/auth/` | `SessionProvider` exposes the `['session']` query (the user the API reported at sign-in; `initialData: null`, never fetched or refetched) and the login/logout mutations as `useSession()`, and signs out locally when the client reports a lost session. Logout clears the cache; login clears it only after success. |
 | `src/app/router/routes/routes.tsx`, `src/app/router/RequireRole/` | React Router v7 declarative routes (`Routes`/`Route`/`Navigate`) and the UX-only role guard. |
 | `src/app/router/navigation/navigation.ts` | Screens per role, nested-path rule for the guard, home redirects. |
-| `src/features/shifts/`, `src/features/agency-management/`, `src/features/admin-dashboard/` | Query and mutation hooks per feature (`useAvailableShifts`, `useClaimShift`, `useCreateShift`, `useAdminShifts`, …), the claim dialog and the create-shift form. |
-| `src/entities/shift/`, `src/entities/branch/` | Shift model, query keys and history, the shift table, status badge and when/where pieces; branches. |
+| `src/features/shifts/`, `src/features/agency-management/`, `src/features/admin-dashboard/` | Query and mutation hooks per feature (`useAvailableShifts`, `useClaimShift`, `useCancelShift`, `useAgencyShifts`, `useCreateShift`, `useAdminShifts`), the cancel control (reason picker + button) and the post-shift form. |
+| `src/features/credentials/`, `src/entities/credential/` | The credential upload form (file + expiry + type), `useUploadCredential` (multipart) and the `['me','credentials']` query with type and status labels. |
+| `src/entities/timesheet/`, `src/entities/audit/` | The `['timesheets']` and `['admin','audit-events']` queries behind the timesheet and audit-log pages. |
+| `src/entities/shift/`, `src/entities/branch/` | Shift model (`open` \| `filled`), query keys (`['shifts','list']`, `['shifts','agency',id]`, events) and history, the shift table (optional test ids and row-action slot), status badge and the when piece; branches. |
 | `src/features/admin-agencies/`, `src/entities/agency/` | Agency and branch forms, the status toggle with confirmation, create/update hooks and the `['agencies', …]` queries. |
 | `src/features/admin-users/`, `src/entities/user/` | Users table, role-dependent invitation form, `useInviteUser`, the `['admin','users']` query and role/status labels. |
 | `src/features/nurse-eligibility/` | Nurses × branches grid, eligibility toggle, `['agency','nurses']` query and `useSetEligibility` (PUT activates, DELETE suspends). |
 | `src/features/auth/password-link/`, `src/pages/SetPasswordPage/`, `src/features/auth/ForgotPasswordForm/` | Fragment parsing and clearing, the public set-password page, `useCompletePassword` (drops every other query, overwrites the session) and the recovery form. |
 | `src/shared/ui/ConfirmDialog/`, `src/shared/ui/Modal/` | Focus-managed confirmation dialog used before status changes and deletions; labelled modal that hosts the create-agency and invite-user forms. |
 | `src/stores/ui-store/ui-store.ts` | The single Zustand store: the global toast queue, rendered by `src/shared/ui/Toaster/`. Never API data. |
-| `src/features/shifts/claim-errors/claim-errors.ts` | User-facing copy for claim error codes. |
-| `src/shared/lib/format/format.ts` | `Intl` date/time formatting in the branch time zone, and branch-local time → UTC conversion. |
+| `src/shared/lib/format/format.ts` | Facility-local date and time-range formatting (no zone conversion), scheduled hours, timestamps. |
 | `src/pages/<PageName>/` | One folder per screen, with component, styles, test and snapshot. |
 
 Layout: `src/app/` (App, providers, router, global styles), `src/pages/`, `src/features/`, `src/entities/`,
@@ -128,7 +159,7 @@ automatic optional peer installation so Vite uses the portable compiler consiste
 
 | Environment | How `/api/*` reaches the API |
 |---|---|
-| `pnpm dev` / `pnpm preview` | Vite proxy (`vite.config.ts`): `/api/auth/me` → `http://localhost:3000/auth/me`. Override the target with `API_PROXY_TARGET`. Vite serves `index.html` for client routes. |
+| `pnpm dev` / `pnpm preview` | Vite proxy (`vite.config.ts`): `/api/shifts` → `http://localhost:3000/shifts`, `Authorization` forwarded. Override the target with `API_PROXY_TARGET`. Vite serves `index.html` for client routes. |
 | Vercel | `vercel.json`: `/api/(.*)` → `${API_ORIGIN}/$1`, then static files, then an SPA fallback to `/index.html`. |
 
 `${API_ORIGIN}` expansion works only with the legacy `routes` property, which cannot be combined with `rewrites`,
@@ -147,10 +178,10 @@ pnpm install
 pnpm dev                     # http://localhost:5173 (no env vars required)
 ```
 
-Sign in with a seeded account (shiftpatch-api README → Test accounts). For example, use
-`nurse.ava@shiftpatch.test` to claim, `nurse.ben@shiftpatch.test` to see the expired-credential message,
-`agency.northwind@shiftpatch.test` to post shifts, and `admin@shiftpatch.test` for the global view. Passwords are
-whatever `SEED_USER_PASSWORD` was when you seeded. None are stored in this repository.
+Sign in with a trial account (shiftpatch-api README → Trial accounts; `pnpm seed` there loads exactly the
+specification's data, password `Trial2026!`): `maria.lopez@example.com` (nurse, valid licence),
+`james.cook@example.com` (nurse, expired licence → "Credential expired, cannot claim shift"),
+`admin@sunrisehealth.example` / `admin@metrocare.example` (agencies) and `alex.kim@example.com` (admin).
 
 ## Scripts
 
@@ -161,8 +192,8 @@ whatever `SEED_USER_PASSWORD` was when you seeded. None are stored in this repos
 | `pnpm typecheck` | Typecheck app, tests, E2E and tooling configs |
 | `pnpm lint` | ESLint (with `eslint-config-prettier`) |
 | `pnpm format` / `pnpm format:check` | Prettier: rewrite / verify formatting |
-| `pnpm test` | Vitest: API client contract, BFF boundary, role-aware navigation, route guards, claim error messages, screen states, time-zone conversion. Runs in CI. |
-| `pnpm test:e2e` | Playwright against a freshly reset local stack: claim workflow, agency/branch lifecycle and inactive restrictions, nurse eligibility, invitation + password recovery through the local mail catcher |
+| `pnpm test` | Vitest: API client contract (bearer header, one-key envelope, flat shift shape, multipart upload), the no-Supabase / no-persistence / Authorization-only-in-the-client guards, the 15 required test ids (`tests/test-ids.test.ts`), role-aware navigation, route guards, screen states and local date/time formatting. Runs in CI. |
+| `pnpm test:e2e` | Playwright against the local stack, on the specification's seed only: the challenge flows through the required test ids, nurse eligibility, agency/branch lifecycle, invitation + password recovery through the local mail catcher |
 | `pnpm preview` | Serve the production build locally (with the `/api` proxy) |
 
 CI (`.github/workflows/ci.yml`) runs install → typecheck → lint → format check → test → build on every push to
@@ -176,9 +207,12 @@ Fully local and deterministic. `pnpm test:e2e`:
 1. starts shiftpatch-api on `:3100` against the **local** Supabase stack (`pnpm e2e:api` there: keys come from
    `supabase status`, `.env` is ignored, non-local addresses are refused),
 2. starts Vite on `:5174` proxying `/api` to it (a dev server on `:5173` can keep running),
-3. resets and seeds the local database with a password generated for the run (`e2e/global-setup.ts` →
-   `pnpm e2e:reset` in the API repo; never printed or stored), locates the local Mailpit, and
-4. runs the specs in order on one worker.
+3. resets and seeds exactly the specification's dataset (`e2e/global-setup.ts` → `pnpm e2e:reset` in the API repo,
+   password `Trial2026!`), locates the local Mailpit, and
+4. runs the spec files in order on one worker, **re-seeding before every file** (`e2e/reset.ts`), so no file
+   observes another file's changes to `shift-1..3`, the trial accounts or their eligibility. Extra scenarios create
+   uniquely named agencies and shifts. Nothing reloads a page after sign-in (the token is in memory): a check from
+   another angle signs in again in a fresh context.
 
 ```bash
 pnpm exec playwright install chromium     # once
@@ -188,12 +222,12 @@ pnpm test:e2e
 
 | Spec | Covers |
 |---|---|
-| `e2e/agency-admin.spec.ts` | Admin creates an agency (modal) and a branch, deactivates / reactivates both, deletes the agency after confirming, is refused for one with shifts; an inactive branch rejects new shifts until it is active again |
-| `e2e/claim-workflow.spec.ts` | Agency posts a shift → nurse sees and claims it → My Shifts → agency table and history show the assignment |
-| `e2e/eligibility.spec.ts` | Suspending a nurse at a branch hides its open shifts; activating restores them |
-| `e2e/invitation.spec.ts` | Admin invites a nurse (modal) → the emailed link (read from the local Mailpit) sets a password and signs in → "Forgot your password?" → recovery link → new password works, old one does not → the admin deletes the nurse after confirming and she can no longer sign in |
+| `e2e/challenge-flows.spec.ts` | The challenge baseline through the required test ids: Sunrise posts from the dialog; Maria browses both agencies, claims `shift-1` in one click ("Shift claimed") and releases the new shift in advance; James gets "Credential expired, cannot claim shift"; Sunrise reports a no-show on `shift-2` (reopened, history); Maria uploads a licence; Alex reads the reporting table with badges, the audit log and the timesheets |
+| `e2e/eligibility.spec.ts` | Suspending a nurse at a branch makes her claims there fail with the API's message until she is activated again (the marketplace still lists every shift) |
+| `e2e/agency-admin.spec.ts` | Admin creates a uniquely named agency (modal) and a branch, deactivates / reactivates both, deletes the agency after confirming, is refused for Sunrise (it has shifts) |
+| `e2e/invitation.spec.ts` | Admin invites a nurse (modal) → the emailed link (read from the local Mailpit) sets a password and signs in with the returned bearer token → "Forgot your password?" → recovery link → new password works, old one does not → the admin deletes the nurse after confirming and she can no longer sign in |
 
-No password is configured: `E2E_PASSWORD` is ignored. Seeded accounts and the password live only in the run.
+No password is configured (`E2E_PASSWORD` is ignored): the accounts use the specification's `Trial2026!`.
 Optional `.env.e2e.local` (gitignored): `E2E_API_DIR` when the API checkout is not `../shiftpatch-api`. The suite
 never depends on, modifies or restores remote or shared users or data.
 
@@ -204,6 +238,9 @@ There are **no `VITE_*` variables**, so nothing configurable is bundled into the
 | Variable | Where | Required | Description |
 |---|---|---|---|
 | `API_PROXY_TARGET` | local `.env.local` | no | Vite proxy target for `/api/*`. Default `http://localhost:3000`. |
+
+Nothing else: the browser holds no Supabase key and no secret. The `supabase/.temp/` link file of an earlier local
+setup is untracked and ignored (`.gitignore`).
 | `API_ORIGIN` | Vercel project env | yes (on Vercel) | Origin of the deployed shiftpatch-api, used by `vercel.json`. |
 | `E2E_API_DIR` | `.env.e2e.local` | no | Path of the shiftpatch-api checkout for `test:e2e`. Default `../shiftpatch-api`. |
 
@@ -218,5 +255,6 @@ Separate Vercel project (framework preset: Vite, output: `dist`):
    (see the API README → Deployment prerequisites).
 2. Set `API_ORIGIN` in this project to the API's origin for every environment that should work (Production,
    Preview).
-3. Add this app's production origin to the API's `CORS_ORIGINS`. The CSRF origin check uses that list too.
+3. Add this app's production origin to the API's `CORS_ORIGINS`. The API's origin check for browser requests uses
+   that list too; `Authorization` passes through the Vercel route untouched.
 4. Deploy. `vercel.json` already routes `/api/*` to the API and falls back to `index.html` for client routes.

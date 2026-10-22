@@ -9,9 +9,8 @@ export default defineConfig(({ mode }) => {
   const apiTarget = env.API_PROXY_TARGET || 'http://localhost:3000'
 
   // Same-origin /api/* → shiftpatch-api with the /api prefix stripped.
-  // Cookies and Set-Cookie headers pass through unchanged; the API sets
-  // host-only cookies (no Domain), so the browser stores them for this origin.
-  // The browser's Origin header is forwarded as-is for the API's CSRF check.
+  // The Authorization header the client adds and the browser's Origin header
+  // are forwarded as-is (the API checks the Origin of browser requests).
   const apiProxy: Record<string, ProxyOptions> = {
     '^/api(?:/|$)': {
       target: apiTarget,
