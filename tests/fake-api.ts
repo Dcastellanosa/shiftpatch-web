@@ -3,10 +3,13 @@ import type {
   AdminUser,
   Agency,
   AgencyBranch,
+  AuditEvent,
   Branch,
+  Credential,
   NurseEligibility,
   SessionUser,
   Shift,
+  Timesheet,
 } from '../src/shared/api/client/index.ts'
 
 /** The trial specification's accounts, as `POST /api/auth/login` reports them. */
@@ -31,6 +34,51 @@ export function makeShift(overrides: Partial<Shift> = {}): Shift {
     endTime: '07:00',
     status: 'open',
     claimedBy: null,
+    ...overrides,
+  }
+}
+
+export function makeCredential(overrides: Partial<Credential> = {}): Credential {
+  return {
+    id: 'd2000000-0000-4000-8000-000000000001',
+    type: 'nursing_license',
+    expiresAt: '2028-01-01',
+    status: 'valid',
+    fileName: 'licence.pdf',
+    uploadedAt: '2026-10-21T12:00:00.000Z',
+    ...overrides,
+  }
+}
+
+export function makeTimesheet(overrides: Partial<Timesheet> = {}): Timesheet {
+  return {
+    shiftId: 'shift-2',
+    nurseId: 'nurse-1',
+    nurseName: 'Maria Lopez',
+    agencyId: 'agency-a',
+    agencyName: 'Sunrise Health Staffing',
+    role: 'LPN',
+    date: '2026-10-03',
+    startTime: '07:00',
+    endTime: '19:00',
+    scheduledHours: 12,
+    status: 'worked',
+    ...overrides,
+  }
+}
+
+export function makeAuditEvent(overrides: Partial<AuditEvent> = {}): AuditEvent {
+  return {
+    id: 'f3000000-0000-4000-8000-000000000001',
+    occurredAt: '2026-10-21T12:00:00.000Z',
+    actorId: 'nurse-1',
+    actorName: 'Maria Lopez',
+    entityType: 'shift',
+    entityId: 'shift-2',
+    action: 'no_show',
+    previousStatus: 'claimed',
+    newStatus: 'open',
+    reason: 'no-show',
     ...overrides,
   }
 }

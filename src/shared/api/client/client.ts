@@ -226,6 +226,86 @@ export async function listBranches(): Promise<Branch[]> {
 }
 
 // ---------------------------------------------------------------------------
+// Credentials (nurse). The file is uploaded through the API, never to storage directly.
+// ---------------------------------------------------------------------------
+
+export type CredentialStatus = 'valid' | 'expired' | 'revoked'
+
+export interface Credential {
+  id: string
+  /** Credential type code, e.g. `nursing_license`. */
+  type: string
+  /** YYYY-MM-DD. */
+  expiresAt: string
+  status: CredentialStatus
+  fileName: string | null
+  uploadedAt: string | null
+}
+
+export interface UploadCredentialInput {
+  file: File
+  expiresAt: string
+  credentialTypeCode: string
+}
+
+export async function listMyCredentials(): Promise<Credential[]> {
+  const { credentials } = await apiRequest<{ credentials: Credential[] }>('/me/credentials')
+  return credentials
+}
+
+/** Multipart upload: the browser sets the content type with its boundary. */
+export async function uploadCredential(input: UploadCredentialInput): Promise<Credential> {
+  const body = new FormData()
+  body.append('file', input.file)
+  body.append('expiresAt', input.expiresAt)
+  body.append('credentialTypeCode', input.credentialTypeCode)
+  const { credential } = await apiRequest<{ credential: Credential }>('/me/credentials', { method: 'POST', body })
+  return credential
+}
+
+// ---------------------------------------------------------------------------
+// Timesheets (every role) and the audit log (admin only).
+// ---------------------------------------------------------------------------
+
+export interface Timesheet {
+  shiftId: string
+  nurseId: string
+  nurseName: string
+  agencyId: string
+  agencyName: string
+  role: string
+  date: string
+  startTime: string
+  endTime: string
+  scheduledHours: number
+  /** `worked` once the shift has ended, `scheduled` before that. */
+  status: 'scheduled' | 'worked'
+}
+
+export async function listTimesheets(): Promise<Timesheet[]> {
+  const { timesheets } = await apiRequest<{ timesheets: Timesheet[] }>('/timesheets')
+  return timesheets
+}
+
+export interface AuditEvent {
+  id: string
+  occurredAt: string
+  actorId: string
+  actorName: string | null
+  entityType: string
+  entityId: string
+  action: string
+  previousStatus: string | null
+  newStatus: string | null
+  reason: string | null
+}
+
+export async function listAuditEvents(): Promise<AuditEvent[]> {
+  const { events } = await apiRequest<{ events: AuditEvent[] }>('/admin/audit-events')
+  return events
+}
+
+// ---------------------------------------------------------------------------
 // Agency administration (admin only). Shapes mirror the API's admin schemas.
 // ---------------------------------------------------------------------------
 

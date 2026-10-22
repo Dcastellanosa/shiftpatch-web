@@ -1,0 +1,10 @@
+.cancel-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cancel-control__reason {
+  min-width: 11rem;
+}

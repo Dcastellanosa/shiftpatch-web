@@ -90,6 +90,7 @@ exports[`renders the contract form without a branch picker for a single-branch a
   >
     <button
       class="btn btn--primary"
+      data-testid="agency-post-shift-submit-button"
       type="submit"
     >
       Post shift

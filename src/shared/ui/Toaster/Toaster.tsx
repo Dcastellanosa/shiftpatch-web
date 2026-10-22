@@ -13,7 +13,7 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
   }, [toast.id, onDismiss])
 
   return (
-    <div className={`toast toast--${toast.kind}`}>
+    <div className={`toast toast--${toast.kind}`} data-testid="notification-banner">
       <div className="toast__content">
         <p className="toast__title">{toast.title}</p>
         {(toast.body || toast.link) && (

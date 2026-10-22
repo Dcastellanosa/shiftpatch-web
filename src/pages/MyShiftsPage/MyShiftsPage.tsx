@@ -1,6 +1,7 @@
 import './MyShiftsPage.scss'
 import { ShiftWhen } from '../../entities/shift/ShiftWhen/index.ts'
 import { StatusBadge } from '../../entities/shift/StatusBadge/index.ts'
+import { CancelShiftControl } from '../../features/shifts/CancelShiftControl/index.ts'
 import { useMyShifts } from '../../features/shifts/use-my-shifts/index.ts'
 import type { Shift } from '../../shared/api/client/index.ts'
 import { toApiError } from '../../shared/api/errors/index.ts'
@@ -8,7 +9,8 @@ import { EmptyState } from '../../shared/ui/EmptyState/index.ts'
 import { ErrorState } from '../../shared/ui/ErrorState/index.ts'
 import { LoadingState } from '../../shared/ui/LoadingState/index.ts'
 
-function ShiftList({ shifts }: { shifts: Shift[] }) {
+/** `cancellable`: upcoming filled shifts may be released in advance (the API refuses anything else). */
+function ShiftList({ shifts, cancellable = false }: { shifts: Shift[]; cancellable?: boolean }) {
   return (
     <ul className="card-list">
       {shifts.map((shift) => (
@@ -18,7 +20,10 @@ function ShiftList({ shifts }: { shifts: Shift[] }) {
             <p className="shift-card__where">{shift.agencyName}</p>
             <ShiftWhen shift={shift} />
           </div>
-          <StatusBadge status={shift.status} />
+          <div className="shift-card__aside">
+            <StatusBadge status={shift.status} />
+            {cancellable && shift.status === 'filled' && <CancelShiftControl shiftId={shift.id} />}
+          </div>
         </li>
       ))}
     </ul>
@@ -50,7 +55,7 @@ export function MyShiftsPage() {
             {mine.data.upcoming.length === 0 ? (
               <EmptyState title="No upcoming shifts">Claim an open shift to see it here.</EmptyState>
             ) : (
-              <ShiftList shifts={mine.data.upcoming} />
+              <ShiftList shifts={mine.data.upcoming} cancellable />
             )}
           </section>
           <section aria-labelledby="past-heading" className="section">

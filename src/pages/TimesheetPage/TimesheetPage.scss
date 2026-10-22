@@ -1,0 +1,16 @@
+.badge--timesheet-worked {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.badge--timesheet-scheduled {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge--timesheet-scheduled {
+    background: rgba(56, 189, 248, 0.14);
+    color: #7dd3fc;
+  }
+}

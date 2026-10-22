@@ -34,18 +34,38 @@ export function SignInPage() {
           <form className="form" onSubmit={handleSubmit}>
             <div className="field">
               <label htmlFor="email">Email</label>
-              <input id="email" name="email" type="email" autoComplete="username" spellCheck={false} required />
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="username"
+                spellCheck={false}
+                required
+                data-testid="login-email-input"
+              />
             </div>
             <div className="field">
               <label htmlFor="password">Password</label>
-              <input id="password" name="password" type="password" autoComplete="current-password" required />
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                data-testid="login-password-input"
+              />
             </div>
             {error && (
               <p role="alert" className="notice notice--error">
                 {error.status === 0 ? 'The server could not be reached. Try again.' : error.message}
               </p>
             )}
-            <button type="submit" className="btn btn--primary btn--block" disabled={submitting}>
+            <button
+              type="submit"
+              className="btn btn--primary btn--block"
+              disabled={submitting}
+              data-testid="login-submit-button"
+            >
               {submitting ? 'Signing In…' : 'Sign In'}
             </button>
             <button type="button" className="btn btn--link auth-page__link" onClick={() => setForgot(true)}>

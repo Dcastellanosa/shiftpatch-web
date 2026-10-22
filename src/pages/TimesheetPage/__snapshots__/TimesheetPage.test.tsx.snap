@@ -1,0 +1,121 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`shows the timesheet table with nurse, agency, date, times, hours and status 1`] = `
+<section
+  aria-labelledby="timesheets-heading"
+  class="page"
+>
+  <header
+    class="page__header"
+  >
+    <div>
+      <h1
+        id="timesheets-heading"
+      >
+        Timesheets
+      </h1>
+      <p
+        class="muted"
+      >
+        Scheduled hours per filled shift, by nurse and agency.
+      </p>
+    </div>
+  </header>
+  <div
+    class="table-wrap"
+  >
+    <table
+      class="table timesheet-table"
+      data-testid="timesheet-table"
+    >
+      <thead>
+        <tr>
+          <th
+            scope="col"
+          >
+            Date
+          </th>
+          <th
+            scope="col"
+          >
+            Nurse
+          </th>
+          <th
+            scope="col"
+          >
+            Agency
+          </th>
+          <th
+            scope="col"
+          >
+            Role
+          </th>
+          <th
+            scope="col"
+          >
+            Time
+          </th>
+          <th
+            scope="col"
+          >
+            Hours
+          </th>
+          <th
+            scope="col"
+          >
+            Status
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td
+            data-label="Date"
+          >
+            <time
+              datetime="2026-10-03"
+            >
+              Sat, Oct 3, 2026
+            </time>
+          </td>
+          <td
+            class="table__cell--strong"
+            data-label="Nurse"
+          >
+            Maria Lopez
+          </td>
+          <td
+            data-label="Agency"
+          >
+            Sunrise Health Staffing
+          </td>
+          <td
+            data-label="Role"
+          >
+            LPN
+          </td>
+          <td
+            data-label="Time"
+          >
+            07:00 – 19:00
+          </td>
+          <td
+            data-label="Hours"
+          >
+            12
+          </td>
+          <td
+            data-label="Status"
+          >
+            <span
+              class="badge badge--timesheet-worked"
+            >
+              Worked
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+`;

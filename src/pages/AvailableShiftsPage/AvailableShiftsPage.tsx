@@ -41,7 +41,7 @@ export function AvailableShiftsPage() {
           {shifts.data.map((shift) => {
             const claiming = claim.isPending && claim.variables === shift.id
             return (
-              <li key={shift.id} className="card shift-card">
+              <li key={shift.id} className="card shift-card" data-testid="shift-list-item">
                 <div className="shift-card__main">
                   <h2 className="card__title">{shift.role}</h2>
                   <p className="shift-card__where">{shift.agencyName}</p>
@@ -50,6 +50,7 @@ export function AvailableShiftsPage() {
                 <button
                   type="button"
                   className="btn btn--primary"
+                  data-testid="shift-claim-button"
                   onClick={() => claim.mutate(shift.id)}
                   disabled={claiming}
                   aria-label={`Claim ${shift.role} on ${formatLocalDate(shift.date)} at ${shift.agencyName}`}

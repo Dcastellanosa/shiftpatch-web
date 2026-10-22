@@ -29,6 +29,8 @@ it('reads filters from the URL and narrows the loaded list by status, agency and
 
   const rows = await screen.findAllByRole('row')
   expect(rows).toHaveLength(2)
+  expect(screen.getByTestId('admin-dashboard-shift-table')).toBeTruthy()
+  expect(screen.getAllByTestId('admin-shift-status-badge')).toHaveLength(1)
   expect(screen.getByRole('button', { name: /Filled/ }).getAttribute('aria-pressed')).toBe('true')
 
   await userEvent.click(screen.getByRole('button', { name: /Filled/ }))

@@ -103,7 +103,12 @@ export function AdminShiftsPage() {
       ) : rows.length === 0 ? (
         <EmptyState title="No shifts match these filters" />
       ) : (
-        <ShiftTable shifts={rows} showAgency />
+        <ShiftTable
+          shifts={rows}
+          showAgency
+          testId="admin-dashboard-shift-table"
+          badgeTestId="admin-shift-status-badge"
+        />
       )}
     </section>
   )

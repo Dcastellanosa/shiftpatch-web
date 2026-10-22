@@ -42,9 +42,9 @@ describe('role-aware navigation', () => {
   })
 
   it.each([
-    [NURSE, ['Available Shifts', 'My Shifts']],
-    [AGENCY, ['Agency Shifts', 'Nurses']],
-    [ADMIN, ['All Shifts', 'Agencies', 'Users']],
+    [NURSE, ['Available Shifts', 'My Shifts', 'Credentials', 'Timesheets']],
+    [AGENCY, ['Agency Shifts', 'Nurses', 'Timesheets']],
+    [ADMIN, ['All Shifts', 'Agencies', 'Users', 'Audit Log', 'Timesheets']],
   ])('shows only the $role screens', async (user, expected) => {
     renderAt('/', user)
     expect(await navLinks()).toEqual(expected)
@@ -75,8 +75,11 @@ describe('role-aware navigation', () => {
     [NURSE, '/admin/agencies'],
     [NURSE, '/admin/users'],
     [NURSE, '/agency/nurses'],
+    [NURSE, '/admin/audit-log'],
     [AGENCY, '/admin/users'],
+    [AGENCY, '/credentials'],
     [ADMIN, '/agency/nurses'],
+    [ADMIN, '/credentials'],
   ])('keeps the administration screens behind the role guard ($role at $1)', async (user, path) => {
     const { fetchMock } = renderAt(path, user)
     expect(await screen.findByText('You do not have access to this page')).toBeTruthy()
@@ -135,6 +138,20 @@ describe('role-aware navigation', () => {
     expect(await screen.findByRole('heading', { name: 'Sign In' })).toBeTruthy()
     expect(hasAccessToken()).toBe(false)
     expect(queryClient.getQueryData(['session'])).toBeNull()
+  })
+})
+
+describe('the new screens', () => {
+  it.each([
+    [NURSE, '/credentials', 'Credentials', 'GET /api/me/credentials', { credentials: [] }],
+    [NURSE, '/timesheets', 'Timesheets', 'GET /api/timesheets', { timesheets: [] }],
+    [AGENCY, '/timesheets', 'Timesheets', 'GET /api/timesheets', { timesheets: [] }],
+    [ADMIN, '/timesheets', 'Timesheets', 'GET /api/timesheets', { timesheets: [] }],
+    [ADMIN, '/admin/audit-log', 'Audit Log', 'GET /api/admin/audit-events', { events: [] }],
+  ] as const)('routes $role to $1', async (user, path, heading, route, body) => {
+    const { fetchMock } = renderAt(path, user, { [route]: () => json(200, body) })
+    expect(await screen.findByRole('heading', { level: 1, name: heading })).toBeTruthy()
+    expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual([route.split(' ')[1]])
   })
 })
 

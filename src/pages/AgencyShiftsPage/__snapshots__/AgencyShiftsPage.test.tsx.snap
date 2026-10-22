@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`shows the agency page with the post form and no shifts 1`] = `
+exports[`shows the agency page with the post-shift button and no shifts 1`] = `
 <section
   aria-labelledby="agency-heading"
   class="page"
@@ -21,102 +21,14 @@ exports[`shows the agency page with the post form and no shifts 1`] = `
         Post open shifts and track who claimed them.
       </p>
     </div>
+    <button
+      class="btn btn--primary"
+      data-testid="agency-post-shift-button"
+      type="button"
+    >
+      Post shift
+    </button>
   </header>
-  <form
-    aria-labelledby="_r_1_-legend"
-    class="card form"
-  >
-    <h2
-      id="_r_1_-legend"
-    >
-      Post a Shift
-    </h2>
-    <div
-      class="form__grid"
-    >
-      <div
-        class="field"
-      >
-        <label
-          for="_r_1_"
-        >
-          Role
-        </label>
-        <input
-          autocomplete="off"
-          id="_r_1_"
-          maxlength="200"
-          name="role"
-          placeholder="e.g. RN"
-          required=""
-        />
-      </div>
-      <div
-        class="field"
-      >
-        <label
-          for="_r_2_"
-        >
-          Date
-        </label>
-        <input
-          id="_r_2_"
-          name="date"
-          required=""
-          type="date"
-        />
-      </div>
-      <div
-        class="field"
-      >
-        <label
-          for="_r_3_"
-        >
-          Start
-        </label>
-        <input
-          id="_r_3_"
-          name="startTime"
-          required=""
-          type="time"
-          value=""
-        />
-      </div>
-      <div
-        class="field"
-      >
-        <label
-          for="_r_4_"
-        >
-          End
-        </label>
-        <input
-          aria-describedby="_r_5_"
-          id="_r_4_"
-          name="endTime"
-          required=""
-          type="time"
-          value=""
-        />
-      </div>
-    </div>
-    <p
-      class="muted small"
-      id="_r_5_"
-    >
-      Times are the facility's local time.
-    </p>
-    <div
-      class="form__actions"
-    >
-      <button
-        class="btn btn--primary"
-        type="submit"
-      >
-        Post shift
-      </button>
-    </div>
-  </form>
   <section
     aria-labelledby="agency-list-heading"
     class="section"
@@ -161,7 +73,7 @@ exports[`shows the agency page with the post form and no shifts 1`] = `
         No shifts match
       </p>
       <p>
-        Post a shift above or change the status filter.
+        Post a shift or change the status filter.
       </p>
     </div>
   </section>

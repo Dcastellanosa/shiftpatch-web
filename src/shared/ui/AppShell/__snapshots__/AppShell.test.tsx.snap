@@ -47,6 +47,20 @@ exports[`renders nurse navigation and account details 1`] = `
         >
           My Shifts
         </a>
+        <a
+          class="nav__link"
+          data-discover="true"
+          href="/credentials"
+        >
+          Credentials
+        </a>
+        <a
+          class="nav__link"
+          data-discover="true"
+          href="/timesheets"
+        >
+          Timesheets
+        </a>
       </nav>
       <div
         class="account"

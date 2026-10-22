@@ -14,7 +14,20 @@ it('routes each role only to its screens', () => {
   expect(isKnownPath('/missing')).toBe(false)
 })
 
-it('lists the administration screens for agency and admin users', () => {
-  expect(NAV_BY_ROLE.agency.map((item) => item.to)).toEqual(['/agency/shifts', '/agency/nurses'])
-  expect(NAV_BY_ROLE.admin.map((item) => item.to)).toEqual(['/admin/shifts', '/admin/agencies', '/admin/users'])
+it('lists every screen of each role, including credentials, timesheets and the audit log', () => {
+  expect(NAV_BY_ROLE.nurse.map((item) => item.to)).toEqual(['/shifts', '/my-shifts', '/credentials', '/timesheets'])
+  expect(NAV_BY_ROLE.agency.map((item) => item.to)).toEqual(['/agency/shifts', '/agency/nurses', '/timesheets'])
+  expect(NAV_BY_ROLE.admin.map((item) => item.to)).toEqual([
+    '/admin/shifts',
+    '/admin/agencies',
+    '/admin/users',
+    '/admin/audit-log',
+    '/timesheets',
+  ])
+  expect(isAllowed('nurse', '/credentials')).toBe(true)
+  expect(isAllowed('agency', '/credentials')).toBe(false)
+  expect(isAllowed('admin', '/credentials')).toBe(false)
+  expect(isAllowed('nurse', '/admin/audit-log')).toBe(false)
+  expect(isAllowed('admin', '/admin/audit-log')).toBe(true)
+  for (const role of ['nurse', 'agency', 'admin'] as const) expect(isAllowed(role, '/timesheets')).toBe(true)
 })

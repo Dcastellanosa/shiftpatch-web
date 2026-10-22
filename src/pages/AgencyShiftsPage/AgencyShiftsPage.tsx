@@ -1,4 +1,5 @@
 import './AgencyShiftsPage.scss'
+import { useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { useBranches } from '../../entities/branch/use-branches/index.ts'
 import { SHIFT_STATUSES as STATUSES, STATUS_LABEL } from '../../entities/shift/model/index.ts'
@@ -6,21 +7,28 @@ import { ShiftTable } from '../../entities/shift/ShiftTable/index.ts'
 import { CreateShiftForm } from '../../features/agency-management/CreateShiftForm/index.ts'
 import { useAgencyShifts } from '../../features/agency-management/use-agency-shifts/index.ts'
 import { useSession } from '../../features/auth/session-context/index.ts'
+import { CancelShiftControl } from '../../features/shifts/CancelShiftControl/index.ts'
 import type { ShiftStatus } from '../../shared/api/client/index.ts'
 import { toApiError } from '../../shared/api/errors/index.ts'
 import { compactParams } from '../../shared/lib/search-params/index.ts'
 import { EmptyState } from '../../shared/ui/EmptyState/index.ts'
 import { ErrorState } from '../../shared/ui/ErrorState/index.ts'
 import { LoadingState } from '../../shared/ui/LoadingState/index.ts'
+import { Modal } from '../../shared/ui/Modal/index.ts'
 
 function parseStatus(value: string | null): ShiftStatus | undefined {
   return STATUSES.find((s) => s === value)
 }
 
-/** The agency's own shifts (`user.id` is the agency's public id for agency logins). */
+/**
+ * The agency's own shifts (`user.id` is the agency's public id for agency
+ * logins): post a shift from a dialog, and release a filled one as a no-show
+ * or an advance cancellation.
+ */
 export function AgencyShiftsPage() {
   const { user } = useSession()
   const [searchParams, setSearchParams] = useSearchParams()
+  const [posting, setPosting] = useState(false)
   const status = parseStatus(searchParams.get('status'))
   const shifts = useAgencyShifts(user?.id ?? '')
   const branches = useBranches()
@@ -33,9 +41,25 @@ export function AgencyShiftsPage() {
           <h1 id="agency-heading">Agency Shifts</h1>
           <p className="muted">{user?.name ? `${user.name} · ` : ''}Post open shifts and track who claimed them.</p>
         </div>
+        <button
+          type="button"
+          className="btn btn--primary"
+          data-testid="agency-post-shift-button"
+          onClick={() => setPosting(true)}
+        >
+          Post shift
+        </button>
       </header>
 
-      <CreateShiftForm branches={branches.data ?? []} />
+      {posting && (
+        <Modal
+          title="Post a shift"
+          description="Nurses see it in the marketplace right away."
+          onClose={() => setPosting(false)}
+        >
+          <CreateShiftForm branches={branches.data ?? []} onCreated={() => setPosting(false)} withHeading={false} />
+        </Modal>
+      )}
 
       <section className="section" aria-labelledby="agency-list-heading">
         <div className="section__header">
@@ -62,9 +86,14 @@ export function AgencyShiftsPage() {
             <LoadingState label="Loading shifts…" />
           )
         ) : rows.length === 0 ? (
-          <EmptyState title="No shifts match">Post a shift above or change the status filter.</EmptyState>
+          <EmptyState title="No shifts match">Post a shift or change the status filter.</EmptyState>
         ) : (
-          <ShiftTable shifts={rows} />
+          <ShiftTable
+            shifts={rows}
+            renderActions={(shift) =>
+              shift.status === 'filled' ? <CancelShiftControl shiftId={shift.id} withReason /> : null
+            }
+          />
         )}
       </section>
     </section>

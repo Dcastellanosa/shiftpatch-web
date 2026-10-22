@@ -29,7 +29,8 @@ it('lists open shifts from every agency with their agency name', async () => {
   })
   renderWithProviders(<AvailableShiftsPage />, { path: '/shifts' })
   expect(await screen.findByText('Metro Care Partners')).toBeTruthy()
-  expect(screen.getAllByRole('listitem')).toHaveLength(2)
+  expect(screen.getAllByTestId('shift-list-item')).toHaveLength(2)
+  expect(screen.getAllByTestId('shift-claim-button')).toHaveLength(2)
   expect(screen.queryByText('LPN')).toBeNull()
 })
 

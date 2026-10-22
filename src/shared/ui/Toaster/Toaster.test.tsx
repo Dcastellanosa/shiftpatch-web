@@ -22,6 +22,7 @@ it('announces toasts politely, with their link, and lets the user dismiss them',
     })
   })
   expect(screen.getByText('Shift claimed')).toBeTruthy()
+  expect(screen.getByTestId('notification-banner').textContent).toContain('Shift claimed')
   expect(screen.getByRole('link', { name: 'View My Shifts' }).getAttribute('href')).toBe('/my-shifts')
   expect(container.firstChild).toMatchSnapshot()
 
@@ -35,7 +36,9 @@ it('auto-dismisses no sooner than 8 seconds', () => {
   renderWithProviders(<Toaster />)
   act(() => {
     useUiStore.getState().pushToast({ kind: 'success', title: 'Shift created' })
+    useUiStore.getState().pushToast({ kind: 'error', title: 'Credential expired, cannot claim shift' })
   })
+  expect(screen.getAllByTestId('notification-banner')).toHaveLength(2)
   act(() => vi.advanceTimersByTime(7_999))
   expect(screen.getByText('Shift created')).toBeTruthy()
   act(() => vi.advanceTimersByTime(1))

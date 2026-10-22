@@ -9,6 +9,8 @@ interface CreateShiftFormProps {
   /** The agency's branches; a branch picker appears only when there are several. */
   branches: Branch[]
   onCreated?: (shift: Shift) => void
+  /** Inside a dialog the heading comes from the dialog. */
+  withHeading?: boolean
 }
 
 /**
@@ -16,7 +18,7 @@ interface CreateShiftFormProps {
  * time at or before the start time means the shift ends the next day. Dated
  * shifts are allowed (the trial's sample data is dated).
  */
-export function CreateShiftForm({ branches, onCreated }: CreateShiftFormProps) {
+export function CreateShiftForm({ branches, onCreated, withHeading = true }: CreateShiftFormProps) {
   const ids = { branch: useId(), role: useId(), date: useId(), start: useId(), end: useId(), hint: useId() }
   const [branchId, setBranchId] = useState('')
   const [start, setStart] = useState('')
@@ -52,8 +54,12 @@ export function CreateShiftForm({ branches, onCreated }: CreateShiftFormProps) {
   }
 
   return (
-    <form className="card form" onSubmit={handleSubmit} aria-labelledby={`${ids.role}-legend`}>
-      <h2 id={`${ids.role}-legend`}>Post a Shift</h2>
+    <form
+      className={withHeading ? 'card form' : 'form'}
+      onSubmit={handleSubmit}
+      aria-labelledby={withHeading ? `${ids.role}-legend` : undefined}
+    >
+      {withHeading && <h2 id={`${ids.role}-legend`}>Post a Shift</h2>}
       <div className="form__grid">
         {chooseBranch && (
           <div className="field">
@@ -118,7 +124,12 @@ export function CreateShiftForm({ branches, onCreated }: CreateShiftFormProps) {
       )}
 
       <div className="form__actions">
-        <button type="submit" className="btn btn--primary" disabled={submitting}>
+        <button
+          type="submit"
+          className="btn btn--primary"
+          disabled={submitting}
+          data-testid="agency-post-shift-submit-button"
+        >
           {submitting ? 'Posting…' : 'Post shift'}
         </button>
       </div>

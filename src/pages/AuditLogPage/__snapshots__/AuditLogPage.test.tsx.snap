@@ -1,0 +1,164 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`shows the audit log table with actor, action, entity, change and reason 1`] = `
+<section
+  aria-labelledby="audit-heading"
+  class="page"
+>
+  <header
+    class="page__header"
+  >
+    <div>
+      <h1
+        id="audit-heading"
+      >
+        Audit Log
+      </h1>
+      <p
+        class="muted"
+      >
+        Who did what, when: agencies, branches, users, eligibility and every shift change.
+      </p>
+    </div>
+  </header>
+  <div
+    class="table-wrap"
+  >
+    <table
+      class="table audit-table"
+      data-testid="audit-log-table"
+    >
+      <thead>
+        <tr>
+          <th
+            scope="col"
+          >
+            When
+          </th>
+          <th
+            scope="col"
+          >
+            Actor
+          </th>
+          <th
+            scope="col"
+          >
+            Action
+          </th>
+          <th
+            scope="col"
+          >
+            Entity
+          </th>
+          <th
+            scope="col"
+          >
+            Change
+          </th>
+          <th
+            scope="col"
+          >
+            Reason
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td
+            data-label="When"
+          >
+            <time
+              datetime="2026-10-21T12:00:00.000Z"
+            >
+              Oct 21, 2026, 12:00 PM
+            </time>
+          </td>
+          <td
+            class="table__cell--strong"
+            data-label="Actor"
+          >
+            Maria Lopez
+          </td>
+          <td
+            data-label="Action"
+          >
+            No-show
+          </td>
+          <td
+            data-label="Entity"
+          >
+            Shift
+             
+            <span
+              class="muted"
+            >
+              shift-2
+            </span>
+          </td>
+          <td
+            data-label="Change"
+          >
+            claimed
+             → 
+            open
+          </td>
+          <td
+            data-label="Reason"
+          >
+            no-show
+          </td>
+        </tr>
+        <tr>
+          <td
+            data-label="When"
+          >
+            <time
+              datetime="2026-10-21T12:00:00.000Z"
+            >
+              Oct 21, 2026, 12:00 PM
+            </time>
+          </td>
+          <td
+            class="table__cell--strong"
+            data-label="Actor"
+          >
+            Alex Kim
+          </td>
+          <td
+            data-label="Action"
+          >
+            Created
+          </td>
+          <td
+            data-label="Entity"
+          >
+            Agency
+             
+            <span
+              class="muted"
+            >
+              agency-3
+            </span>
+          </td>
+          <td
+            data-label="Change"
+          >
+            —
+             → 
+            active
+          </td>
+          <td
+            data-label="Reason"
+          >
+            <span
+              class="muted"
+            >
+              —
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+`;

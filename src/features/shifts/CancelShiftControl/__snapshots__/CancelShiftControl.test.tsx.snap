@@ -1,0 +1,31 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`lets an agency pick no-show before cancelling 1`] = `
+<div
+  class="cancel-control"
+>
+  <select
+    aria-label="Cancellation reason"
+    class="cancel-control__reason"
+    id="_r_1_"
+  >
+    <option
+      value="advance"
+    >
+      Cancelled in advance
+    </option>
+    <option
+      value="no-show"
+    >
+      No-show
+    </option>
+  </select>
+  <button
+    class="btn btn--secondary cancel-control__button"
+    data-testid="shift-cancel-button"
+    type="button"
+  >
+    Cancel shift
+  </button>
+</div>
+`;

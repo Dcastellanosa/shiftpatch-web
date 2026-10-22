@@ -8,6 +8,7 @@ exports[`announces toasts politely, with their link, and lets the user dismiss t
 >
   <div
     class="toast toast--success"
+    data-testid="notification-banner"
   >
     <div
       class="toast__content"

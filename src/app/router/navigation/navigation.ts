@@ -13,15 +13,20 @@ export const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   nurse: [
     { to: '/shifts', label: 'Available Shifts' },
     { to: '/my-shifts', label: 'My Shifts' },
+    { to: '/credentials', label: 'Credentials' },
+    { to: '/timesheets', label: 'Timesheets' },
   ],
   agency: [
     { to: '/agency/shifts', label: 'Agency Shifts' },
     { to: '/agency/nurses', label: 'Nurses' },
+    { to: '/timesheets', label: 'Timesheets' },
   ],
   admin: [
     { to: '/admin/shifts', label: 'All Shifts' },
     { to: '/admin/agencies', label: 'Agencies' },
     { to: '/admin/users', label: 'Users' },
+    { to: '/admin/audit-log', label: 'Audit Log' },
+    { to: '/timesheets', label: 'Timesheets' },
   ],
 }
 
