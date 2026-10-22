@@ -75,7 +75,7 @@ message.
   claim shift" for James Cook, or "You are not active at this branch…" when the agency suspended the nurse.
 - **My shifts (nurse).** Upcoming and past assigned shifts. An upcoming filled shift carries `shift-cancel-button`,
   which releases it in advance (the API refuses a nurse's no-show).
-- **Credentials (nurse).** `credential-upload-input` (PDF, PNG or JPEG, 5 MB) and `credential-expiry-date-input`
+- **Credentials (nurse).** `credential-upload-input` (PDF, PNG or JPEG, 4 MB) and `credential-expiry-date-input`
   post a multipart form to `POST /api/me/credentials`; the API validates the bytes, stores the document privately
   and records the expiry. The list on file shows type, expiry, status (an expired date reads "Expired") and the
   document name. A renewed licence immediately unblocks claims.

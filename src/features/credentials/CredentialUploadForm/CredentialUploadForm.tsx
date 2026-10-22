@@ -1,6 +1,6 @@
 import './CredentialUploadForm.scss'
 import { useId, useState, type FormEvent } from 'react'
-import { CREDENTIAL_TYPES } from '../../../entities/credential/model/index.ts'
+import { CREDENTIAL_TYPES, MAX_CREDENTIAL_BYTES } from '../../../entities/credential/model/index.ts'
 import type { ApiError, UploadCredentialInput } from '../../../shared/api/client/index.ts'
 
 interface CredentialUploadFormProps {
@@ -16,12 +16,19 @@ export function CredentialUploadForm({ pending, error, onSubmit }: CredentialUpl
   const ids = { legend: useId(), type: useId(), file: useId(), expires: useId(), hint: useId() }
   const [type, setType] = useState<string>(CREDENTIAL_TYPES[0].code)
   const [file, setFile] = useState<File | null>(null)
+  const [tooLarge, setTooLarge] = useState(false)
   const [expiresAt, setExpiresAt] = useState('')
-  const ready = file !== null && expiresAt !== ''
+  const ready = file !== null && !tooLarge && expiresAt !== ''
+
+  function choose(chosen: File | null) {
+    const oversized = chosen !== null && chosen.size > MAX_CREDENTIAL_BYTES
+    setTooLarge(oversized)
+    setFile(oversized ? null : chosen)
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!file || !expiresAt) return
+    if (!ready || !file) return
     onSubmit({ file, expiresAt, credentialTypeCode: type })
   }
 
@@ -48,9 +55,14 @@ export function CredentialUploadForm({ pending, error, onSubmit }: CredentialUpl
             accept={ACCEPT}
             aria-required="true"
             aria-describedby={ids.hint}
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+            onChange={(event) => choose(event.target.files?.[0] ?? null)}
             disabled={pending}
           />
+          {tooLarge && (
+            <p className="field__error" role="alert">
+              This file is larger than 4 MB. Choose a smaller document.
+            </p>
+          )}
         </div>
         <div className="field">
           <label htmlFor={ids.expires}>Expiry date</label>
@@ -66,7 +78,7 @@ export function CredentialUploadForm({ pending, error, onSubmit }: CredentialUpl
         </div>
       </div>
       <p id={ids.hint} className="muted small">
-        PDF, PNG or JPEG, up to 5 MB. A new upload replaces the document on file for that credential.
+        PDF, PNG or JPEG, up to 4 MB. A new upload replaces the document on file for that credential.
       </p>
       {error && (
         <div className="notice notice--error" role="alert">
