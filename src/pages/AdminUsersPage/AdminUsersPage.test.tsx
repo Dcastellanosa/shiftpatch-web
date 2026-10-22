@@ -11,17 +11,16 @@ afterEach(() => vi.unstubAllGlobals())
 
 const SELF = makeAdminUser({
   id: ADMIN.id,
-  fullName: ADMIN.fullName!,
-  email: ADMIN.email,
+  fullName: ADMIN.name,
+  email: 'alex.kim@example.com',
   role: 'admin',
   eligibleBranches: [],
 })
 const lookups = {
-  'GET /api/auth/me': () => json(200, { user: ADMIN }),
   'GET /api/admin/agencies': () => json(200, { agencies: [makeAgency()] }),
   'GET /api/branches': () => json(200, { branches: [makeBranch()] }),
 }
-const render = () => renderWithProviders(<AdminUsersPage />, { path: '/admin/users', session: true })
+const render = () => renderWithProviders(<AdminUsersPage />, { path: '/admin/users', session: true, user: ADMIN })
 
 it('lists users and invites a nurse from the modal, then refreshes the list', async () => {
   let users = [SELF, makeAdminUser()]
@@ -70,8 +69,7 @@ it('keeps the modal open and shows an existing email on the field', async () => 
   stubApi({
     ...lookups,
     'GET /api/admin/users': () => json(200, { users: [SELF] }),
-    'POST /api/admin/users': () =>
-      json(409, { error: { code: 'email_exists', message: 'An account with this email already exists' } }),
+    'POST /api/admin/users': () => json(409, { error: 'An account with this email already exists' }),
   })
   render()
   await screen.findByTestId('users-table')
@@ -103,13 +101,11 @@ it('deletes a user after the warning, never offers to delete the viewer, and exp
       return { status: 204 }
     },
     [`DELETE /api/admin/users/${ava.id}`]: () =>
-      json(409, {
-        error: { code: 'user_has_history', message: 'This user has shifts or recorded actions and cannot be deleted' },
-      }),
+      json(409, { error: 'This user has shifts or recorded actions and cannot be deleted' }),
   })
   render()
   await screen.findByTestId('users-table')
-  expect(screen.queryByRole('button', { name: `Delete ${ADMIN.fullName}` })).toBeNull()
+  expect(screen.queryByRole('button', { name: `Delete ${ADMIN.name}` })).toBeNull()
 
   await userEvent.click(screen.getByRole('button', { name: 'Delete Riley Northwind' }))
   const dialog = screen.getByRole('dialog', { name: 'Delete Riley Northwind?' })

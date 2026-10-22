@@ -8,19 +8,18 @@ import { StatusBadge } from '../StatusBadge/index.ts'
 /** Operational shift table. Collapses into stacked rows on narrow screens. */
 export function ShiftTable({ shifts, showAgency = false }: { shifts: Shift[]; showAgency?: boolean }) {
   const [expanded, setExpanded] = useState<string | null>(null)
-  const columns = showAgency ? 7 : 6
+  const columns = showAgency ? 6 : 5
 
   return (
     <div className="table-wrap">
       <table className="table">
         <thead>
           <tr>
-            <th scope="col">Shift</th>
+            <th scope="col">Role</th>
             {showAgency && <th scope="col">Agency</th>}
-            <th scope="col">Branch</th>
             <th scope="col">When</th>
             <th scope="col">Status</th>
-            <th scope="col">Assigned Nurse</th>
+            <th scope="col">Nurse</th>
             <th scope="col">
               <span className="visually-hidden">History</span>
             </th>
@@ -32,20 +31,17 @@ export function ShiftTable({ shifts, showAgency = false }: { shifts: Shift[]; sh
             return (
               <Fragment key={shift.id}>
                 <tr>
-                  <td data-label="Shift" className="table__cell--strong">
-                    {shift.title}
+                  <td data-label="Role" className="table__cell--strong">
+                    {shift.role}
                   </td>
-                  {showAgency && <td data-label="Agency">{shift.agency.name}</td>}
-                  <td data-label="Branch">{shift.branch.name}</td>
+                  {showAgency && <td data-label="Agency">{shift.agencyName}</td>}
                   <td data-label="When">
                     <ShiftWhen shift={shift} />
                   </td>
                   <td data-label="Status">
                     <StatusBadge status={shift.status} />
                   </td>
-                  <td data-label="Assigned Nurse">
-                    {shift.assignedNurse ? shift.assignedNurse.fullName : <span className="muted">Unassigned</span>}
-                  </td>
+                  <td data-label="Nurse">{shift.claimedBy ?? <span className="muted">Unassigned</span>}</td>
                   <td>
                     <button
                       type="button"

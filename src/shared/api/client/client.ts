@@ -1,58 +1,67 @@
 /**
  * The frontend's only gateway to backend data. Every request goes to the
  * same-origin `/api` prefix, which the Vite dev server (locally) or Vercel
- * (deployed) proxies to shiftpatch-api. Session state lives in HttpOnly
- * cookies managed by the API; this module never sees or stores tokens.
+ * (deployed) proxies to shiftpatch-api. Authentication is a bearer token the
+ * API returned at sign-in: it lives only in the in-memory holder next door
+ * (`../token`) and travels only as the `Authorization` header built here.
+ * No cookies are ever sent (`credentials: 'omit'`).
  */
+import { authorizationHeaders, clearAccessToken, notifySessionLost, setAccessToken } from '../token/token.ts'
 
 export const API_BASE = '/api'
 
 export type UserRole = 'agency' | 'nurse' | 'admin'
 
-/** Safe session payload returned by the API. Profile fields may be null. */
+/** The user as `POST /api/auth/login` reports it: the public id (`nurse-1`, or `agency-a` for agency logins), a display name and the role. */
 export interface SessionUser {
   id: string
-  email: string | null
-  fullName: string | null
+  name: string
+  /** `null` only for an account that has no ShiftPatch profile yet. */
   role: UserRole | null
-  /** First active agency (agency users). Prefer `agencyIds`. */
-  agencyId: string | null
-  /** Every agency the user manages through an active membership. */
-  agencyIds: string[]
 }
 
-interface SessionPayload {
+/** A sign-in response. The token goes straight to the holder and never further. */
+interface AuthPayload {
+  token: string
   user: SessionUser
 }
 
 export class ApiError extends Error {
   readonly status: number
+  /** Derived from the status: the API's envelope carries only a message. */
   readonly code: string
-  readonly details?: unknown
 
-  constructor(status: number, code: string, message: string, details?: unknown) {
+  constructor(status: number, code: string, message: string) {
     super(message)
     this.name = 'ApiError'
     this.status = status
     this.code = code
-    this.details = details
   }
 }
 
+/** The API's error envelope: exactly `{ "error": "<message>" }`. */
 interface ErrorBody {
-  error: { code: string; message: string; details?: unknown }
+  error: string
 }
 
 function isErrorBody(value: unknown): value is ErrorBody {
-  if (typeof value !== 'object' || value === null || !('error' in value)) return false
-  const error = (value as { error: unknown }).error
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    typeof (error as { code?: unknown }).code === 'string' &&
-    typeof (error as { message?: unknown }).message === 'string'
-  )
+  return typeof value === 'object' && value !== null && typeof (value as { error?: unknown }).error === 'string'
 }
+
+const CODE_BY_STATUS: Record<number, string> = {
+  400: 'validation_error',
+  401: 'unauthenticated',
+  403: 'forbidden',
+  404: 'not_found',
+  409: 'conflict',
+  413: 'payload_too_large',
+  422: 'validation_error',
+}
+
+const codeFor = (status: number) => CODE_BY_STATUS[status] ?? 'http_error'
+
+/** Routes whose 401 means "bad credentials or link", never "your session is gone". */
+const PUBLIC_PATHS = new Set(['/auth/login', '/auth/complete-password', '/auth/recover'])
 
 async function readJson(response: Response): Promise<unknown> {
   const text = await response.text()
@@ -71,77 +80,82 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
 
   const headers = new Headers(init.headers)
   headers.set('Accept', 'application/json')
-  if (init.body !== undefined) headers.set('Content-Type', 'application/json')
+  for (const [name, value] of Object.entries(authorizationHeaders())) headers.set(name, value)
+  // A FormData body carries its own multipart content type (with the boundary the browser picks).
+  if (init.body !== undefined && !(init.body instanceof FormData)) headers.set('Content-Type', 'application/json')
 
   let response: Response
   try {
-    response = await fetch(`${API_BASE}${path}`, { ...init, headers, credentials: 'include' })
+    response = await fetch(`${API_BASE}${path}`, { ...init, headers, credentials: 'omit' })
   } catch {
     throw new ApiError(0, 'network_error', 'Unable to reach the server')
   }
 
+  if (response.status === 401 && !PUBLIC_PATHS.has(path.split('?')[0]!)) {
+    // The token was rejected (expired or revoked): forget it and let the app sign out.
+    clearAccessToken()
+    notifySessionLost()
+  }
+
   const body = await readJson(response)
   if (!response.ok) {
-    if (isErrorBody(body)) {
-      throw new ApiError(response.status, body.error.code, body.error.message, body.error.details)
-    }
+    if (isErrorBody(body)) throw new ApiError(response.status, codeFor(response.status), body.error)
     throw new ApiError(response.status, 'http_error', `Request failed with status ${response.status}`)
   }
   return body as T
 }
 
+/** Signs in. The token is stored in memory only; callers get the user. */
 export async function login(email: string, password: string): Promise<SessionUser> {
-  const { user } = await apiRequest<SessionPayload>('/auth/login', {
+  const { token, user } = await apiRequest<AuthPayload>('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   })
+  setAccessToken(token)
   return user
 }
 
+/** Revokes the token at the API (best effort) and always forgets it locally. */
 export async function logout(): Promise<void> {
-  await apiRequest<void>('/auth/logout', { method: 'POST' })
-}
-
-/**
- * Authoritative session check. Resolves to `null` when the API reports no
- * valid session (401); any other failure is thrown.
- */
-export async function getCurrentSession(): Promise<SessionUser | null> {
   try {
-    const { user } = await apiRequest<SessionPayload>('/auth/me')
-    return user
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 401) return null
-    throw error
+    await apiRequest<void>('/auth/logout', { method: 'POST' })
+  } finally {
+    clearAccessToken()
   }
 }
 
 // ---------------------------------------------------------------------------
-// Shifts. Shapes mirror shiftpatch-api's Zod response contracts
-// (src/shifts/contracts.ts there). Timestamps are ISO 8601 UTC strings.
+// Shifts: the contract's flat shape, exactly as the API returns it.
 // ---------------------------------------------------------------------------
 
-export type ShiftStatus = 'open' | 'claimed' | 'cancelled' | 'completed' | 'no_show'
+/** `filled` is the public word for a claimed shift. */
+export type ShiftStatus = 'open' | 'filled'
 export type ShiftEventType = 'created' | 'claimed' | 'cancelled' | 'completed' | 'no_show'
+export type CancellationReason = 'no-show' | 'advance'
 
 export interface Shift {
+  /** Public id, e.g. `shift-1`. */
   id: string
-  title: string
-  startsAt: string
-  endsAt: string
+  /** Public agency id, e.g. `agency-a`. */
+  agencyId: string
+  agencyName: string
+  /** RN, LPN, ... */
+  role: string
+  /** Facility-local date, YYYY-MM-DD. */
+  date: string
+  /** Facility-local HH:MM. `endTime` at or before `startTime` means the next day. */
+  startTime: string
+  endTime: string
   status: ShiftStatus
-  branch: { id: string; name: string; address: string; timezone: string; status: EntityStatus }
-  agency: { id: string; name: string }
-  assignedNurse: { id: string; fullName: string } | null
-  createdAt: string
-  updatedAt: string
+  /** Public id of the nurse holding the shift, or null while open. */
+  claimedBy: string | null
 }
 
 export interface ShiftEvent {
   id: string
   eventType: ShiftEventType
-  previousStatus: ShiftStatus | null
-  newStatus: ShiftStatus
+  previousStatus: string | null
+  newStatus: string
   reason: string | null
   occurredAt: string
   actor: { id: string; fullName: string | null }
@@ -158,57 +172,43 @@ export interface Branch {
   agency: { id: string; name: string }
 }
 
-export interface ShiftFilters {
-  status?: ShiftStatus
-  branchId?: string
-  /** ISO instant: shifts starting at or after. */
-  from?: string
-  /** ISO instant: shifts starting before. */
-  to?: string
-  /** Nurse only: include the caller's assigned shifts. */
-  includeAssigned?: boolean
-}
-
+/** The contract body of `POST /api/shifts`; `branchId` only when the agency has several branches. */
 export interface CreateShiftInput {
-  branchId: string
-  title: string
-  startsAt: string
-  endsAt: string
-}
-
-function queryString(filters: ShiftFilters): string {
-  const params = new URLSearchParams()
-  for (const [key, value] of Object.entries(filters)) {
-    if (value !== undefined && value !== '') params.set(key, String(value))
-  }
-  const query = params.toString()
-  return query ? `?${query}` : ''
+  role: string
+  date: string
+  startTime: string
+  endTime: string
+  branchId?: string
 }
 
 const shiftPath = (shiftId: string) => `/shifts/${encodeURIComponent(shiftId)}`
 
-export async function listShifts(filters: ShiftFilters = {}): Promise<Shift[]> {
-  const { shifts } = await apiRequest<{ shifts: Shift[] }>(`/shifts${queryString(filters)}`)
+/** The marketplace: every shift of every agency. */
+export async function listShifts(): Promise<Shift[]> {
+  const { shifts } = await apiRequest<{ shifts: Shift[] }>('/shifts')
   return shifts
 }
 
-export async function getShift(shiftId: string): Promise<Shift> {
-  const { shift } = await apiRequest<{ shift: Shift }>(shiftPath(shiftId))
-  return shift
+/** One agency's own shifts (the agency user's, or any for an admin). */
+export async function listAgencyShifts(agencyId: string): Promise<Shift[]> {
+  const { shifts } = await apiRequest<{ agencyId: string; shifts: Shift[] }>(
+    `/agencies/${encodeURIComponent(agencyId)}/shifts`,
+  )
+  return shifts
 }
 
 export async function createShift(input: CreateShiftInput): Promise<Shift> {
-  const { shift } = await apiRequest<{ shift: Shift }>('/shifts', {
-    method: 'POST',
-    body: JSON.stringify(input),
-  })
-  return shift
+  return apiRequest<Shift>('/shifts', { method: 'POST', body: JSON.stringify(input) })
 }
 
-/** Claims a shift for the signed-in nurse. Rule failures reject with an `ApiError` (409/422). */
+/** Claims a shift for the signed-in nurse. Rule failures reject with an `ApiError` carrying the API's message. */
 export async function claimShift(shiftId: string): Promise<Shift> {
-  const { shift } = await apiRequest<{ shift: Shift }>(`${shiftPath(shiftId)}/claim`, { method: 'POST' })
-  return shift
+  return apiRequest<Shift>(`${shiftPath(shiftId)}/claim`, { method: 'POST' })
+}
+
+/** Releases a filled shift (no-show or advance cancellation); it reopens. */
+export async function cancelShift(shiftId: string, reason: CancellationReason): Promise<Shift> {
+  return apiRequest<Shift>(`${shiftPath(shiftId)}/cancel`, { method: 'POST', body: JSON.stringify({ reason }) })
 }
 
 export async function listShiftEvents(shiftId: string): Promise<ShiftEvent[]> {
@@ -421,12 +421,13 @@ export interface CompletePasswordInput {
   password: string
 }
 
-/** Sets the password behind an invitation or recovery link and starts a session (cookies set by the API). */
+/** Sets the password behind an invitation or recovery link and starts a session exactly like `login`. */
 export async function completePassword(input: CompletePasswordInput): Promise<SessionUser> {
-  const { user } = await apiRequest<SessionPayload>('/auth/complete-password', {
+  const { token, user } = await apiRequest<AuthPayload>('/auth/complete-password', {
     method: 'POST',
     body: JSON.stringify(input),
   })
+  setAccessToken(token)
   return user
 }
 
@@ -435,12 +436,12 @@ export async function requestRecovery(email: string): Promise<void> {
   await apiRequest<undefined>('/auth/recover', { method: 'POST', body: JSON.stringify({ email }) })
 }
 
-/** Removes an agency that never had shifts (409 `agency_has_shifts` otherwise). */
+/** Removes an agency that never had shifts (409 otherwise). */
 export async function deleteAgency(agencyId: string): Promise<void> {
   await apiRequest<undefined>(agencyPath(agencyId), { method: 'DELETE' })
 }
 
-/** Removes an account without shifts or recorded actions (409 `user_has_history` / `cannot_delete_self` otherwise). */
+/** Removes an account without shifts or recorded actions (409 otherwise). */
 export async function deleteAdminUser(userId: string): Promise<void> {
   await apiRequest<undefined>(`/admin/users/${encodeURIComponent(userId)}`, { method: 'DELETE' })
 }

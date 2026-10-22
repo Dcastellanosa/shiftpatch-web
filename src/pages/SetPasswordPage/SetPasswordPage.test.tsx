@@ -38,9 +38,7 @@ it('posts the token from the fragment once, clears it from the URL, stores the s
 it('explains an expired link and offers the way back', async () => {
   stubApi({
     'POST /api/auth/complete-password': () =>
-      json(401, {
-        error: { code: 'invalid_or_expired_link', message: 'This link is invalid or has expired. Request a new one.' },
-      }),
+      json(401, { error: 'This link is invalid or has expired. Request a new one.' }),
   })
   const { queryClient } = renderWithProviders(<SetPasswordPage />, {
     path: `/set-password#token_hash=${TOKEN}&type=recovery`,

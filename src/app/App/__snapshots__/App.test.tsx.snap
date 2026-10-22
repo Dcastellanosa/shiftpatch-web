@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`role-aware navigation > shows the sign-in form without a session 1`] = `
+exports[`role-aware navigation > shows the sign-in form on a fresh page load without calling the API 1`] = `
 <main
   class="auth-page"
   id="main"

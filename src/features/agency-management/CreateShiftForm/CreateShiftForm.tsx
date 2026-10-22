@@ -2,44 +2,43 @@ import './CreateShiftForm.scss'
 import { useId, useState, type FormEvent } from 'react'
 import type { Branch, Shift } from '../../../shared/api/client/index.ts'
 import { toApiError } from '../../../shared/api/errors/index.ts'
-import { addDays, zonedTimeToUtc } from '../../../shared/lib/format/index.ts'
+import { isOvernight } from '../../../shared/lib/format/index.ts'
 import { useCreateShift } from '../use-create-shift/index.ts'
 
 interface CreateShiftFormProps {
+  /** The agency's branches; a branch picker appears only when there are several. */
   branches: Branch[]
   onCreated?: (shift: Shift) => void
 }
 
-const todayUtc = () => new Date().toISOString().slice(0, 10)
-
 /**
- * Times are entered in the selected branch's local time and sent as UTC. An
- * end time at or before the start time means the shift ends the next day.
+ * The contract's post-shift form: role, facility-local date and times. An end
+ * time at or before the start time means the shift ends the next day. Dated
+ * shifts are allowed (the trial's sample data is dated).
  */
 export function CreateShiftForm({ branches, onCreated }: CreateShiftFormProps) {
-  const ids = { branch: useId(), title: useId(), date: useId(), start: useId(), end: useId(), hint: useId() }
-  const [branchId, setBranchId] = useState(branches[0]?.id ?? '')
+  const ids = { branch: useId(), role: useId(), date: useId(), start: useId(), end: useId(), hint: useId() }
+  const [branchId, setBranchId] = useState('')
   const [start, setStart] = useState('')
   const [end, setEnd] = useState('')
   const create = useCreateShift()
 
-  const branch = branches.find((b) => b.id === branchId)
-  const overnight = Boolean(start && end && end <= start)
+  const overnight = Boolean(start && end && isOvernight(start, end))
   const submitting = create.isPending
   const error = create.error ? toApiError(create.error) : null
+  const chooseBranch = branches.length > 1
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!branch) return
     const form = event.currentTarget
     const data = new FormData(form)
-    const date = String(data.get('date'))
     create.mutate(
       {
-        branchId: branch.id,
-        title: String(data.get('title')).trim(),
-        startsAt: zonedTimeToUtc(date, start, branch.timezone),
-        endsAt: zonedTimeToUtc(overnight ? addDays(date, 1) : date, end, branch.timezone),
+        role: String(data.get('role')).trim(),
+        date: String(data.get('date')),
+        startTime: start,
+        endTime: end,
+        ...(chooseBranch && branchId ? { branchId } : {}),
       },
       {
         onSuccess: (shift) => {
@@ -53,45 +52,41 @@ export function CreateShiftForm({ branches, onCreated }: CreateShiftFormProps) {
   }
 
   return (
-    <form className="card form" onSubmit={handleSubmit} aria-labelledby={`${ids.title}-legend`}>
-      <h2 id={`${ids.title}-legend`}>Create Open Shift</h2>
+    <form className="card form" onSubmit={handleSubmit} aria-labelledby={`${ids.role}-legend`}>
+      <h2 id={`${ids.role}-legend`}>Post a Shift</h2>
       <div className="form__grid">
+        {chooseBranch && (
+          <div className="field">
+            <label htmlFor={ids.branch}>Branch</label>
+            <select
+              id={ids.branch}
+              name="branchId"
+              value={branchId}
+              onChange={(e) => setBranchId(e.target.value)}
+              required
+            >
+              <option value="">Choose a branch</option>
+              {branches.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="field">
-          <label htmlFor={ids.branch}>Branch</label>
-          <select
-            id={ids.branch}
-            name="branchId"
-            value={branchId}
-            onChange={(e) => setBranchId(e.target.value)}
-            required
-          >
-            {branches.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field field--wide">
-          <label htmlFor={ids.title}>Title</label>
-          <input
-            id={ids.title}
-            name="title"
-            required
-            maxLength={200}
-            autoComplete="off"
-            placeholder="e.g. Med-Surg RN — Day…"
-          />
+          <label htmlFor={ids.role}>Role</label>
+          <input id={ids.role} name="role" required maxLength={200} autoComplete="off" placeholder="e.g. RN" />
         </div>
         <div className="field">
           <label htmlFor={ids.date}>Date</label>
-          <input id={ids.date} name="date" type="date" required min={todayUtc()} />
+          <input id={ids.date} name="date" type="date" required />
         </div>
         <div className="field">
           <label htmlFor={ids.start}>Start</label>
           <input
             id={ids.start}
-            name="start"
+            name="startTime"
             type="time"
             required
             value={start}
@@ -102,7 +97,7 @@ export function CreateShiftForm({ branches, onCreated }: CreateShiftFormProps) {
           <label htmlFor={ids.end}>End</label>
           <input
             id={ids.end}
-            name="end"
+            name="endTime"
             type="time"
             required
             value={end}
@@ -112,22 +107,19 @@ export function CreateShiftForm({ branches, onCreated }: CreateShiftFormProps) {
         </div>
       </div>
       <p id={ids.hint} className="muted small">
-        Times are in the branch’s local time{branch ? ` (${branch.timezone})` : ''}.
-        {overnight && ' The shift ends the next day.'}
+        Times are the facility's local time.{overnight && ' The shift ends the next day.'}
       </p>
 
       {error && (
         <div className="notice notice--error" role="alert">
-          <p className="notice__title">The shift was not created</p>
-          <p>
-            {error.code === 'validation_error' ? 'Check the title, date and times, then try again.' : error.message}
-          </p>
+          <p className="notice__title">The shift was not posted</p>
+          <p>{error.status === 0 ? 'The server could not be reached. Try again.' : error.message}</p>
         </div>
       )}
 
       <div className="form__actions">
-        <button type="submit" className="btn btn--primary" disabled={submitting || !branch}>
-          {submitting ? 'Creating…' : 'Create Shift'}
+        <button type="submit" className="btn btn--primary" disabled={submitting}>
+          {submitting ? 'Posting…' : 'Post shift'}
         </button>
       </div>
     </form>

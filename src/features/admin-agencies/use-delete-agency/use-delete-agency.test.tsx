@@ -27,12 +27,7 @@ it('sends DELETE, drops the detail query and refreshes the lists', async () => {
 it('reports agency_has_shifts as an error toast', async () => {
   stubApi({
     [`DELETE /api/admin/agencies/${AGENCY_ID}`]: () =>
-      json(409, {
-        error: {
-          code: 'agency_has_shifts',
-          message: 'This agency has shifts and cannot be deleted; deactivate it instead',
-        },
-      }),
+      json(409, { error: 'This agency has shifts and cannot be deleted; deactivate it instead' }),
   })
   const { result } = renderHook(useDeleteAgency, { wrapper: withProviders() })
   await act(() => result.current.mutateAsync({ id: AGENCY_ID, name: 'Northwind' }).catch(() => undefined))

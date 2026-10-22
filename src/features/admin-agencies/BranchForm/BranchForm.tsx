@@ -23,7 +23,7 @@ export function BranchForm({ initial, pending, error, submitLabel, onSubmit, onC
   const [timezone, setTimezone] = useState(
     initial?.timezone ?? (TIMEZONES.includes('America/New_York') ? 'America/New_York' : 'UTC'),
   )
-  const nameTaken = error?.code === 'name_taken'
+  const nameTaken = error?.status === 409
   const input = { name: name.trim(), address: address.trim(), timezone }
   const unchanged = initial
     ? input.name === initial.name && input.address === initial.address && input.timezone === initial.timezone

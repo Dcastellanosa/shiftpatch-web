@@ -11,7 +11,7 @@ afterEach(() => vi.unstubAllGlobals())
 
 function seededClient() {
   const queryClient = createTestQueryClient()
-  queryClient.setQueryData(['shifts', 'list', {}], [makeShift()])
+  queryClient.setQueryData(['shifts', 'list'], [makeShift()])
   queryClient.setQueryData(SESSION_QUERY_KEY, NURSE)
   return queryClient
 }
@@ -30,7 +30,7 @@ it('empties the whole cache after logging out', async () => {
 
 it('still empties the cache when the API rejects the sign-out, and says so', async () => {
   stubApi({
-    'POST /api/auth/logout': () => json(500, { error: { code: 'internal_error', message: 'Internal server error' } }),
+    'POST /api/auth/logout': () => json(500, { error: 'Internal server error' }),
   })
   const queryClient = seededClient()
   const clear = vi.spyOn(queryClient, 'clear')

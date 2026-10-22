@@ -50,9 +50,21 @@ describe('BFF boundary: the frontend never talks to Supabase', () => {
     expect(offenders).toEqual([])
   })
 
-  it('no source file sets an Authorization header', () => {
+  it('only the API client layer builds the Authorization header', () => {
     const offenders = files
       .filter((file) => /['"`]authorization['"`]|\bauthorization\s*:|\bbearer\s/i.test(readFileSync(file, 'utf8')))
+      .map((file) => relative(ROOT, file))
+      .filter((file) => !file.startsWith('src/shared/api/'))
+    expect(offenders).toEqual([])
+    const bearerBuilders = files
+      .filter((file) => /Bearer \$\{/.test(readFileSync(file, 'utf8')))
+      .map((file) => relative(ROOT, file))
+    expect(bearerBuilders).toEqual(['src/shared/api/token/token.ts'])
+  })
+
+  it('no source file persists or logs the access token', () => {
+    const offenders = files
+      .filter((file) => /console\.(log|info|warn|error)\([^)]*token/i.test(readFileSync(file, 'utf8')))
       .map((file) => relative(ROOT, file))
     expect(offenders).toEqual([])
   })

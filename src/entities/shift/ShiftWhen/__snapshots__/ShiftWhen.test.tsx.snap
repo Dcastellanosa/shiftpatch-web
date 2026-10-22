@@ -1,21 +1,22 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`renders the branch-local date, time and duration 1`] = `
+exports[`renders the facility-local date, the overnight time range and the hours 1`] = `
 <span
   class="when"
 >
   <time
     class="when__date"
-    datetime="2030-01-10T13:00:00.000Z"
+    datetime="2030-01-10"
   >
-    Thu, Jan 10
+    Thu, Jan 10, 2030
   </time>
   <span
     class="when__time"
   >
-    8:00 AM – 4:00 PM EST
+    19:00 – 07:00 (next day)
      · 
-    8 h
+    12
+     h
   </span>
 </span>
 `;

@@ -1,18 +1,17 @@
 import './ShiftWhen.scss'
 import type { Shift } from '../../../shared/api/client/index.ts'
-import { formatDuration, formatShiftDate, formatShiftTimes } from '../../../shared/lib/format/index.ts'
+import { formatLocalDate, formatLocalTimeRange, scheduledHours } from '../../../shared/lib/format/index.ts'
 
-/** Date, local times (in the branch's zone) and duration of a shift. */
+/** Facility-local date, times and length of a shift, shown exactly as the facility reads them. */
 export function ShiftWhen({ shift }: { shift: Shift }) {
-  const { startsAt, endsAt } = shift
-  const zone = shift.branch.timezone
+  const { date, startTime, endTime } = shift
   return (
     <span className="when">
-      <time dateTime={startsAt} className="when__date">
-        {formatShiftDate(startsAt, zone)}
+      <time dateTime={date} className="when__date">
+        {formatLocalDate(date)}
       </time>
       <span className="when__time">
-        {formatShiftTimes(startsAt, endsAt, zone)} · {formatDuration(startsAt, endsAt)}
+        {formatLocalTimeRange(startTime, endTime)} · {scheduledHours(startTime, endTime)} h
       </span>
     </span>
   )

@@ -28,8 +28,7 @@ it('renders a recorded shift event', async () => {
 it('shows an error state with retry when the history fails', async () => {
   const shift = makeShift()
   stubApi({
-    [`GET /api/shifts/${shift.id}/events`]: () =>
-      json(500, { error: { code: 'internal_error', message: 'Internal server error' } }),
+    [`GET /api/shifts/${shift.id}/events`]: () => json(500, { error: 'Internal server error' }),
   })
   renderWithProviders(<ShiftHistory shiftId={shift.id} />)
   expect(await screen.findByText('Something went wrong')).toBeTruthy()

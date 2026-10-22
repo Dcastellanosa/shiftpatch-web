@@ -70,8 +70,7 @@ it('creates an agency from the modal, closes it and refreshes the list', async (
 it('keeps the modal open and shows a taken name on the field', async () => {
   stubApi({
     'GET /api/admin/agencies': () => json(200, { agencies: [makeAgency()] }),
-    'POST /api/admin/agencies': () =>
-      json(409, { error: { code: 'name_taken', message: 'An agency with this name already exists' } }),
+    'POST /api/admin/agencies': () => json(409, { error: 'An agency with this name already exists' }),
   })
   renderWithProviders(<AdminAgenciesPage />, { path: '/admin/agencies' })
   await screen.findByTestId('agencies-table')
@@ -90,12 +89,7 @@ it('deletes an agency after the warning, and explains a refusal', async () => {
   stubApi({
     'GET /api/admin/agencies': () => json(200, { agencies }),
     [`DELETE /api/admin/agencies/${AGENCY_ID}`]: () =>
-      json(409, {
-        error: {
-          code: 'agency_has_shifts',
-          message: 'This agency has shifts and cannot be deleted; deactivate it instead',
-        },
-      }),
+      json(409, { error: 'This agency has shifts and cannot be deleted; deactivate it instead' }),
     'DELETE /api/admin/agencies/a1000000-0000-4000-8000-000000000003': () => {
       agencies = agencies.slice(0, 1)
       return { status: 204 }

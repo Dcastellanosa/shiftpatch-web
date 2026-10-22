@@ -7,7 +7,6 @@ it('preserves API errors and hides unknown errors from the UI', () => {
   expect(toApiError(known)).toBe(known)
   expect(toApiError(new Error('internal detail'))).toMatchObject({
     status: 0,
-    code: 'unexpected_error',
     message: 'Something went wrong',
   })
 })

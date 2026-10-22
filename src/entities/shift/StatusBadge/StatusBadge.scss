@@ -14,30 +14,14 @@
   color: #075985;
 }
 
-.badge--claimed {
+.badge--filled {
   background: var(--success-soft);
   color: var(--success);
-}
-
-.badge--completed {
-  background: #eef2ff;
-  color: #3730a3;
-}
-
-.badge--cancelled,
-.badge--no_show {
-  background: var(--danger-soft);
-  color: var(--danger);
 }
 
 @media (prefers-color-scheme: dark) {
   .badge--open {
     background: rgba(56, 189, 248, 0.14);
     color: #7dd3fc;
-  }
-
-  .badge--completed {
-    background: rgba(129, 140, 248, 0.16);
-    color: #c7d2fe;
   }
 }

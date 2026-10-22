@@ -39,13 +39,12 @@ it('posts the invitation, refreshes the list and announces it without echoing an
 
 it('surfaces email_exists without a toast', async () => {
   stubApi({
-    'POST /api/admin/users': () =>
-      json(409, { error: { code: 'email_exists', message: 'An account with this email already exists' } }),
+    'POST /api/admin/users': () => json(409, { error: 'An account with this email already exists' }),
   })
   const { result } = renderHook(useInviteUser, { wrapper: withProviders() })
   await act(() =>
     result.current.mutateAsync({ email: 'ava@example.test', fullName: 'Ava', role: 'admin' }).catch(() => undefined),
   )
-  await waitFor(() => expect(result.current.error).toMatchObject({ status: 409, code: 'email_exists' }))
+  await waitFor(() => expect(result.current.error).toMatchObject({ status: 409 }))
   expect(useUiStore.getState().toasts).toEqual([])
 })

@@ -106,8 +106,7 @@ it('explains an inactive agency and hides the branch form', async () => {
 
 it('shows an error state with retry when the agency cannot be loaded', async () => {
   stubApi({
-    [`GET /api/admin/agencies/${AGENCY_ID}`]: () =>
-      json(404, { error: { code: 'agency_not_found', message: 'Agency not found' } }),
+    [`GET /api/admin/agencies/${AGENCY_ID}`]: () => json(404, { error: 'Agency not found' }),
   })
   renderWithProviders(routed(), { path: `/admin/agencies/${AGENCY_ID}` })
   expect(await screen.findByText('Something went wrong')).toBeTruthy()

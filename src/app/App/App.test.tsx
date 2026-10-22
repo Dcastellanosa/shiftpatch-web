@@ -2,23 +2,22 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ADMIN, AGENCY, NURSE, json, makeShift, stubApi } from '../../../tests/fake-api.ts'
+import { ADMIN, AGENCY, NURSE, authResponse, json, makeShift, stubApi } from '../../../tests/fake-api.ts'
 import { renderWithProviders } from '../../../tests/render-with-providers.tsx'
 import type { SessionUser } from '../../shared/api/client/index.ts'
+import { hasAccessToken } from '../../shared/api/token/index.ts'
 import App from './index.ts'
 
+/** A page load: anonymous unless `user` is given (then the token holder and session are seeded as a login would). */
 function renderAt(path: string, user: SessionUser | null, extra: Parameters<typeof stubApi>[0] = {}) {
   const fetchMock = stubApi({
-    'GET /api/auth/me': () =>
-      user
-        ? json(200, { user })
-        : json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
     'GET /api/shifts': () => json(200, { shifts: [] }),
+    'GET /api/agencies/agency-a/shifts': () => json(200, { agencyId: 'agency-a', shifts: [] }),
     'GET /api/branches': () => json(200, { branches: [] }),
     'GET /api/me/shifts': () => json(200, { upcoming: [], past: [] }),
     ...extra,
   })
-  const rendered = renderWithProviders(<App />, { path, session: true })
+  const rendered = renderWithProviders(<App />, { path, session: true, user })
   return { fetchMock, ...rendered }
 }
 
@@ -34,10 +33,11 @@ const navLinks = async () => {
 }
 
 describe('role-aware navigation', () => {
-  it('shows the sign-in form without a session', async () => {
-    renderAt('/shifts', null)
+  it('shows the sign-in form on a fresh page load without calling the API', async () => {
+    const { fetchMock } = renderAt('/shifts', null)
     expect(await screen.findByRole('heading', { name: 'Sign In' })).toBeTruthy()
     expect(screen.queryByRole('navigation')).toBeNull()
+    expect(fetchMock).not.toHaveBeenCalled()
     expect(screen.getByRole('main')).toMatchSnapshot()
   })
 
@@ -63,7 +63,7 @@ describe('role-aware navigation', () => {
   it('blocks a nurse from the admin screen without calling admin data', async () => {
     const { fetchMock } = renderAt('/admin/shifts', NURSE)
     expect(await screen.findByText('You do not have access to this page')).toBeTruthy()
-    expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual(['/api/auth/me'])
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('blocks an agency user from nurse screens', async () => {
@@ -80,7 +80,7 @@ describe('role-aware navigation', () => {
   ])('keeps the administration screens behind the role guard ($role at $1)', async (user, path) => {
     const { fetchMock } = renderAt(path, user)
     expect(await screen.findByText('You do not have access to this page')).toBeTruthy()
-    expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual(['/api/auth/me'])
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('shows "Page not found" for an unknown path', async () => {
@@ -102,40 +102,45 @@ describe('role-aware navigation', () => {
     expect(screen.getByRole('link', { name: 'Available Shifts' }).getAttribute('aria-current')).toBeNull()
   })
 
-  it('signs out, empties the cache and returns to the sign-in form', async () => {
-    let signedIn = true
-    const { queryClient, fetchMock } = renderAt('/shifts', NURSE, {
-      'GET /api/auth/me': () =>
-        signedIn
-          ? json(200, { user: NURSE })
-          : json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
-      'POST /api/auth/logout': () => {
-        signedIn = false
-        return json(204)
-      },
-    })
+  it('signs in with the bearer token the API returned and lands on the role home', async () => {
+    const { fetchMock } = renderAt('/', null, { 'POST /api/auth/login': () => authResponse(NURSE) })
+    await userEvent.type(await screen.findByLabelText('Email'), 'maria.lopez@example.com')
+    await userEvent.type(screen.getByLabelText('Password'), 'Trial2026!')
+    await userEvent.click(screen.getByRole('button', { name: 'Sign In' }))
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Available Shifts' })).toBeTruthy()
+    expect(hasAccessToken()).toBe(true)
+    const shiftsCall = fetchMock.mock.calls.find(([url]) => String(url) === '/api/shifts')!
+    expect(new Headers(shiftsCall[1]?.headers).get('Authorization')).toBe('Bearer test-token')
+  })
+
+  it('signs out, empties the cache, forgets the token and returns to the sign-in form', async () => {
+    const { queryClient, fetchMock } = renderAt('/shifts', NURSE, { 'POST /api/auth/logout': () => json(204) })
     await screen.findByText('No open shifts right now')
-    expect(queryClient.getQueryData(['shifts', 'list', {}])).toEqual([])
+    expect(queryClient.getQueryData(['shifts', 'list'])).toEqual([])
 
     await userEvent.click(screen.getByRole('button', { name: 'Sign Out' }))
 
     expect(await screen.findByRole('heading', { name: 'Sign In' })).toBeTruthy()
     await vi.waitFor(() => expect(window.location.pathname).toBe('/'))
-    expect(queryClient.getQueryData(['shifts', 'list', {}])).toBeUndefined()
-    expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual([
-      '/api/auth/me',
-      '/api/shifts',
-      '/api/auth/logout',
-      '/api/auth/me',
-    ])
+    expect(queryClient.getQueryData(['shifts', 'list'])).toBeUndefined()
+    expect(hasAccessToken()).toBe(false)
+    expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual(['/api/shifts', '/api/auth/logout'])
+  })
+
+  it('returns to the sign-in form when any request answers 401 (expired token)', async () => {
+    const { queryClient } = renderAt('/shifts', NURSE, {
+      'GET /api/shifts': () => json(401, { error: 'Invalid or expired token' }),
+    })
+    expect(await screen.findByRole('heading', { name: 'Sign In' })).toBeTruthy()
+    expect(hasAccessToken()).toBe(false)
+    expect(queryClient.getQueryData(['session'])).toBeNull()
   })
 })
 
 describe('screen states', () => {
   it('shows an error state with retry when the list fails', async () => {
-    renderAt('/shifts', NURSE, {
-      'GET /api/shifts': () => json(500, { error: { code: 'internal_error', message: 'Internal server error' } }),
-    })
+    renderAt('/shifts', NURSE, { 'GET /api/shifts': () => json(500, { error: 'Internal server error' }) })
     expect(await screen.findByText('Something went wrong')).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Try Again' })).toBeTruthy()
   })
@@ -145,15 +150,16 @@ describe('screen states', () => {
     expect(await screen.findByText('No open shifts right now')).toBeTruthy()
   })
 
-  it('shows agency shifts with status and assigned nurse', async () => {
+  it('shows agency shifts with status and the nurse who holds them', async () => {
     renderAt('/agency/shifts', AGENCY, {
-      'GET /api/shifts': () =>
+      'GET /api/agencies/agency-a/shifts': () =>
         json(200, {
-          shifts: [makeShift({ status: 'claimed', assignedNurse: { id: NURSE.id, fullName: 'Ava Thompson' } })],
+          agencyId: 'agency-a',
+          shifts: [makeShift({ id: 'shift-2', role: 'LPN', status: 'filled', claimedBy: 'nurse-1' })],
         }),
     })
-    const row = (await screen.findByText('Med-Surg RN — Day')).closest('tr')!
-    expect(within(row).getByText('Claimed')).toBeTruthy()
-    expect(within(row).getByText('Ava Thompson')).toBeTruthy()
+    const row = (await screen.findByText('LPN')).closest('tr')!
+    expect(within(row).getByText('Filled')).toBeTruthy()
+    expect(within(row).getByText('nurse-1')).toBeTruthy()
   })
 })

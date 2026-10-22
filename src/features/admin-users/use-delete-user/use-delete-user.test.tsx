@@ -24,8 +24,7 @@ it('sends DELETE and refreshes the user list', async () => {
 
 it('reports cannot_delete_self as an error toast', async () => {
   stubApi({
-    [`DELETE /api/admin/users/${NURSE_ID}`]: () =>
-      json(409, { error: { code: 'cannot_delete_self', message: 'You cannot delete your own account' } }),
+    [`DELETE /api/admin/users/${NURSE_ID}`]: () => json(409, { error: 'You cannot delete your own account' }),
   })
   const { result } = renderHook(useDeleteUser, { wrapper: withProviders() })
   await act(() => result.current.mutateAsync({ id: NURSE_ID, fullName: 'Me' }).catch(() => undefined))

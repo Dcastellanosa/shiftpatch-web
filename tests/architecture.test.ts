@@ -27,6 +27,19 @@ describe('the API client is the only network gateway', () => {
   })
 })
 
+describe('the access token lives only in the API client layer', () => {
+  it('only the client and the token holder touch the token', () => {
+    expect(offenders((source) => /setAccessToken|clearAccessToken|notifySessionLost/.test(source))).toEqual([
+      'src/shared/api/client/client.ts',
+      'src/shared/api/token/token.ts',
+    ])
+  })
+
+  it('nothing restores a session from the server: a reload starts anonymous', () => {
+    expect(offenders((source) => /auth\/me|getCurrentSession/.test(source))).toEqual([])
+  })
+})
+
 describe('routing stays declarative', () => {
   it('uses react-router (declarative mode) and never the data router APIs', () => {
     expect(

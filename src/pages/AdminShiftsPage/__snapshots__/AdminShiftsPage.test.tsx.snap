@@ -17,7 +17,7 @@ exports[`shows all status counts and the empty admin table 1`] = `
       <p
         class="muted"
       >
-        Every agency, branch and nurse assignment.
+        Every agency and nurse assignment.
       </p>
     </div>
   </header>
@@ -40,19 +40,7 @@ exports[`shows all status counts and the empty admin table 1`] = `
     <label
       class="field"
     >
-      Branch
-      <select>
-        <option
-          value=""
-        >
-          All branches
-        </option>
-      </select>
-    </label>
-    <label
-      class="field"
-    >
-      From (UTC)
+      From
       <input
         type="date"
         value=""
@@ -61,7 +49,7 @@ exports[`shows all status counts and the empty admin table 1`] = `
     <label
       class="field"
     >
-      To (UTC)
+      To
       <input
         type="date"
         value=""
@@ -107,7 +95,7 @@ exports[`shows all status counts and the empty admin table 1`] = `
     </button>
     <button
       aria-pressed="false"
-      class="stat stat--claimed"
+      class="stat stat--filled"
       type="button"
     >
       <span
@@ -118,55 +106,7 @@ exports[`shows all status counts and the empty admin table 1`] = `
       <span
         class="stat__label"
       >
-        Claimed
-      </span>
-    </button>
-    <button
-      aria-pressed="false"
-      class="stat stat--cancelled"
-      type="button"
-    >
-      <span
-        class="stat__value"
-      >
-        0
-      </span>
-      <span
-        class="stat__label"
-      >
-        Cancelled
-      </span>
-    </button>
-    <button
-      aria-pressed="false"
-      class="stat stat--completed"
-      type="button"
-    >
-      <span
-        class="stat__value"
-      >
-        0
-      </span>
-      <span
-        class="stat__label"
-      >
-        Completed
-      </span>
-    </button>
-    <button
-      aria-pressed="false"
-      class="stat stat--no_show"
-      type="button"
-    >
-      <span
-        class="stat__value"
-      >
-        0
-      </span>
-      <span
-        class="stat__label"
-      >
-        No-show
+        Filled
       </span>
     </button>
   </div>

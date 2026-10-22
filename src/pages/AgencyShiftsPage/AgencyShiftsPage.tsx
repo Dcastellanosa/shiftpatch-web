@@ -5,6 +5,7 @@ import { SHIFT_STATUSES as STATUSES, STATUS_LABEL } from '../../entities/shift/m
 import { ShiftTable } from '../../entities/shift/ShiftTable/index.ts'
 import { CreateShiftForm } from '../../features/agency-management/CreateShiftForm/index.ts'
 import { useAgencyShifts } from '../../features/agency-management/use-agency-shifts/index.ts'
+import { useSession } from '../../features/auth/session-context/index.ts'
 import type { ShiftStatus } from '../../shared/api/client/index.ts'
 import { toApiError } from '../../shared/api/errors/index.ts'
 import { compactParams } from '../../shared/lib/search-params/index.ts'
@@ -16,33 +17,25 @@ function parseStatus(value: string | null): ShiftStatus | undefined {
   return STATUSES.find((s) => s === value)
 }
 
+/** The agency's own shifts (`user.id` is the agency's public id for agency logins). */
 export function AgencyShiftsPage() {
+  const { user } = useSession()
   const [searchParams, setSearchParams] = useSearchParams()
   const status = parseStatus(searchParams.get('status'))
-  const shifts = useAgencyShifts(status)
+  const shifts = useAgencyShifts(user?.id ?? '')
   const branches = useBranches()
-  const agencyName = branches.data?.[0]?.agency.name
+  const rows = (shifts.data ?? []).filter((shift) => !status || shift.status === status)
 
   return (
     <section className="page" aria-labelledby="agency-heading">
       <header className="page__header">
         <div>
           <h1 id="agency-heading">Agency Shifts</h1>
-          <p className="muted">{agencyName ? `${agencyName} · ` : ''}Post open shifts and track who claimed them.</p>
+          <p className="muted">{user?.name ? `${user.name} · ` : ''}Post open shifts and track who claimed them.</p>
         </div>
       </header>
 
-      {branches.data === undefined ? (
-        branches.isError ? (
-          <ErrorState error={toApiError(branches.error)} onRetry={() => void branches.refetch()} />
-        ) : (
-          <LoadingState label="Loading branches…" />
-        )
-      ) : branches.data.length === 0 ? (
-        <EmptyState title="No branches yet">Your agency has no branches to post shifts for.</EmptyState>
-      ) : (
-        <CreateShiftForm branches={branches.data} />
-      )}
+      <CreateShiftForm branches={branches.data ?? []} />
 
       <section className="section" aria-labelledby="agency-list-heading">
         <div className="section__header">
@@ -68,10 +61,10 @@ export function AgencyShiftsPage() {
           ) : (
             <LoadingState label="Loading shifts…" />
           )
-        ) : shifts.data.length === 0 ? (
-          <EmptyState title="No shifts match">Create a shift above or change the status filter.</EmptyState>
+        ) : rows.length === 0 ? (
+          <EmptyState title="No shifts match">Post a shift above or change the status filter.</EmptyState>
         ) : (
-          <ShiftTable shifts={shifts.data} />
+          <ShiftTable shifts={rows} />
         )}
       </section>
     </section>

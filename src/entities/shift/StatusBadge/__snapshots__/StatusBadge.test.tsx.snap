@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`renders every shift status 1`] = `
+exports[`renders both public shift statuses 1`] = `
 <div>
   <span
     class="badge badge--open"
@@ -8,24 +8,9 @@ exports[`renders every shift status 1`] = `
     Open
   </span>
   <span
-    class="badge badge--claimed"
+    class="badge badge--filled"
   >
-    Claimed
-  </span>
-  <span
-    class="badge badge--completed"
-  >
-    Completed
-  </span>
-  <span
-    class="badge badge--cancelled"
-  >
-    Cancelled
-  </span>
-  <span
-    class="badge badge--no_show"
-  >
-    No-show
+    Filled
   </span>
 </div>
 `;

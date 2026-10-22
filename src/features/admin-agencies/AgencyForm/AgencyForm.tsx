@@ -15,7 +15,7 @@ interface AgencyFormProps {
 export function AgencyForm({ initialName = '', pending, error, submitLabel, onSubmit }: AgencyFormProps) {
   const ids = { name: useId(), error: useId(), legend: useId() }
   const [name, setName] = useState(initialName)
-  const nameTaken = error?.code === 'name_taken'
+  const nameTaken = error?.status === 409
   const trimmed = name.trim()
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {

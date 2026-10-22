@@ -7,10 +7,11 @@ import { useAvailableShifts } from './index.ts'
 
 afterEach(() => vi.unstubAllGlobals())
 
-it('reads open shifts from GET /api/shifts without filters', async () => {
-  const shift = makeShift()
-  const fetchMock = stubApi({ 'GET /api/shifts': () => json(200, { shifts: [shift] }) })
+it('reads the marketplace from GET /api/shifts and keeps only open shifts', async () => {
+  const open = makeShift()
+  const filled = makeShift({ id: 'shift-2', status: 'filled', claimedBy: 'nurse-1' })
+  const fetchMock = stubApi({ 'GET /api/shifts': () => json(200, { shifts: [filled, open] }) })
   const { result } = renderHook(useAvailableShifts, { wrapper: withProviders() })
-  await waitFor(() => expect(result.current.data).toEqual([shift]))
+  await waitFor(() => expect(result.current.data).toEqual([open]))
   expect(String(fetchMock.mock.calls[0]![0])).toBe('/api/shifts')
 })

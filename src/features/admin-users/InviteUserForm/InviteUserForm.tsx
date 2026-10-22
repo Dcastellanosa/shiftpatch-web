@@ -11,13 +11,11 @@ interface InviteUserFormProps {
   onSubmit: (input: InviteUserInput) => void
 }
 
-const FIELD_ERRORS: Partial<Record<string, 'email' | 'assignment'>> = {
-  email_exists: 'email',
-  invalid_assignment: 'assignment',
-  agency_not_found: 'assignment',
-  agency_inactive: 'assignment',
-  branch_not_found: 'assignment',
-  branch_inactive: 'assignment',
+/** Which field an API refusal belongs to: 409 is a taken email, 422/404 an assignment the API rejected. */
+function fieldFor(status: number): 'email' | 'assignment' | undefined {
+  if (status === 409) return 'email'
+  if (status === 422 || status === 404) return 'assignment'
+  return undefined
 }
 
 /**
@@ -36,7 +34,7 @@ export function InviteUserForm({ pending, error, onSubmit }: InviteUserFormProps
   const branches = useBranches()
   const activeAgencies = (agencies.data ?? []).filter((agency) => agency.status === 'active')
   const activeBranches = (branches.data ?? []).filter((branch) => branch.status === 'active')
-  const field = error ? FIELD_ERRORS[error.code] : undefined
+  const field = error ? fieldFor(error.status) : undefined
   const complete =
     email.trim() !== '' &&
     fullName.trim() !== '' &&

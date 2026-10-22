@@ -54,7 +54,7 @@ exports[`renders nurse navigation and account details 1`] = `
         <span
           class="account__name"
         >
-          Ava Thompson
+          Maria Lopez
         </span>
         <span
           class="role-chip"

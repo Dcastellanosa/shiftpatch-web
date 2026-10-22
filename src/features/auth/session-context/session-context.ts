@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react'
 import type { ApiError, SessionUser } from '../../../shared/api/client/index.ts'
 
 export interface SessionContextValue {
-  /** True until the initial `GET /api/auth/me` settles. */
+  /** True while a sign-out is in flight (there is no initial session check: a page load starts anonymous). */
   loading: boolean
   authenticated: boolean
   user: SessionUser | null

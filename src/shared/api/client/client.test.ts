@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { clearAccessToken, hasAccessToken, onSessionLost, setAccessToken } from '../token/index.ts'
 import {
   API_BASE,
   ApiError,
   activateEligibility,
   apiRequest,
+  cancelShift,
   claimShift,
   completePassword,
   createAgency,
@@ -12,11 +14,11 @@ import {
   deleteAdminUser,
   deleteAgency,
   getAgency,
-  getCurrentSession,
   inviteUser,
   listAdminUsers,
   listAgencies,
   listAgencyNurses,
+  listAgencyShifts,
   listBranches,
   listMyShifts,
   listShiftEvents,
@@ -30,22 +32,13 @@ import {
   type SessionUser,
 } from './index.ts'
 
-const USER: SessionUser = {
-  id: 'user-1',
-  email: 'nurse@example.com',
-  fullName: null,
-  role: null,
-  agencyId: null,
-  agencyIds: [],
-}
+const USER: SessionUser = { id: 'nurse-1', name: 'Maria Lopez', role: 'nurse' }
+const TOKEN = 'eyJ.test.token'
 
 const fetchMock = vi.fn<typeof fetch>()
 
 function jsonResponse(status: number, body: unknown) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  })
+  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 }
 
 function lastCall() {
@@ -53,12 +46,15 @@ function lastCall() {
   return { url: String(url), init: init ?? {} }
 }
 
+const authHeader = () => new Headers(lastCall().init.headers).get('Authorization')
+
 beforeEach(() => {
   fetchMock.mockReset()
   vi.stubGlobal('fetch', fetchMock)
 })
 
 afterEach(() => {
+  clearAccessToken()
   vi.unstubAllGlobals()
 })
 
@@ -67,55 +63,70 @@ describe('api client', () => {
     expect(API_BASE).toBe('/api')
   })
 
-  it('getCurrentSession calls GET /api/auth/me with credentials included', async () => {
-    fetchMock.mockResolvedValue(jsonResponse(200, { user: USER }))
-
-    await expect(getCurrentSession()).resolves.toEqual(USER)
-
-    const { url, init } = lastCall()
-    expect(url).toBe('/api/auth/me')
-    expect(init.credentials).toBe('include')
-    expect(init.method ?? 'GET').toBe('GET')
+  it('sends no Authorization header and no cookies before login', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { shifts: [] }))
+    await listShifts()
+    const { init } = lastCall()
+    expect(new Headers(init.headers).has('Authorization')).toBe(false)
+    expect(init.credentials).toBe('omit')
   })
 
-  it('getCurrentSession resolves to null on 401', async () => {
-    fetchMock.mockResolvedValue(
-      jsonResponse(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
-    )
-    await expect(getCurrentSession()).resolves.toBeNull()
-  })
+  it('login POSTs JSON credentials, keeps the token in memory and returns only the user', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { token: TOKEN, user: USER }))
 
-  it('getCurrentSession rethrows non-401 errors', async () => {
-    fetchMock.mockResolvedValue(
-      jsonResponse(503, { error: { code: 'auth_unavailable', message: 'Authentication is not available' } }),
-    )
-    await expect(getCurrentSession()).rejects.toMatchObject({ status: 503, code: 'auth_unavailable' })
-  })
-
-  it('login POSTs JSON credentials to /api/auth/login with credentials included', async () => {
-    fetchMock.mockResolvedValue(jsonResponse(200, { user: USER }))
-
-    await expect(login('nurse@example.com', 'pw')).resolves.toEqual(USER)
+    await expect(login('maria.lopez@example.com', 'pw')).resolves.toEqual(USER)
 
     const { url, init } = lastCall()
     expect(url).toBe('/api/auth/login')
     expect(init.method).toBe('POST')
-    expect(init.credentials).toBe('include')
+    expect(init.credentials).toBe('omit')
     expect(new Headers(init.headers).get('Content-Type')).toBe('application/json')
-    expect(JSON.parse(String(init.body))).toEqual({ email: 'nurse@example.com', password: 'pw' })
+    expect(JSON.parse(String(init.body))).toEqual({ email: 'maria.lopez@example.com', password: 'pw' })
+    expect(hasAccessToken()).toBe(true)
   })
 
-  it('login surfaces the API error code and message', async () => {
-    fetchMock.mockResolvedValue(
-      jsonResponse(401, { error: { code: 'invalid_credentials', message: 'Invalid email or password' } }),
-    )
+  it('sends the token as Authorization: Bearer on every later request', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { token: TOKEN, user: USER }))
+    await login('maria.lopez@example.com', 'pw')
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { shifts: [] }))
+    await listShifts()
+    expect(authHeader()).toBe(`Bearer ${TOKEN}`)
+    expect(lastCall().init.credentials).toBe('omit')
+  })
 
-    const error = await login('nurse@example.com', 'bad').catch((e: unknown) => e)
+  it('login surfaces the API error message with a status-derived code', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(401, { error: 'Invalid email or password' }))
+
+    const error = await login('maria.lopez@example.com', 'bad').catch((e: unknown) => e)
     expect(error).toBeInstanceOf(ApiError)
-    expect(error).toMatchObject({ status: 401, code: 'invalid_credentials', message: 'Invalid email or password' })
+    expect(error).toMatchObject({ status: 401, message: 'Invalid email or password' })
+    expect(hasAccessToken()).toBe(false)
   })
 
-  it('logout POSTs to /api/auth/logout and accepts 204', async () => {
+  it('a 401 on login does not count as a lost session', async () => {
+    const lost = vi.fn()
+    const stop = onSessionLost(lost)
+    setAccessToken(TOKEN)
+    fetchMock.mockResolvedValue(jsonResponse(401, { error: 'Invalid email or password' }))
+    await login('maria.lopez@example.com', 'bad').catch(() => undefined)
+    expect(lost).not.toHaveBeenCalled()
+    expect(hasAccessToken()).toBe(true)
+    stop()
+  })
+
+  it('a 401 on any protected request drops the token and notifies the session-lost listener', async () => {
+    const lost = vi.fn()
+    const stop = onSessionLost(lost)
+    setAccessToken(TOKEN)
+    fetchMock.mockResolvedValue(jsonResponse(401, { error: 'Invalid or expired token' }))
+    await expect(listShifts()).rejects.toMatchObject({ status: 401, message: 'Invalid or expired token' })
+    expect(hasAccessToken()).toBe(false)
+    expect(lost).toHaveBeenCalledTimes(1)
+    stop()
+  })
+
+  it('logout POSTs to /api/auth/logout with the token, accepts 204 and forgets the token', async () => {
+    setAccessToken(TOKEN)
     fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
 
     await expect(logout()).resolves.toBeUndefined()
@@ -123,17 +134,38 @@ describe('api client', () => {
     const { url, init } = lastCall()
     expect(url).toBe('/api/auth/logout')
     expect(init.method).toBe('POST')
-    expect(init.credentials).toBe('include')
+    expect(authHeader()).toBe(`Bearer ${TOKEN}`)
+    expect(hasAccessToken()).toBe(false)
+  })
+
+  it('logout forgets the token even when the API fails', async () => {
+    setAccessToken(TOKEN)
+    fetchMock.mockResolvedValue(jsonResponse(500, { error: 'Internal server error' }))
+    await expect(logout()).rejects.toMatchObject({ status: 500 })
+    expect(hasAccessToken()).toBe(false)
   })
 
   it('maps non-JSON error responses to a generic ApiError', async () => {
     fetchMock.mockResolvedValue(new Response('<html>Bad gateway</html>', { status: 502 }))
-    await expect(apiRequest('/health')).rejects.toMatchObject({ status: 502, code: 'http_error' })
+    await expect(apiRequest('/health')).rejects.toMatchObject({ status: 502 })
+  })
+
+  it.each([
+    [400, 'validation_error'],
+    [403, 'forbidden'],
+    [404, 'not_found'],
+    [409, 'conflict'],
+    [413, 'payload_too_large'],
+    [422, 'validation_error'],
+    [503, 'http_error'],
+  ])('derives code %s from status %i of the one-key envelope', async (status, code) => {
+    fetchMock.mockResolvedValue(jsonResponse(status, { error: 'Something specific' }))
+    await expect(apiRequest('/health')).rejects.toMatchObject({ status, code, message: 'Something specific' })
   })
 
   it('maps network failures to ApiError network_error', async () => {
     fetchMock.mockRejectedValue(new TypeError('Failed to fetch'))
-    await expect(apiRequest('/health')).rejects.toMatchObject({ status: 0, code: 'network_error' })
+    await expect(apiRequest('/health')).rejects.toMatchObject({ status: 0 })
   })
 
   it.each(['https://evil.example/auth/me', '//evil.example/auth/me', 'auth/me'])(
@@ -144,53 +176,90 @@ describe('api client', () => {
     },
   )
 
-  it('never sends an Authorization header', async () => {
-    fetchMock.mockResolvedValue(jsonResponse(200, { user: USER }))
-    await getCurrentSession()
-    expect(new Headers(lastCall().init.headers).has('Authorization')).toBe(false)
+  it('sends FormData bodies without a JSON content type', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(201, {}))
+    const body = new FormData()
+    body.append('expiresAt', '2028-01-01')
+    await apiRequest('/me/credentials', { method: 'POST', body })
+    const { init } = lastCall()
+    expect(new Headers(init.headers).has('Content-Type')).toBe(false)
+    expect(init.body).toBe(body)
   })
 })
 
 describe('shift endpoints', () => {
-  const SHIFT_ID = '5f0c1d3e-0000-4000-8000-000000000001'
+  const SHIFT = {
+    id: 'shift-1',
+    agencyId: 'agency-a',
+    agencyName: 'Sunrise Health Staffing',
+    role: 'RN',
+    date: '2026-10-02',
+    startTime: '19:00',
+    endTime: '07:00',
+    status: 'open',
+    claimedBy: null,
+  }
 
-  it('listShifts sends filters as a query string and drops empty values', async () => {
-    fetchMock.mockResolvedValue(jsonResponse(200, { shifts: [] }))
-    await listShifts({ status: 'open', branchId: 'b-1', from: undefined, includeAssigned: true })
-    expect(lastCall().url).toBe('/api/shifts?status=open&branchId=b-1&includeAssigned=true')
-  })
-
-  it('listShifts without filters calls /api/shifts', async () => {
-    fetchMock.mockResolvedValue(jsonResponse(200, { shifts: [] }))
-    await expect(listShifts()).resolves.toEqual([])
+  it('listShifts reads the marketplace from /api/shifts', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { shifts: [SHIFT] }))
+    await expect(listShifts()).resolves.toEqual([SHIFT])
     expect(lastCall().url).toBe('/api/shifts')
   })
 
-  it('createShift POSTs the shift without any identity fields', async () => {
-    fetchMock.mockResolvedValue(jsonResponse(201, { shift: { id: SHIFT_ID } }))
-    const input = { branchId: 'b-1', title: 'ICU', startsAt: '2030-01-01T00:00:00Z', endsAt: '2030-01-01T08:00:00Z' }
-    await createShift(input)
+  it('listAgencyShifts reads one agency’s shifts', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { agencyId: 'agency-a', shifts: [SHIFT] }))
+    await expect(listAgencyShifts('agency-a')).resolves.toEqual([SHIFT])
+    expect(lastCall().url).toBe('/api/agencies/agency-a/shifts')
+  })
+
+  it('createShift POSTs the contract body only and returns the bare shift', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(201, SHIFT))
+    const input = { role: 'RN', date: '2026-10-05', startTime: '07:00', endTime: '19:00' }
+    await expect(createShift(input)).resolves.toEqual(SHIFT)
     const { url, init } = lastCall()
     expect(url).toBe('/api/shifts')
     expect(init.method).toBe('POST')
     expect(JSON.parse(String(init.body))).toEqual(input)
   })
 
-  it('claimShift POSTs to the claim route with no body', async () => {
-    fetchMock.mockResolvedValue(jsonResponse(200, { shift: { id: SHIFT_ID } }))
-    await claimShift(SHIFT_ID)
-    const { url, init } = lastCall()
-    expect(url).toBe(`/api/shifts/${SHIFT_ID}/claim`)
-    expect(init.method).toBe('POST')
-    expect(init.body).toBeUndefined()
-    expect(init.credentials).toBe('include')
+  it('createShift forwards a branch when given one', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(201, SHIFT))
+    await createShift({ role: 'RN', date: '2026-10-05', startTime: '07:00', endTime: '19:00', branchId: 'b-1' })
+    expect(JSON.parse(String(lastCall().init.body))).toEqual({
+      role: 'RN',
+      date: '2026-10-05',
+      startTime: '07:00',
+      endTime: '19:00',
+      branchId: 'b-1',
+    })
   })
 
-  it('claimShift surfaces rule failures as ApiError', async () => {
+  it('claimShift POSTs to the claim route with no body and returns the bare shift', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(200, { ...SHIFT, status: 'filled', claimedBy: 'nurse-1' }))
+    await expect(claimShift('shift-1')).resolves.toMatchObject({ status: 'filled', claimedBy: 'nurse-1' })
+    const { url, init } = lastCall()
+    expect(url).toBe('/api/shifts/shift-1/claim')
+    expect(init.method).toBe('POST')
+    expect(init.body).toBeUndefined()
+  })
+
+  it('claimShift surfaces the contract message for a credential failure', async () => {
+    fetchMock.mockResolvedValue(jsonResponse(403, { error: 'Credential expired, cannot claim shift' }))
+    await expect(claimShift('shift-3')).rejects.toMatchObject({
+      status: 403,
+      message: 'Credential expired, cannot claim shift',
+    })
+  })
+
+  it('cancelShift POSTs the reason and returns the reopened shift', async () => {
     fetchMock.mockResolvedValue(
-      jsonResponse(422, { error: { code: 'credential_expired', message: 'Credential expired' } }),
+      jsonResponse(200, { ...SHIFT, id: 'shift-2', cancellation: { reason: 'no-show', previousNurseId: 'nurse-1' } }),
     )
-    await expect(claimShift(SHIFT_ID)).rejects.toMatchObject({ status: 422, code: 'credential_expired' })
+    await expect(cancelShift('shift-2', 'no-show')).resolves.toMatchObject({ id: 'shift-2', status: 'open' })
+    const { url, init } = lastCall()
+    expect(url).toBe('/api/shifts/shift-2/cancel')
+    expect(init.method).toBe('POST')
+    expect(JSON.parse(String(init.body))).toEqual({ reason: 'no-show' })
   })
 
   it('encodes path segments', async () => {
@@ -211,7 +280,7 @@ describe('shift endpoints', () => {
 })
 
 describe('agency administration endpoints', () => {
-  const AGENCY_ID = 'a1000000-0000-4000-8000-000000000001'
+  const AGENCY_ID = 'agency-a'
   const BRANCH_ID = 'b1000000-0000-4000-8000-000000000001'
 
   it('lists and reads agencies through /api/admin', async () => {
@@ -247,7 +316,6 @@ describe('agency administration endpoints', () => {
     await updateBranch(AGENCY_ID, BRANCH_ID, { status: 'active' })
     expect(lastCall().url).toBe(`/api/admin/agencies/${AGENCY_ID}/branches/${BRANCH_ID}`)
     expect(lastCall().init.method).toBe('PATCH')
-    expect(lastCall().init.credentials).toBe('include')
   })
 })
 
@@ -286,17 +354,15 @@ describe('nurse eligibility endpoints', () => {
     fetchMock.mockResolvedValueOnce(jsonResponse(200, { eligibility: { ...record, status: 'suspended' } }))
     await suspendEligibility('n-1', 'b-1')
     expect(lastCall().init.method).toBe('DELETE')
-    expect(lastCall().init.credentials).toBe('include')
   })
 })
 
 describe('password link endpoints', () => {
-  it('completes a password with the token in the body only, and returns the session user', async () => {
-    const user = { id: 'u-1', email: 'new@example.test', fullName: 'New', role: 'nurse', agencyId: null, agencyIds: [] }
-    fetchMock.mockResolvedValueOnce(jsonResponse(200, { user }))
+  it('completes a password with the token hash in the body only, stores the session token and returns the user', async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { token: TOKEN, user: USER }))
     await expect(
       completePassword({ tokenHash: 'abcdefghijklmnop', type: 'invite', password: 'correct horse battery' }),
-    ).resolves.toEqual(user)
+    ).resolves.toEqual(USER)
     expect(lastCall().url).toBe('/api/auth/complete-password')
     expect(lastCall().init.method).toBe('POST')
     expect(JSON.parse(String(lastCall().init.body))).toEqual({
@@ -305,6 +371,22 @@ describe('password link endpoints', () => {
       password: 'correct horse battery',
     })
     expect(new Headers(lastCall().init.headers).has('authorization')).toBe(false)
+    expect(hasAccessToken()).toBe(true)
+
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, { shifts: [] }))
+    await listShifts()
+    expect(authHeader()).toBe(`Bearer ${TOKEN}`)
+  })
+
+  it('a rejected link does not count as a lost session', async () => {
+    const lost = vi.fn()
+    const stop = onSessionLost(lost)
+    fetchMock.mockResolvedValueOnce(jsonResponse(401, { error: 'This link is invalid or has expired.' }))
+    await completePassword({ tokenHash: 'abcdefghijklmnop', type: 'invite', password: 'x'.repeat(12) }).catch(
+      () => undefined,
+    )
+    expect(lost).not.toHaveBeenCalled()
+    stop()
   })
 
   it('requests recovery and treats 204 as success', async () => {

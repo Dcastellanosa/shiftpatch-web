@@ -20,7 +20,7 @@ export function SetPasswordForm({ type, pending, error, onSubmit }: SetPasswordF
   const mismatch = confirm !== '' && confirm !== password
   const tooShort = password.length > 0 && password.length < PASSWORD_MIN_LENGTH
   const ready = password.length >= PASSWORD_MIN_LENGTH && password.length <= PASSWORD_MAX_LENGTH && confirm === password
-  const weak = error?.code === 'weak_password'
+  const weak = error?.status === 422
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -72,7 +72,7 @@ export function SetPasswordForm({ type, pending, error, onSubmit }: SetPasswordF
       {error && !weak && (
         <div className="notice notice--error" role="alert">
           <p className="notice__title">
-            {error.code === 'invalid_or_expired_link' ? 'This link no longer works' : 'The password was not saved'}
+            {error.status === 401 ? 'This link no longer works' : 'The password was not saved'}
           </p>
           <p>{error.status === 0 ? 'The server could not be reached. Try again.' : error.message}</p>
         </div>

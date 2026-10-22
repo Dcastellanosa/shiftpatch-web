@@ -9,49 +9,28 @@ import type {
   Shift,
 } from '../src/shared/api/client/index.ts'
 
-export const NURSE: SessionUser = {
-  id: 'u-nurse',
-  email: 'nurse@example.test',
-  fullName: 'Ava Thompson',
-  role: 'nurse',
-  agencyId: null,
-  agencyIds: [],
-}
-export const AGENCY: SessionUser = {
-  id: 'u-agency',
-  email: 'agency@example.test',
-  fullName: 'Riley Northwind',
-  role: 'agency',
-  agencyId: 'agency-1',
-  agencyIds: ['agency-1'],
-}
-export const ADMIN: SessionUser = {
-  id: 'u-admin',
-  email: 'admin@example.test',
-  fullName: 'Morgan Admin',
-  role: 'admin',
-  agencyId: null,
-  agencyIds: [],
-}
+/** The trial specification's accounts, as `POST /api/auth/login` reports them. */
+export const NURSE: SessionUser = { id: 'nurse-1', name: 'Maria Lopez', role: 'nurse' }
+export const AGENCY: SessionUser = { id: 'agency-a', name: 'Sunrise Health Staffing', role: 'agency' }
+export const ADMIN: SessionUser = { id: 'admin-1', name: 'Alex Kim', role: 'admin' }
 
+export const TEST_TOKEN = 'test-token'
+
+/** A sign-in response (`login` / `complete-password`). */
+export const authResponse = (user: SessionUser) => json(200, { token: TEST_TOKEN, user })
+
+/** The contract's flat shift shape (an overnight RN shift at agency-a). */
 export function makeShift(overrides: Partial<Shift> = {}): Shift {
   return {
-    id: '5f0c1d3e-0000-4000-8000-000000000001',
-    title: 'Med-Surg RN — Day',
-    startsAt: '2030-01-10T13:00:00.000Z',
-    endsAt: '2030-01-10T21:00:00.000Z',
+    id: 'shift-1',
+    agencyId: 'agency-a',
+    agencyName: 'Sunrise Health Staffing',
+    role: 'RN',
+    date: '2030-01-10',
+    startTime: '19:00',
+    endTime: '07:00',
     status: 'open',
-    branch: {
-      id: 'branch-1',
-      name: 'Downtown Clinic',
-      address: '120 Main Street',
-      timezone: 'America/New_York',
-      status: 'active',
-    },
-    agency: { id: 'agency-1', name: 'Northwind Care Staffing' },
-    assignedNurse: null,
-    createdAt: '2029-12-01T00:00:00.000Z',
-    updatedAt: '2029-12-01T00:00:00.000Z',
+    claimedBy: null,
     ...overrides,
   }
 }
@@ -68,8 +47,7 @@ export function stubApi(handlers: Record<string, Handler>) {
     const url = String(input)
     const method = (init.method ?? 'GET').toUpperCase()
     const handler = handlers[`${method} ${url}`] ?? handlers[`${method} ${url.split('?')[0]}`]
-    if (!handler)
-      return new Response(JSON.stringify({ error: { code: 'not_found', message: 'Route not found' } }), { status: 404 })
+    if (!handler) return new Response(JSON.stringify({ error: 'Route not found' }), { status: 404 })
     const { status, body } = handler(init)
     return new Response(body === undefined ? null : JSON.stringify(body), {
       status,

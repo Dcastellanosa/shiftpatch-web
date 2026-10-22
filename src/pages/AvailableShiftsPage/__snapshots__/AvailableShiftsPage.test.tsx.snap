@@ -17,7 +17,7 @@ exports[`shows the empty available-shifts state 1`] = `
       <p
         class="muted"
       >
-        Open shifts at branches where you are active.
+        Open shifts from every agency. Claim one and it is yours.
       </p>
     </div>
     <button
@@ -36,7 +36,7 @@ exports[`shows the empty available-shifts state 1`] = `
       No open shifts right now
     </p>
     <p>
-      New shifts appear here when an agency you work with posts them.
+      New shifts appear here as soon as an agency posts them.
     </p>
   </div>
 </section>

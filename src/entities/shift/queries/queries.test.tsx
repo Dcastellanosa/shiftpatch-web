@@ -8,9 +8,11 @@ import { MY_SHIFTS_QUERY_KEY, shiftKeys, useShiftEvents } from './index.ts'
 afterEach(() => vi.unstubAllGlobals())
 
 it('nests every shift key under the shared prefix', () => {
-  expect(shiftKeys.list({ status: 'open' })).toEqual(['shifts', 'list', { status: 'open' }])
+  expect(shiftKeys.list()).toEqual(['shifts', 'list'])
+  expect(shiftKeys.agency('agency-a')).toEqual(['shifts', 'agency', 'agency-a'])
   expect(shiftKeys.events('s-1')).toEqual(['shifts', 's-1', 'events'])
   expect(shiftKeys.list()[0]).toBe(shiftKeys.all[0])
+  expect(shiftKeys.agency('agency-a')[0]).toBe(shiftKeys.all[0])
   expect(MY_SHIFTS_QUERY_KEY).toEqual(['me', 'shifts'])
 })
 

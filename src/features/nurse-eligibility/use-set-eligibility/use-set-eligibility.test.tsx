@@ -32,7 +32,7 @@ it('activates with PUT and refreshes nurses and shifts', async () => {
 it('suspends with DELETE and reports a failure as an error toast', async () => {
   stubApi({
     [`DELETE /api/nurses/${NURSE_ID}/eligibility/${BRANCH_ID}`]: () =>
-      json(422, { error: { code: 'branch_inactive', message: 'This branch is inactive; eligibility cannot change' } }),
+      json(422, { error: 'This branch is inactive; eligibility cannot change' }),
   })
   const { result } = renderHook(useSetEligibility, { wrapper: withProviders() })
   await act(() => result.current.mutateAsync({ ...input, status: 'suspended' }).catch(() => undefined))

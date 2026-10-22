@@ -3,8 +3,9 @@ import { completePassword, type CompletePasswordInput } from '../../../shared/ap
 import { SESSION_QUERY_KEY } from '../use-session-query/index.ts'
 
 /**
- * Sets the password behind a link and, once the API has accepted it and set
- * its cookies, replaces the cache with the new session, like a login.
+ * Sets the password behind a link and, once the API has accepted it (the
+ * client now holds the returned token), replaces the cache with the new
+ * session, exactly like a login.
  *
  * Unlike `useLogin`, this mutation runs outside `SessionProvider`, so the
  * session query is overwritten in place (which notifies its observer) after

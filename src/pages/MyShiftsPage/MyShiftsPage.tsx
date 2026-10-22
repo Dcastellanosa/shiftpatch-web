@@ -14,12 +14,8 @@ function ShiftList({ shifts }: { shifts: Shift[] }) {
       {shifts.map((shift) => (
         <li key={shift.id} className="card shift-card">
           <div className="shift-card__main">
-            <h3 className="card__title">{shift.title}</h3>
-            <p className="shift-card__where">
-              <span>{shift.branch.name}</span>
-              <span className="muted"> · {shift.agency.name}</span>
-            </p>
-            <p className="muted small">{shift.branch.address}</p>
+            <h3 className="card__title">{shift.role}</h3>
+            <p className="shift-card__where">{shift.agencyName}</p>
             <ShiftWhen shift={shift} />
           </div>
           <StatusBadge status={shift.status} />

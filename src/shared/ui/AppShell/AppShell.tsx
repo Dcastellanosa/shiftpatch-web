@@ -35,7 +35,7 @@ export function AppShell({ role, children }: { role: UserRole | null; children: 
             </nav>
           )}
           <div className="account">
-            <span className="account__name">{user?.fullName ?? user?.email}</span>
+            <span className="account__name">{user?.name}</span>
             {role && <span className="role-chip">{ROLE_LABEL[role]}</span>}
             {/* The session gate (App) returns to `/` once the session has ended. */}
             <button type="button" className="btn btn--ghost" onClick={() => void logout()}>

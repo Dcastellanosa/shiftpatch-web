@@ -4,8 +4,8 @@ import { expect, it } from 'vitest'
 import type { ShiftStatus } from '../model/index.ts'
 import { StatusBadge } from './index.ts'
 
-it('renders every shift status', () => {
-  const statuses: ShiftStatus[] = ['open', 'claimed', 'completed', 'cancelled', 'no_show']
+it('renders both public shift statuses', () => {
+  const statuses: ShiftStatus[] = ['open', 'filled']
   const { container } = render(
     <>
       {statuses.map((status) => (

@@ -1,13 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
-import { listShiftEvents, type ShiftFilters } from '../../../shared/api/client/index.ts'
+import { listShiftEvents } from '../../../shared/api/client/index.ts'
 
 /**
  * Query keys for shift data. Everything hangs off `['shifts']` so one
- * invalidation after a claim or a create refreshes every list and history.
+ * invalidation after a claim, a cancellation or a post refreshes every list
+ * and history.
  */
 export const shiftKeys = {
   all: ['shifts'] as const,
-  list: (filters: ShiftFilters = {}) => ['shifts', 'list', filters] as const,
+  /** The marketplace (every agency). */
+  list: () => ['shifts', 'list'] as const,
+  /** One agency's own shifts. */
+  agency: (agencyId: string) => ['shifts', 'agency', agencyId] as const,
   events: (shiftId: string) => ['shifts', shiftId, 'events'] as const,
 }
 

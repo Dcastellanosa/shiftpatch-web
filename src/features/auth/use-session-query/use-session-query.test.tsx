@@ -1,32 +1,26 @@
 // @vitest-environment jsdom
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
-import { NURSE, json, stubApi } from '../../../../tests/fake-api.ts'
+import { stubApi } from '../../../../tests/fake-api.ts'
 import { withProviders } from '../../../../tests/render-with-providers.tsx'
 import { SESSION_QUERY_KEY, sessionQueryOptions, useSessionQuery } from './index.ts'
 
 afterEach(() => vi.unstubAllGlobals())
 
-it('is keyed as ["session"], never goes stale and ignores window focus', () => {
+it('is keyed as ["session"], never goes stale and is never refetched', () => {
   expect(SESSION_QUERY_KEY).toEqual(['session'])
   expect(sessionQueryOptions.queryKey).toEqual(['session'])
   expect(sessionQueryOptions.staleTime).toBe(Infinity)
+  expect(sessionQueryOptions.gcTime).toBe(Infinity)
   expect(sessionQueryOptions.refetchOnWindowFocus).toBe(false)
+  expect(sessionQueryOptions.refetchOnMount).toBe(false)
+  expect(sessionQueryOptions.refetchOnReconnect).toBe(false)
 })
 
-it('reads the session once from GET /api/auth/me', async () => {
-  const fetchMock = stubApi({ 'GET /api/auth/me': () => json(200, { user: NURSE }) })
-  const { result, rerender } = renderHook(useSessionQuery, { wrapper: withProviders() })
-  await waitFor(() => expect(result.current.data).toEqual(NURSE))
-  rerender()
-  expect(fetchMock.mock.calls.map(([url]) => String(url))).toEqual(['/api/auth/me'])
-})
-
-it('resolves to null when the API reports no session', async () => {
-  stubApi({
-    'GET /api/auth/me': () => json(401, { error: { code: 'unauthenticated', message: 'Authentication required' } }),
-  })
+it('starts anonymous without asking the server (the token lives only in memory)', () => {
+  const fetchMock = stubApi({})
   const { result } = renderHook(useSessionQuery, { wrapper: withProviders() })
-  await waitFor(() => expect(result.current.isSuccess).toBe(true))
   expect(result.current.data).toBeNull()
+  expect(result.current.isPending).toBe(false)
+  expect(fetchMock).not.toHaveBeenCalled()
 })

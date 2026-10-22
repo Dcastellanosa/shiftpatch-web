@@ -38,7 +38,7 @@ it('shows the empty state and an error state with retry', async () => {
 
   stubApi({
     'GET /api/branches': () => json(200, { branches: [] }),
-    'GET /api/agency/nurses': () => json(403, { error: { code: 'forbidden', message: 'Forbidden' } }),
+    'GET /api/agency/nurses': () => json(403, { error: 'Forbidden' }),
   })
   renderWithProviders(<AgencyNursesPage />, { path: '/agency/nurses' })
   expect(await screen.findByText('Something went wrong')).toBeTruthy()
